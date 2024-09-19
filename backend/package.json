@@ -1,0 +1,11 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "backend for m3",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run"
+  },
+  "author": "candorada",
+  "license": "MIT"
+}
