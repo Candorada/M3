@@ -1,12 +1,16 @@
-import express from 'express'
-
-const app = express()
-
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+let express = require('express');
+const app = express();
+const fileSystem = require("fs");
+app.get('/',(req,res)=>{
+    res.send({"test":"valu"});
 })
 
-app.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
+app.get('/extensionList',(req,res)=>{
+    res.send(fileSystem.readdirSync("./extensions"));
+    
+
+})
+const port = 3000
+app.listen(port,()=>{
+    console.log(`Server is running on port ${port}\nhttp://localhost:${port}`);
 })
