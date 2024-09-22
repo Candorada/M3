@@ -1,0 +1,10 @@
+#sideNav{
+    background-color:rgb(39, 38, 38);
+    height: 100%;
+    width: 40px;
+    padding:10px;
+}
+img{
+    width: 100%;
+    filter:opacity(0.5);
+}
