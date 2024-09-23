@@ -5,10 +5,13 @@ import "./App.css"
 import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
 let sideNavRouter = createBrowserRouter([
   {
-    errorElement: <Navigate to="/library" />,
+    errorElement: <div>Error 404 page not found <a href="/">return</a></div>,
+  },{
+    path: "/",
+    element: <Navigate to="/library" />,
   },
   {
-    path: "/library",
+    path: "library",
     element: <Library />
   },
   {
