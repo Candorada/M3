@@ -8,7 +8,9 @@ function App() {
   return (
     <>
       <SideNav />
+      <div id = "currentPage">
       <Library />
+      </div>
     </>
   );
 }

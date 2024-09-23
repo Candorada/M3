@@ -1,8 +1,12 @@
 import "./library.css";
+let categories = ["manga","comics","movies","games","ebooks","audiobooks"]
 function Library() {
     return (<>
         <div id="library">
-            <h1>Library</h1>
+            <div id = "topbar">
+            {categories.map((category)=><button class = "category">{category}</button>)}
+            <button id = "addCategory">+</button>
+            </div>
         </div>
     </>)
 }

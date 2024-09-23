@@ -1,0 +1,36 @@
+#library{
+    display:flex;
+    width: 100%;
+    
+}
+#topbar{
+    display: flex;
+    width: 100%;
+    height: 50px;
+    padding: 5px;
+    gap:5px;
+    overflow-x: scroll;
+    align-items: center;
+    scrollbar-width: none;
+    
+}
+.category{
+    background-color: red;
+    padding:12px 10px;
+    border:none;
+    background-color: transparent;
+}
+.category:hover{
+    background-color:rgba(255,255,255,0.2);
+}
+#addCategory{
+    background-color: transparent;
+    border: none;
+    width: 20px;
+    height: 20px;
+}
+#addCategory:hover{
+    background-color:rgba(255,255,255,0.2);
+    border-radius: 2px;
+    border: none
+}
