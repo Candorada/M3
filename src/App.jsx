@@ -2,14 +2,27 @@ import { useState } from "react";
 import SideNav from "./SideNavBar";
 import Library from "./library";
 import "./App.css"
+import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
+let sideNavRouter = createBrowserRouter([
+  {
+    errorElement: <Navigate to="/library" />,
+  },
+  {
+    path: "/library",
+    element: <Library />
+  },
+  {
+    path: "/extensions",
+    element: <h1>Extensions</h1>,
+  },
+])
 function App() {
   const [count, setCount] = useState(0);
-
   return (
     <>
-      <SideNav />
+      <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
       <div id = "currentPage">
-      <Library />
+      <RouterProvider router = {sideNavRouter}/>
       </div>
     </>
   );

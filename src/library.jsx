@@ -4,7 +4,7 @@ function Library() {
     return (<>
         <div id="library">
             <div id = "topbar">
-            {categories.map((category)=><button class = "category">{category}</button>)}
+            {categories.map((category)=><button key = {category} className = "category">{category}</button>)}
             <button id = "addCategory">+</button>
             </div>
         </div>

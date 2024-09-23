@@ -1,12 +1,20 @@
 import "./sideNav.css"
-import books from "./assets/books.png"
-function SideNav() {
+import booksIcon from "./assets/books.png"
+import extensionsIcon from "./assets/extensionsIcon.png"
+import Library from "./library"
+function SideNav({selected}) {
+    function SideNavItem({linkTo, img}){
+        return (<>
+            <a href = {`/${linkTo}`} className = {(linkTo === selected ||linkTo=="library"&&selected=="" ? "selected " : "") + "sideNavItem"}> 
+            <div style={{maskImage: `url(${img})`}}></div>
+            </a>
+        </>)
+    }
     return (
     <>
         <div id="sideNav">
-            <a href="">
-                <img src= {books} alt="Books"/>
-            </a>
+            <SideNavItem linkTo = "library" img = {booksIcon}/>
+            <SideNavItem linkTo = "extensions" img = {extensionsIcon}/>
         </div>
     </>
     )
