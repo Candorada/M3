@@ -16,6 +16,10 @@ app.get("/extensionList", (req, res) => {
   res.send(fileSystem.readdirSync("./extensions"));
 });
 
+app.get("/test", (req, res) => {
+  res.download("../test.txt");
+});
+
 app.get("/library", (req, res) => {
   res.json({
     categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks"],
