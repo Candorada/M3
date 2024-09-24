@@ -1,12 +1,13 @@
 let express = require("express");
 const app = express();
+const cors = require("cors");
 const fileSystem = require("fs");
 let filenames = fileSystem.readdirSync(__dirname);
 let names = [];
 filenames.forEach((file) => {
   names.push(file);
 });
-
+app.use(cors());
 app.get("/", (req, res) => {
   res.json({ test: names });
 });
