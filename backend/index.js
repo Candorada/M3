@@ -17,7 +17,10 @@ app.get("/extensionList", (req, res) => {
 });
 
 app.get("/library", (req, res) => {
-  res.json({ categories: ["hi", "balls"], balls: "bye" });
+  res.json({
+    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks"],
+    balls: "bye",
+  });
 });
 
 const port = 3000;
