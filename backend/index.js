@@ -1,16 +1,21 @@
-let express = require('express');
+let express = require("express");
 const app = express();
 const fileSystem = require("fs");
-app.get('/',(req,res)=>{
-    res.send({"test":"valu"});
-})
+let filenames = fileSystem.readdirSync(__dirname);
+names = [];
+filenames.forEach((file) => {
+  names.push(file);
+});
 
-app.get('/extensionList',(req,res)=>{
-    res.send(fileSystem.readdirSync("./extensions"));
-    
+app.get("/", (req, res) => {
+  res.send({ test: names });
+});
 
-})
-const port = 3000
-app.listen(port,()=>{
-    console.log(`Server is running on port ${port}\nhttp://localhost:${port}`);
-})
+app.get("/extensionList", (req, res) => {
+  res.send(fileSystem.readdirSync("./extensions"));
+});
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}\nhttp://localhost:${port}`);
+});
+
