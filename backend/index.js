@@ -16,8 +16,23 @@ app.get("/extensionList", (req, res) => {
   res.send(fileSystem.readdirSync("./extensions"));
 });
 
-app.get("/test", (req, res) => {
-  res.download("../test.txt");
+app.get("/test", async (req, res) => {
+  let img = await await fetch(
+    "https://cdn-icons-png.flaticon.com/512/3460/3460831.png",
+  );
+  res.set("Content-Type", "image/png");
+  res.send(Buffer.from(await img.arrayBuffer()));
+});
+
+app.get("/html", (req, res) => {
+  res.send(
+    "<a href = 'https://www.google.com'>html stuff</a> <br></br> <a>hi</a>",
+  );
+});
+
+app.get("/render", (req, res) => {
+  console.log("ass");
+  res.send("balls");
 });
 
 app.get("/library", (req, res) => {
