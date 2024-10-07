@@ -11,7 +11,7 @@ let sideNavRouter = createBrowserRouter([
     element: <Navigate to="/library" />,
   },
   {
-    path: "library",
+    path: "/library",
     element: <Library />
   },
   {
