@@ -11,7 +11,6 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.json({ test: names });
 });
-
 app.get("/extensionList", (req, res) => {
   res.send(fileSystem.readdirSync("./extensions"));
 });
