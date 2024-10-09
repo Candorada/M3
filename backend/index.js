@@ -19,6 +19,7 @@ app.get("/test", async (req, res) => {
   let img = await await fetch(
     "https://cdn-icons-png.flaticon.com/512/3460/3460831.png",
   );
+  console.log(img.arrayBuffer);
   res.set("Content-Type", "image/png");
   res.send(Buffer.from(await img.arrayBuffer()));
 });
