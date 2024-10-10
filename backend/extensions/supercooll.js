@@ -1,5 +1,6 @@
 function search() {
   return [1, 2, 3];
 }
-export default { search };
+
+module.exports = { search: search };
 

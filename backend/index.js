@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 
 app.get("/:extension/search", (req, res) => {
   const extension = require("./extensions/supercooll.js");
-  res.send(extension.search);
+  res.send(extension.search());
   //TODO: make compatible with multiple extensions later :)
 });
 
