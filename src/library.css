@@ -5,6 +5,13 @@
     flex-direction: column;
     overflow:hidden;
 }
+#library >tr:has(#topbar){
+    height: fit-content;
+}
+#library >tr:has(#libraryItemHolder){
+    height: 100%;
+    overflow-y: scroll;
+}
 #topbar{
     display: flex;
     width: 100%;
@@ -12,7 +19,7 @@
     padding: 5px;
     gap:5px;
     overflow-x: scroll;
-    align-items: center;
+    justify-content: center;
     scrollbar-width: none;
     
 }
@@ -20,52 +27,59 @@
     background-color: red;
     padding:12px 10px;
     border:none;
+    transition: background-color 0.1s ease-in-out;
+    border-radius: 6px;
     background-color: transparent;
 }
-.category:hover{
+.category:active{
     background-color:rgba(255,255,255,0.2);
 }
 #addCategory{
+    transition: background-color 0.1s ease-in-out;
+    box-sizing: border-box;
+    margin:auto 0 auto 0 ;
     background-color: transparent;
-    border: none;
     width: 20px;
+    border:none;
+    border-radius: 6px;
     height: 20px;
 }
-#addCategory:hover{
+#addCategory:active{
     background-color:rgba(255,255,255,0.2);
-    border-radius: 2px;
-    border: none
+    border-radius: 6px;
 }
 #libraryItemHolder{
     display: grid;
     grid-gap: 5px;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    /*grid-auto-rows: 400px;*/
+    /*grid-auto-rows: 200px;*/
     justify-items: stretch;
     align-items: stretch;
     width: 100%;
-    height: 100%;
-    overflow-y: scroll;
 }
 .libraryItem{
+    position: relative;
     display: block;
-    height: 100%;
     width: 100%;
+    height: 100%;
     aspect-ratio: 0.75; /* 300px width to 400px height */
 }
 .libraryItem > img{
+    position: absolute;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 .tokens{
+    z-index: 1;
+    width: 100%;
     position:relative;
-    height: 0px;
     top:4.5px;
-    float:right;
 }
 .tokens > span{
-    background-color: red;
+    background: var(--secondary2); /*colors are in index.css*/
+    float:right;
+    line-height: 16px;
     padding: 2px 8px;
     border-radius: 6px;
     margin-right: 5px;

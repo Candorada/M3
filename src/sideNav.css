@@ -16,5 +16,5 @@
     background-color: rgb(255,255,255,0.7);
 }
 .selected > div{
-    background-color: purple;
+    background-color: var(--secondary2);
 }

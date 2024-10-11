@@ -1,7 +1,6 @@
 import "./sideNav.css"
 import booksIcon from "./assets/books.png"
 import extensionsIcon from "./assets/extensionsIcon.png"
-import Library from "./library"
 function SideNav({selected}) {
     function SideNavItem({linkTo, img}){
         return (<>
