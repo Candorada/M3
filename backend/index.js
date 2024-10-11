@@ -3,16 +3,43 @@ const app = express();
 const cors = require("cors");
 const fileSystem = require("fs");
 const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database(":memory:");
+const db = new sqlite3.Database("media.db");
 let filenames = fileSystem.readdirSync(__dirname);
 let names = [];
 filenames.forEach((file) => {
   names.push(file);
 });
 app.use(cors());
+
+db.serialize(() => {
+  db.run(
+    `CREATE TABLE IF NOT EXISTS comics (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+name TEXT NOT NULL,
+source TEXT NOT NULL,
+upload_date TEXT NOT NULL,
+recent_access TEXT NOT NULL
+)`,
+    (err) => {
+      if (err) {
+        console.error("Error creating table:", err.message);
+      } else {
+        console.log("Table created or already exits");
+      }
+    },
+  );
+});
+
 app.get("/", (req, res) => {
   res.json({ test: names });
 });
+
+app.get("/:extension/search", (req, res) => {
+  const extension = require("./extensions/supercooll.js");
+  res.send(extension.search());
+  //TODO: make compatible with multiple extensions later :)
+});
+
 app.get("/extensionList", (req, res) => {
   res.send(fileSystem.readdirSync("./extensions"));
 });
@@ -39,7 +66,7 @@ app.get("/render", (req, res) => {
 
 app.get("/library", (req, res) => {
   res.json({
-    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks"],
+    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks", "music"],
     balls: "bye",
   });
 });
