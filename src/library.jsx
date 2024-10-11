@@ -31,7 +31,8 @@ function Library() {
                 <button id = "addCategory">+</button>
                 </div>
             </tr>
-            <tr id = "libraryItemHolder">
+            <tr>
+                <div id = "libraryItemHolder">
                 <LibItem img = {adress} remainingContent={10}/>
                 <LibItem img = {adress} remainingContent={10}/>
                 <LibItem img = {adress} remainingContent={10}/>
@@ -39,7 +40,9 @@ function Library() {
                 <LibItem img = {adress} remainingContent={10}/>
                 <LibItem img = {adress} remainingContent={10}/>
                 <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
+                <LibItem img = {adress} remainingContent={10}/> 
+                </div>
+
             </tr>
         </table>
     </>)

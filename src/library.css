@@ -37,16 +37,21 @@
     border: none
 }
 #libraryItemHolder{
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    /*grid-auto-rows: 400px;*/
+    justify-items: stretch;
+    align-items: stretch;
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-wrap: wrap;
     overflow-y: scroll;
 }
 .libraryItem{
-    max-width: 200px;
-    max-height: 300px;
-    border: 3px solid transparent;
+    display: block;
+    height: 100%;
+    width: 100%;
+    aspect-ratio: 0.75; /* 300px width to 400px height */
 }
 .libraryItem > img{
     width: 100%;
