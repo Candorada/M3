@@ -66,7 +66,7 @@ app.get("/render", (req, res) => {
 
 app.get("/library", (req, res) => {
   res.json({
-    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks"],
+    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks", "music"],
     balls: "bye",
   });
 });
