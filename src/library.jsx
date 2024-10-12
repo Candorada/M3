@@ -23,6 +23,10 @@ function Library() {
     useEffect(()=>{catFetch()},[])
    
     var adress = "https://m.media-amazon.com/images/I/8125YqX-awL._AC_UF894,1000_QL80_.jpg"
+    var libraryItems = new Array(100);
+    for(let i=0;i<libraryItems.length;i++){
+        libraryItems[i] = <LibItem img = {adress} remainingContent={10}/>
+    }
     return (<>
         <table id="library">
             <tr>
@@ -33,14 +37,7 @@ function Library() {
             </tr>
             <tr>
                 <div id = "libraryItemHolder">
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/>
-                <LibItem img = {adress} remainingContent={10}/> 
+                    {libraryItems}
                 </div>
 
             </tr>
