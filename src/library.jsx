@@ -14,7 +14,7 @@ function LibItem({img,title,remainingContent}){
 }
 function Library() {
     const [categories, setCat] = useState(["Default"]);
-    const catFetch = async () => {
+    const catFetch = async () => {y
         let res = await fetch("http://localhost:3000/library");
         console.log(res)
         setCat((await res.json()).categories);
@@ -23,7 +23,7 @@ function Library() {
     useEffect(()=>{catFetch()},[])
    
     var adress = "https://m.media-amazon.com/images/I/8125YqX-awL._AC_UF894,1000_QL80_.jpg"
-    var libraryItems = new Array(100);
+    var libraryItems = new Array(10);
     for(let i=0;i<libraryItems.length;i++){
         libraryItems[i] = <LibItem img = {adress} remainingContent={10}/>
     }
