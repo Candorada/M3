@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SideNav from "./SideNavBar";
 import Library from "./library";
+import ExtensionsPage from "./extensionsUI/extenisonsUI";
 import "./App.css"
 import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
 let sideNavRouter = createBrowserRouter([
@@ -16,7 +17,7 @@ let sideNavRouter = createBrowserRouter([
   },
   {
     path: "/extensions",
-    element: <h1>Extensions</h1>,
+    element: <ExtensionsPage />,
   },
 ])
 function App() {
@@ -24,6 +25,7 @@ function App() {
   return (
     <>
       <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
+      
       <div id = "currentPage">
       <RouterProvider router = {sideNavRouter}/>
       </div>
