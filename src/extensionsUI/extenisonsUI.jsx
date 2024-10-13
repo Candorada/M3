@@ -1,27 +1,41 @@
+import React, { useState, useEffect } from "react";
 import "./style.css";
-let extensions = [
-    {"name" : "SoundCloud"},
-    {"name" : "GitHub"},
-    {"name" : "youtube"}
-]
 
-function Extension({extension}){
-    return(<>
-    <div class = "extension">
-        <label>
-            {extension.name}
-        </label>
+function Extension({ extension }) {
+  return (
+    <div className="extension">
+      <label>{extension.name}</label>
     </div>
-    </>)
-        
+  );
 }
 
-function ExtensionsPage(){
-    return(<>
+function ExtensionsPage() {
+  const [extensions, setExtensions] = useState([
+    { name: "SoundCloud" },
+    { name: "GitHub" },
+    { name: "youtube" },
+  ]);
 
-    {extensions.map((ex) => (<Extension extension = {ex} />))}
+  useEffect(() => {
+    fetch("http://localhost:3000/extensionList")
+      .then((response) => response.json())
+      .then((data) => {
+        setExtensions(
+          data.map((extension) => ({
+            name: extension,
+          })),
+        );
+      });
+  });
 
-    </>)
+  return (
+    <>
+      {extensions.map((ex, index) => (
+        <Extension key={index} extension={ex} />
+      ))}
+    </>
+  );
 }
 
 export default ExtensionsPage;
+

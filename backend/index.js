@@ -2,13 +2,13 @@ let express = require("express");
 const app = express();
 const cors = require("cors");
 const fileSystem = require("fs");
+const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
-let filenames = fileSystem.readdirSync(__dirname);
-let names = [];
-filenames.forEach((file) => {
-  names.push(file);
-});
+
+const extensionPath = path.join(__dirname, "extensions");
+let filenames = fileSystem.readdirSync(extensionPath);
+
 app.use(cors());
 
 db.serialize(() => {
@@ -35,13 +35,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:extension/search", (req, res) => {
-  const extension = require("./extensions/supercooll.js");
+  const extension = require("./extensions/template/template.js");
   res.send(extension.search());
   //TODO: make compatible with multiple extensions later :)
 });
 
 app.get("/extensionList", (req, res) => {
-  res.send(fileSystem.readdirSync("./extensions"));
+  res.json(filenames);
 });
 
 app.get("/test", async (req, res) => {
@@ -66,7 +66,15 @@ app.get("/render", (req, res) => {
 
 app.get("/library", (req, res) => {
   res.json({
-    categories: ["manga", "comics", "movies", "games", "ebooks", "audiobooks", "music"],
+    categories: [
+      "manga",
+      "comics",
+      "movies",
+      "games",
+      "ebooks",
+      "audiobooks",
+      "music",
+    ],
     balls: "bye",
   });
 });

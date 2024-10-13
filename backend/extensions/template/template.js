@@ -1,6 +1,5 @@
 function search() {
-  return [1, 2, 3];
+  return { hi: "hi", bye: "bye" };
 }
 
 module.exports = { search: search };
-
