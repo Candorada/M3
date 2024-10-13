@@ -3,8 +3,8 @@ import "./library.css";
 //let categories = ["manga","comics","movies","games","ebooks","audiobooks"]
 function LibItem({img,title,remainingContent}){
     return (<>
-        <div class = "libraryItem">
-            <div class = "tokens">
+        <div className = "libraryItem">
+            <div className = "tokens">
                 <span>{remainingContent}</span>
                 <span>{remainingContent}</span>
             </div>
@@ -14,7 +14,7 @@ function LibItem({img,title,remainingContent}){
 }
 function Library() {
     const [categories, setCat] = useState(["Default"]);
-    const catFetch = async () => {y
+    const catFetch = async () => {
         let res = await fetch("http://localhost:3000/library");
         console.log(res)
         setCat((await res.json()).categories);
@@ -25,23 +25,22 @@ function Library() {
     var adress = "https://m.media-amazon.com/images/I/8125YqX-awL._AC_UF894,1000_QL80_.jpg"
     var libraryItems = new Array(10);
     for(let i=0;i<libraryItems.length;i++){
-        libraryItems[i] = <LibItem img = {adress} remainingContent={10}/>
+        libraryItems[i] = <LibItem img = {adress} remainingContent={10} key = {i}/>
     }
     return (<>
-        <table id="library">
-            <tr>
-                <div id = "topbar">
-                {categories.map((category)=><button key = {category} className = "category">{category}</button>)}
-                <button id = "addCategory">+</button>
+        <div id="library">
+                <div>
+                    <div id = "topbar">
+                        {categories.map((category)=><button key = {category} className = "category">{category}</button>)}
+                        <button id = "addCategory" key = "addCategory">+</button>
+                    </div>
                 </div>
-            </tr>
-            <tr>
-                <div id = "libraryItemHolder">
-                    {libraryItems}
+                <div>
+                    <div id = "libraryItemHolder">
+                        {libraryItems}
+                    </div>
                 </div>
-
-            </tr>
-        </table>
+        </div>
     </>)
 }
 

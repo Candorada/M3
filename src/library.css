@@ -5,10 +5,10 @@
     flex-direction: column;
     overflow:hidden;
 }
-#library >tr:has(#topbar){
+#library >div:has(#topbar){
     height: fit-content;
 }
-#library >tr:has(#libraryItemHolder){
+#library >div:has(#libraryItemHolder){
     height: 100%;
     overflow-y: scroll;
 }
