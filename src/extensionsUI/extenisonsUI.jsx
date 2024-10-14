@@ -11,9 +11,7 @@ function Extension({ extension }) {
 
 function ExtensionsPage() {
   const [extensions, setExtensions] = useState([
-    { name: "SoundCloud" },
-    { name: "GitHub" },
-    { name: "youtube" },
+    { name: "ExtensionsAreLoading" }
   ]);
 
   useEffect(() => {
