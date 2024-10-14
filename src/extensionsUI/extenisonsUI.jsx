@@ -20,12 +20,14 @@ function ExtensionsPage() {
     fetch("http://localhost:3000/extensionList")
       .then((response) => response.json())
       .then((data) => {
+        // Update the state with the fetched extensions
         setExtensions(
           data.map((extension) => ({
             name: extension,
           })),
         );
-      });
+      })
+      .catch((error) => console.error("Error fetching array:", error));
   });
 
   return (
