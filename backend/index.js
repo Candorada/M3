@@ -31,11 +31,12 @@ recent_access TEXT NOT NULL
 });
 
 app.get("/", (req, res) => {
-  res.json({ test: names });
+  res.json({ test: filenames });
 });
 
 app.get("/:extension/search", (req, res) => {
   const extension = require("./extensions/template/template.js");
+  extension(app);
   res.send(extension.search());
   //TODO: make compatible with multiple extensions later :)
 });

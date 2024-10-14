@@ -1,15 +1,18 @@
 # React + Vite Cause why not ...
-# And Node as well
+
+# And Express as well
+
+# with some sql
 
 ### <ins>Running the Website</ins>
 
-Enter In the terminal: 
+Enter In the terminal:
 
-_try:_ 
+_try:_
 
     npm run dev
 
-_else try_: 
+_else try_:
 
     npm i
 
@@ -22,5 +25,3 @@ Delete **node_modules**
     npm i
 
     npm run dev
-
-

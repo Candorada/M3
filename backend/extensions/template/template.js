@@ -31,5 +31,5 @@ await (await fetch('http://localhost:3000/example/getInfo', {
 */
 module.exports = {
   search: search,
-  getInfo: getInfo
+  getInfo: getInfo,
 };
