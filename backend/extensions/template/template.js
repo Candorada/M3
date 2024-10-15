@@ -1,7 +1,6 @@
 async function search() {
   return { hi: "hi", bye: "bye" };
 }
-
 async function getInfo(URL){
   const htmldata = await (await fetch("https://chapmanganato.to/manga-wf999362")).text()
   const regex = /<li[^>]*>((?:(?!<\/li)(?:.|\s))*)<\/li>/g
