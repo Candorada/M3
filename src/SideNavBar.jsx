@@ -1,7 +1,7 @@
 import "./sideNav.css"
 import booksIcon from "./assets/books.png"
 import extensionsIcon from "./assets/extensionsIcon.png"
-import {  BrowserRouter as Router, Link } from "react-router-dom";
+import { Router, Link } from "react-router-dom";
 function SideNav({selected}) {
     function SideNavItem({linkTo, img}){
         return (<>
