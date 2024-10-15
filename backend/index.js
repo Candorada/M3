@@ -15,7 +15,12 @@ function updateExtensionList(){
   let filenames = fileSystem.readdirSync(extensionPath);
   filenames.forEach((name)=>{
     if(name.charAt(0)!="."){
-      extensions[name] = require("./extensions/"+name)
+      try{
+        const x = require("./extensions/"+name)
+        extensions[name] = x
+      }catch{
+        console.log("error file in the extension library")
+      }
     }
   })
 }
