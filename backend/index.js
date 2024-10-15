@@ -34,14 +34,13 @@ app.get("/", (req, res) => {
   res.json({ test: filenames });
 });
 
-app.get("/:extension/search", (req, res) => {
-  const extension = require("./extensions/template/template.js");
-  extension(app);
-  res.send(extension.search());
+app.get("/:extension/search/:query",async (req, res) => {
+  const extension = require("./extensions/"+req.params.extension+"/index.js");
+  res.send(await extension.search(req.params.query));
   //TODO: make compatible with multiple extensions later :)
 });
 app.post("/:extension/getInfo", async (req, res) => {
-  const extension = require("./extensions/template/template.js");
+  const extension = require("./extensions/template/index.js");
   const body = req.body;
   res.json(await extension.getInfo(body.url));
   //TODO: make compatible with multiple extensions later :)
