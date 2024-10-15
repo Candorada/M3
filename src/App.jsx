@@ -3,7 +3,7 @@ import SideNav from "./SideNavBar";
 import Library from "./library";
 import ExtensionsPage from "./extensionsUI/extenisonsUI";
 import "./App.css"
-import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
+import { Navigate,RouterProvider, createBrowserRouter, useParams} from "react-router-dom";
 let sideNavRouter = createBrowserRouter([
   {
     errorElement: <div>Error 404 page not found <a href="/">return</a></div>,
@@ -25,7 +25,6 @@ function App() {
   return (
     <>
       <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
-      
       <div id = "currentPage">
       <RouterProvider router = {sideNavRouter}/>
       </div>
