@@ -12,13 +12,16 @@ let filenames = fileSystem.readdirSync(extensionPath);
 app.use(express.json());
 app.use(cors());
 db.serialize(() => {
+  //db.run(`DROP TABLE comics`);
   db.run(
     `CREATE TABLE IF NOT EXISTS comics (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
+id INTEGER PRIMARY KEY,
 name TEXT NOT NULL,
 source TEXT NOT NULL,
-upload_date TEXT NOT NULL,
-recent_acuess TEXT NOT NULL
+cover TEXT NOT NULL,
+tags TEXT,
+upload_date TEXT,
+recent_acuess TEXT
 )`,
     (err) => {
       if (err) {
@@ -35,14 +38,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:extension/search", (req, res) => {
-  const extension = require("./extensions/template/template.js");
+  const extension = require("./extensions/req.params.extension/index.js");
   extension(app);
   res.send(extension.search());
   //TODO: make compatible with multiple extensions later :)
 });
 app.post("/:extension/getInfo", async (req, res) => {
-  const extension = require("./extensions/template/template.js");
+  const extension = require("./extensions/req.params.extension/index.js");
   const body = req.body;
+  db.run(
+    "INSERT INTO comics (id, name, source, cover, tags) VALUES (body.name + " -
+      " + body.id ,body.name, body.url, body.cover, JSON.Stringify(body.tags))",
+  );
   res.json(await extension.getInfo(body.url));
   //TODO: make compatible with multiple extensions later :)
 });
