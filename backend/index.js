@@ -46,9 +46,16 @@ app.post("/:extension/getInfo", async (req, res) => {
   const extension = require("./extensions/template/index.js");
   const body = req.body;
   db.run(
-    "INSERT INTO comics (id, name, source, cover, tags) VALUES (body.name + " -
-      " + body.id ,body.name, body.url, body.cover, JSON.Stringify(body.tags))",
+    "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
+    [
+      `${body.name} - ${body.id}`,
+      body.name,
+      body.url,
+      body.cover,
+      JSON.stringify(body.tags),
+    ],
   );
+
   res.json(await extension.getInfo(body.url));
   //TODO: make compatible with multiple extensions later :)
 });
