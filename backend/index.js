@@ -6,9 +6,16 @@ const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
 
-const extensionPath = path.join(__dirname, "extensions");
-let filenames = fileSystem.readdirSync(extensionPath);
 
+var extensions = {}
+function updateExtensionList(){
+  const extensionPath = path.join(__dirname, "extensions");
+  let filenames = fileSystem.readdirSync(extensionPath);
+  filenames.forEach((name)=>{
+    extensions[name] = require("./extensions/"+name)
+  })
+}
+updateExtensionList()
 app.use(express.json());
 app.use(cors());
 db.serialize(() => {
@@ -34,16 +41,16 @@ recent_acuess TEXT
 });
 
 app.get("/", (req, res) => {
-  res.json({ test: filenames });
+  res.json(extensions);
 });
 
 app.get("/:extension/search/:query",async (req, res) => {
-  const extension = require("./extensions/"+req.params.extension+"/index.js");
+  const extension = extensions[req.params.extension];
   res.send(await extension.search(req.params.query));
   //TODO: make compatible with multiple extensions later :)
 });
 app.post("/:extension/getInfo", async (req, res) => {
-  const extension = require("./extensions/template/index.js");
+  const extension = extensions[req.params.extension];
   const body = req.body;
   db.run(
     "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
@@ -61,7 +68,8 @@ app.post("/:extension/getInfo", async (req, res) => {
 });
 
 app.get("/extensionList", (req, res) => {
-  res.json(filenames);
+  updateExtensionList()
+  res.json(extensions);
 });
 
 app.get("/test", async (req, res) => {

@@ -1,3 +1,10 @@
+const extensionProperties = {
+  name:"Manganato",
+  sourceUrl:"https://manganato.com/",
+  iconPath:"./icon.png", // can be webURL or path. Path must be relative, but can be relative to current directory
+  extensionType:0
+}
+
 async function search(search) {
   const result = await (await fetch("https://manganato.com/search/story/"+encodeURI(search))).text()
   return (a=result.split("panel-search-story")[1].split("search-story-item"),a.splice(0,1),a).map((str)=>({
@@ -37,4 +44,5 @@ await (await fetch('http://localhost:3000/example/getInfo', {
 module.exports = {
   search: search,
   getInfo: getInfo,
+  properties: extensionProperties
 };

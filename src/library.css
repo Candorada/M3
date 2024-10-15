@@ -1,4 +1,5 @@
 #library{
+    font-family: var(--font);
     display:flex;
     width: 100%;
     height: 100vh;

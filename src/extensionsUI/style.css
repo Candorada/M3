@@ -3,9 +3,23 @@
 .extension{
     margin-top: 2rem;
     margin-left: 1rem;
+    background-color: #1e2124;
+    padding: 1rem;
+    border-radius: 5px;
+    display: flex;
+    
 }
-
+.extension > *{
+    margin:auto 0 auto;
+}
+.extension > img{
+    width: 2rem;
+    margin-right: 0.5rem;
+}
 .extension>label{
     color: white;
+    font-weight: 500;
+    font-size: 1.2rem;
+    font-family:var(--font);
 
 }
