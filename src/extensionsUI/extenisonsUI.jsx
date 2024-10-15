@@ -14,7 +14,7 @@ function Extension({ extension }) {
 
 function ExtensionsPage() {
   const [extensions, setExtensions] = useState([]);
-
+  var selectedFile = null
   useEffect(() => {
     fetch("http://localhost:3000/extensionList")
       .then((response) => response.json())
@@ -30,9 +30,25 @@ function ExtensionsPage() {
       })
       .catch((error) => console.error("Error fetching array:", error));
   },[]);
+  const downloadExtension= async(e)=>{
+    e.preventDefault();
+    selectedFile = e.dataTransfer.files[0]
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    const response = await fetch('http://localhost:3000/downloadExtension', {
+      method: 'POST',
+      body: formData
+    });
+    if (response.ok) {
+      console.log('File uploaded successfully');
+    } else {
+      console.log('Error uploading file');
+    }
+  }
   return (
     <>
-    <div id = "extensionListHolder">
+    <div id = "extensionListHolder" onDrop={downloadExtension} onDragOver={(e)=>e.preventDefault()}>
       {extensions.map((extension) => (
           <Extension key={extension.id} extension={extension} />
         ))}

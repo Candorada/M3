@@ -2,7 +2,9 @@ let express = require("express");
 const app = express();
 const cors = require("cors");
 const fileSystem = require("fs");
-const path = require("path");
+const multer = require('multer'); //for downloading extensions via drag & drop
+const AdmZip = require('adm-zip');
+const path = require("path");//for downloading extensions via drag & drop
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
 
@@ -43,6 +45,56 @@ recent_acuess TEXT
 app.get("/", (req, res) => {
   res.json(extensions);
 });
+
+//extension download handler
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'extensions'));
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+// Set up multer for file uploads
+const upload = multer({ storage: storage });
+
+// Route for uploading files
+app.post("/downloadExtension", upload.single('file'), async (req, res) => {
+  // Check if a file was uploaded
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  console.log(`Uploaded file: ${req.file.originalname}`);
+  
+  // Check if the uploaded file is a ZIP file based on MIME types
+  const zipMimeTypes = ['application/zip', 'application/x-zip-compressed', 'application/x-zip', 'application/octet-stream'];
+  
+  if (zipMimeTypes.includes(req.file.mimetype)) {
+    const zipFilePath = req.file.path;
+    console.log(`Extracting ZIP file: ${zipFilePath}`);
+
+    try {
+      const zip = new AdmZip(zipFilePath);
+
+      // Extract all files to the extensions directory directly
+      zip.extractAllTo(path.join(__dirname, 'extensions'), true);
+      console.log(`ZIP file contents extracted directly to: ${path.join(__dirname, 'extensions')}`);
+
+      // Optionally, delete the ZIP file after extraction
+      fileSystem.unlinkSync(zipFilePath); // Removes the uploaded ZIP file
+      return res.status(200).send('ZIP file extracted successfully.');
+    } catch (error) {
+      console.error(`Error extracting ZIP file: ${error.message}`);
+      return res.status(500).send('Failed to extract ZIP file.');
+    }
+  }
+
+  return res.status(200).send('File uploaded successfully.');
+});
+//end of extension download handler
+
 
 app.get("/:extension/search/:query",async (req, res) => {
   const extension = extensions[req.params.extension];

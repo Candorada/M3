@@ -27,5 +27,6 @@ a{
 }
 #extensionListHolder{
     overflow-y: scroll;
+
     height: 100%;
 }

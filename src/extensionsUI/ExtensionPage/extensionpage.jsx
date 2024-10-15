@@ -23,7 +23,7 @@ function ExtensionPage(){
         })()
     })
     return (<>
-        <div id = "extensionPage">
+        <div id = "extensionPage" htmlFor ="fileInput">
             <div className = "leftItem">
                 <img src={extensionImagePathGetter(jsonData.properties.iconPath,extension)} alt="IconImg" />
                 <div><a href={jsonData.properties.sourceUrl}>Extension Source</a></div>
