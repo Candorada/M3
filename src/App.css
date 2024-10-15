@@ -5,4 +5,5 @@
 #currentPage{
     width: calc(100% - 50px);
     overflow: hidden;
+    height: 100vh;
 }

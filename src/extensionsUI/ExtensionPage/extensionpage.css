@@ -1,0 +1,27 @@
+#extensionPage{
+    width: 100%;
+    height: 100%;
+    font-family: var(--font);
+    display: flex;
+    padding:2rem;
+}
+.leftItem{
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+}
+.leftItem > img{
+    width: 10rem;
+    border-radius:  5px 5px 0px 0px;
+}
+.leftItem > div{
+    background-color: var(--primary3);
+    width: 10rem;
+    text-align: center;
+    border-radius: 0px 0px 5px 5px;
+
+}
+.rightItem{
+    padding: 1rem;
+    width: calc(100% - 10rem);
+}

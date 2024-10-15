@@ -2,8 +2,9 @@ import { useState } from "react";
 import SideNav from "./SideNavBar";
 import Library from "./library";
 import ExtensionsPage from "./extensionsUI/extenisonsUI";
+import ExtensionPage from "./extensionsUI/ExtensionPage/extensionpage"
 import "./App.css"
-import { Navigate,RouterProvider, createBrowserRouter, useParams} from "react-router-dom";
+import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
 let sideNavRouter = createBrowserRouter([
   {
     errorElement: <div>Error 404 page not found <a href="/">return</a></div>,
@@ -18,6 +19,10 @@ let sideNavRouter = createBrowserRouter([
   {
     path: "/extensions",
     element: <ExtensionsPage />,
+  },
+  {
+    path:"/extensions/:extension",
+    element: <ExtensionPage />
   },
 ])
 function App() {

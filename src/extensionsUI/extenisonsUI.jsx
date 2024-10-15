@@ -3,10 +3,12 @@ import "./style.css";
 
 function Extension({ extension }) {
   return (
+    <a href={"extensions/"+extension.id}>
     <div className="extension">
       <img src={extension.img} alt="" />
       <label>{extension.name}</label>
     </div>
+    </a>
   );
 }
 
@@ -30,9 +32,11 @@ function ExtensionsPage() {
   },[]);
   return (
     <>
+    <div id = "extensionListHolder">
       {extensions.map((extension) => (
-        <Extension key={extension.id} extension={extension} />
-      ))}
+          <Extension key={extension.id} extension={extension} />
+        ))}
+    </div>
     </>
   );
 }

@@ -2,7 +2,7 @@ const extensionProperties = {
   name:"Manganato",
   sourceUrl:"https://manganato.com/",
   iconPath:"./icon.png", // can be webURL or path. Path must be relative, but can be relative to current directory
-  extensionType:0
+  description:`This extension is really cool. it is made for Manganato`
 }
 
 async function search(search) {

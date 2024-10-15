@@ -3,11 +3,13 @@
 .extension{
     margin-top: 2rem;
     margin-left: 1rem;
-    background-color: #1e2124;
+    background-color: var(--primary3);
     padding: 1rem;
     border-radius: 5px;
     display: flex;
-    
+}
+a{
+    text-decoration: none;
 }
 .extension > *{
     margin:auto 0 auto;
@@ -21,5 +23,9 @@
     font-weight: 500;
     font-size: 1.2rem;
     font-family:var(--font);
-
+    pointer-events: none; /*this one allows the pointer to penetrate to the <a> element which is a link*/
+}
+#extensionListHolder{
+    overflow-y: scroll;
+    height: 100%;
 }
