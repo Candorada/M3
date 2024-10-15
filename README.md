@@ -49,3 +49,10 @@ Delete **node_modules**
     npm i
 
     npm run dev
+
+
+
+ToDo List
+
+- [ ] make extensions deletable within the UI
+- [ ] make library render based of database
