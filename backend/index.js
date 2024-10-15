@@ -14,7 +14,9 @@ function updateExtensionList(){
   const extensionPath = path.join(__dirname, "extensions");
   let filenames = fileSystem.readdirSync(extensionPath);
   filenames.forEach((name)=>{
-    extensions[name] = require("./extensions/"+name)
+    if(name.charAt(0)!="."){
+      extensions[name] = require("./extensions/"+name)
+    }
   })
 }
 updateExtensionList()
@@ -78,11 +80,26 @@ app.get("/", (req, res) => {
   
       try {
         const zip = new AdmZip(zipFilePath);
+        const outputDir = path.join(__dirname, 'extensions');
   
-        // Extract all files to the extensions directory directly
-        zip.extractAllTo(path.join(__dirname, 'extensions'), true);
-        console.log(`ZIP file contents extracted directly to: ${path.join(__dirname, 'extensions')}`);
+        // Iterate over each file in the ZIP
+        zip.getEntries().forEach(entry => {
+          const fileName = entry.entryName;
   
+          // Skip files that start with __ or .
+          if (!fileName.startsWith('__') && !fileName.startsWith('.')) {
+            const entryPath = path.join(outputDir, fileName);
+            if (entry.isDirectory) {
+              fileSystem.mkdirSync(entryPath, { recursive: true });  // Create directory if it's a folder
+            } else {
+              // Extract the file
+              fileSystem.writeFileSync(entryPath, entry.getData());
+              console.log(`Extracted: ${fileName}`);
+            }
+          } else {
+            console.log(`Skipped: ${fileName}`);
+          }
+        });
         // Optionally, delete the ZIP file after extraction
         fileSystem.unlinkSync(zipFilePath); // Removes the uploaded ZIP file
         return res.status(200).send('ZIP file extracted successfully.');
