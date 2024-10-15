@@ -6,7 +6,31 @@
 
 ### <ins>Running the Website</ins>
 
-Enter In the terminal:
+**Backend**
+
+Enter in the terminal (backend directory):
+
+_try:_
+
+    npm run dev
+
+_else try_:
+
+    npm i
+
+    npm run dev
+
+_else:_
+
+Delete **node_modules**
+
+    npm i
+
+    npm run dev
+
+**Frontend**
+
+Enter in the terminal (M3 directory):
 
 _try:_
 
