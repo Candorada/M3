@@ -18,11 +18,14 @@
     width: 100%;
     height: 50px;
     padding: 5px;
-    gap:5px;
-    overflow-x: scroll;
-    justify-content: center;
-    scrollbar-width: none;
+    overflow-x:auto;
+    overflow-y:hidden;
     
+}
+#topbar > *{
+    margin:auto;
+    display: flex;
+    flex-wrap: nowrap;
 }
 .category{
     background-color: red;

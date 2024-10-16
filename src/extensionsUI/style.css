@@ -26,7 +26,6 @@ a{
     pointer-events: none; /*this one allows the pointer to penetrate to the <a> element which is a link*/
 }
 #extensionListHolder{
-    overflow-y: scroll;
-
+    overflow-y: auto;
     height: 100%;
 }

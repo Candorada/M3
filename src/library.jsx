@@ -29,8 +29,8 @@ function Library() {
     }
     return (<>
         <div id="library">
-                <div>
-                    <div id = "topbar">
+                <div id = "topbar">
+                    <div>
                         {categories.map((category)=><button key = {category} className = "category">{category}</button>)}
                         <button id = "addCategory" key = "addCategory">+</button>
                     </div>

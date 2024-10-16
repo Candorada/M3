@@ -3,10 +3,19 @@
     width: 40px;
     padding:10px;
     display: flex;
+    gap: 10px;
     flex-direction: column;
 }
-.sideNavItem{
-    margin-bottom: 10px;
+@media (max-aspect-ratio: 1) {
+    #sideNav{
+        background-color:var(--primary2);
+        box-sizing: border-box;
+        display: flex;
+        height: 60px;
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+    }
 }
 .sideNavItem > div{
     width: 40px;

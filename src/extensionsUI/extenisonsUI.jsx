@@ -52,23 +52,6 @@ function ExtensionsPage() {
     }
   };
 
-  const handleClick = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/button-press", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: "Button pressed" }),
-      });
-
-      const data = await response.json();
-      console.log("Response from server:", data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   useEffect(() => {
     updateExtensionList();
   }, []);
@@ -82,9 +65,6 @@ function ExtensionsPage() {
         {extensions.map((extension) => (
           <Extension key={extension.id} extension={extension} />
         ))}
-        <button className="deleteButton" onClick={handleClick}>
-          delete
-        </button>
       </div>
     </>
   );

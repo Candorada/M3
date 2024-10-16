@@ -11,7 +11,9 @@ function ExtensionPage(){
             iconPath:"../../../src/extensionsUI/Error.jpg",
             description:"Example Description",
             name:"Example",
-            sourceUrl:"./",
+            sourceUrl:"./", //url that extension is fetching from
+            creator:"John Doe",
+            creatorSocials:""
         }
     })
     useEffect(()=>{
@@ -23,14 +25,23 @@ function ExtensionPage(){
         })()
     })
     return (<>
-        <div id = "extensionPage" htmlFor ="fileInput">
-            <div className = "leftItem">
-                <img src={extensionImagePathGetter(jsonData.properties.iconPath,extension)} alt="IconImg" />
-                <div><a href={jsonData.properties.sourceUrl}>Extension Source</a></div>
-            </div>
-            <div className="rightItem">
-                <h3>{jsonData.properties.name}</h3>
-                {jsonData.properties.description}
+        <div id = "extensionPage">
+            <div className = "top">
+                <div className = "leftItem">
+                    <img src={extensionImagePathGetter(jsonData.properties.iconPath,extension)} alt="IconImg" />
+                    <div><a href={jsonData.properties.sourceUrl}>Extension Source</a></div>
+                </div>
+                <div className="rightItem">
+                    <div>
+                        <div className = "title">
+                        {jsonData.properties.name}
+                        </div>
+                        <a className = "creator" href = {jsonData.properties.creatorSocials}>
+                        By:{jsonData.properties.creator}
+                        </a>
+                    </div>
+                    <div dangerouslySetInnerHTML={{__html:jsonData.properties.description}} id = "extensionDescription"></div>
+                </div>
             </div>
         </div>
     </>)

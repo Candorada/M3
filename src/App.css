@@ -7,3 +7,12 @@
     overflow: hidden;
     height: 100vh;
 }
+@media (max-aspect-ratio: 1) {
+    #root{
+        flex-direction: column-reverse;
+    }
+    #currentPage{
+        height: calc(100vh - 60px);
+        width: 100%;
+    }
+}
