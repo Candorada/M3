@@ -50,6 +50,7 @@ Delete **node_modules**
 
     npm run dev
 
+*To kill a server without killing the whole terminal press _ctrl + c_
 
 
 ToDo List
