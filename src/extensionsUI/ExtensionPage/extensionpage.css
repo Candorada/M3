@@ -4,10 +4,17 @@
     height: 100%;
     font-family: var(--font);
     display: flex;
+    flex-direction: column;
     padding:1rem;
+}
+@media (max-aspect-ratio:1){
+    #extensionPage{
+        padding:0;
+    }  
 }
 .top{
     padding: 1rem;
+    box-sizing: border-box;
     height: fit-content;
     display: flex;
     width: 100%;
@@ -61,4 +68,23 @@
 .creator[href=""]{
     text-decoration:none;
     pointer-events: none;
+}
+
+.search{
+    height: 100%;
+    box-sizing: border-box;
+    padding:1rem;
+    width: 100%;
+    border-bottom:var(--primary2) dashed 2px;
+    background-color: var(--primary3);
+}
+#searchBar{
+    transition: border 0.1s ease-in-out ;
+    border:none;
+    padding:0.3rem;
+    border: 0px solid var(--secondary2);
+    outline-width: 0px;
+}
+#searchBar:focus{
+    border-width: 0px 0px 3px;
 }

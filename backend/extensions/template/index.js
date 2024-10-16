@@ -9,11 +9,15 @@ const extensionProperties = {
 
 async function search(search) {
   const result = await (await fetch("https://manganato.com/search/story/"+encodeURI(search))).text()
-  return (a=result.split("panel-search-story")[1].split("search-story-item"),a.splice(0,1),a).map((str)=>({
-    img:str.split("<img")[1].split("src=\"")[1].split("\"")[0],
-    name:str.split("item-right")[1].split(">")[3].split("<")[0],
-    url:str.split("href=\"")[1].split("\"")[0]
-}));
+  return {
+      media:(a=result.split("panel-search-story")[1].split("search-story-item"),a.splice(0,1),a).map((str)=>({
+        img:str.split("<img")[1].split("src=\"")[1].split("\"")[0],
+        name:str.split("item-right")[1].split(">")[3].split("<")[0],
+        url:str.split("href=\"")[1].split("\"")[0]})),
+      pageCount:+result.split("page-blue page-last")[1].split("(")[1].split(")")[0]
+      
+
+  }
 }
 
 async function getInfo(URL){

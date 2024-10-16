@@ -43,6 +43,10 @@ function ExtensionPage(){
                     <div dangerouslySetInnerHTML={{__html:jsonData.properties.description}} id = "extensionDescription"></div>
                 </div>
             </div>
+            <div className="search">
+                <input type="text" name="search" id="searchBar" placeholder="search" />
+                <input type="button" value="search"/>
+            </div>
         </div>
     </>)
 }
