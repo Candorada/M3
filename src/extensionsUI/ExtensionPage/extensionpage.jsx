@@ -23,7 +23,7 @@ function ExtensionPage(){
                 setJSONData(await json[extension])
             }
         })()
-    })
+    },[])
     return (<>
         <div id = "extensionPage">
             <div className = "top">

@@ -127,7 +127,10 @@ app.get("/", (req, res) => {
 app.get("/:extension/search/:query", async (req, res) => {
   const extension = extensions[req.params.extension];
   res.send(await extension.search(req.params.query));
-  //TODO: make compatible with multiple extensions later :)
+});
+app.get("/:extension/search", async (req, res) => {
+  const extension = extensions[req.params.extension];
+  res.send(await extension.search(""));
 });
 
 app.post("/button-press", (req, res) => {
