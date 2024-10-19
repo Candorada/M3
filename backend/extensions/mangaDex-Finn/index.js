@@ -14,7 +14,7 @@ function search(search){
     return {
         media:[{
             img:"",
-            name:"",
+            name:"<name>",
             url:""
         }],
         pageCount:0,
