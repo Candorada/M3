@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 function extensionImagePathGetter(path,extension){
     return (path?(path.match(/^http/)?"":"../backend/extensions/"+extension+"/")+path:"../src/extensionsUI/Error.jpg")
 }
+
+function SearchItem({item}){
+return (<>
+<a href={item.url}> {/* this element will be replaced with a clickable button*/}
+    <img src={item.img} alt={item.name}/>
+</a>
+</>)
+}
 function ExtensionPage(){
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
     const [jsonData,setJSONData] = useState({
@@ -16,12 +24,29 @@ function ExtensionPage(){
             creatorSocials:""
         }
     })
+    const loop=(n,cb)=>[...Array(n)].map((_,i)=>i).map(cb) // goofy little line of code that allows inline forloops. loop(10,()=>1) will make an array of 10 ones
+    const [searchResult,setSearchResult] = useState({
+        "media": loop(100,()=>({
+            "img": "../src/extensionsUI/Error.jpg",
+            "name": "Searching",
+            "url": "./"+extension
+          })),
+        "pageCount": 1
+    })
+    async function search(keyword){
+        var queryString = (keyword?"q="+keyword:"")
+        var json = await ((await fetch("http://localhost:3000/"+extension+"/search"+(queryString?"?"+queryString:""))).json())
+        if(await json){
+            setSearchResult(await json)
+        }
+    }
     useEffect(()=>{
         (async()=>{
             var json = await ((await fetch("http://localhost:3000/extensionList")).json())
             if(await json[extension]){
                 setJSONData(await json[extension])
             }
+            search()
         })()
     },[])
     return (<>
@@ -44,8 +69,11 @@ function ExtensionPage(){
                 </div>
             </div>
             <div className="search">
-                <input type="text" name="search" id="searchBar" placeholder="search" />
-                <input type="button" value="search"/>
+                <input type="text" name="search" id="searchBar" placeholder="search"/>
+                <input type="button" value="search" onClick={()=>{search(document.querySelector("#searchBar").value.replace(" ","_"))}}/>
+                <div id = "searchResult">
+                    {searchResult.media.map((item,i)=><SearchItem key = {i} item = {item}/>)}
+                </div>
             </div>
         </div>
     </>)
