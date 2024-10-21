@@ -4,7 +4,19 @@ import { useEffect, useState } from "react";
 function extensionImagePathGetter(path,extension){
     return (path?(path.match(/^http/)?"":"../backend/extensions/"+extension+"/")+path:"../src/extensionsUI/Error.jpg")
 }
+
+function SearchItem({url,img,name}){
+    return (<>
+            <a href={url}>
+                <div>
+                    <img src={img} alt={name} />
+                    <span>{name}</span>
+                </div>
+            </a>
+    </>)
+}
 function ExtensionPage(){
+    var extensionObj;
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
     const [jsonData,setJSONData] = useState({
         properties:{
@@ -16,14 +28,17 @@ function ExtensionPage(){
             creatorSocials:""
         }
     })
+    const [searchResults,setSearchResults] = useState([])
     useEffect(()=>{
         (async()=>{
             var json = await ((await fetch("http://localhost:3000/extensionList")).json())
             if(await json[extension]){
+                extensionObj = await json[extension]
                 setJSONData(await json[extension])
+                fetch(`http://localhost:3000/${extension}/search`)
             }
         })()
-    })
+    },[])
     return (<>
         <div id = "extensionPage">
             <div className = "top">
@@ -46,6 +61,9 @@ function ExtensionPage(){
             <div className="search">
                 <input type="text" name="search" id="searchBar" placeholder="search" />
                 <input type="button" value="search"/>
+               <div id = "searchResults">
+                    {searchResults}
+                </div>
             </div>
         </div>
     </>)
