@@ -123,11 +123,15 @@ app.get("/", (req, res) => {
   });
 })();
 //end of extension download handler
-
-app.get("/:extension/search/:query", async (req, res) => {
+app.get("/:extension/search", async (req, res) => {
   const extension = extensions[req.params.extension];
-  res.send(await extension.search(req.params.query));
-  //TODO: make compatible with multiple extensions later :)
+  try{
+    var x = await extension.search(req.query.q)
+  }catch{
+    var x = []
+    res.status(400)
+  }
+  res.send(x)
 });
 
 app.post("/button-press", (req, res) => {
@@ -138,17 +142,6 @@ app.post("/button-press", (req, res) => {
 app.post("/:extension/getInfo", async (req, res) => {
   const extension = extensions[req.params.extension];
   const body = req.body;
-  db.run(
-    "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
-    [
-      `${body.name} - ${body.id}`,
-      body.name,
-      body.url,
-      body.cover,
-      JSON.stringify(body.tags),
-    ],
-  );
-
   res.json(await extension.getInfo(body.url));
   //TODO: make compatible with multiple extensions later :)
 });

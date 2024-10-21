@@ -6,18 +6,27 @@ const extensionProperties = {
   creator:"Candorada",
   creatorSocials:"https://github.com/Candorada" // optional
 }
-
-async function search(search) {
-  const result = await (await fetch("https://manganato.com/search/story/"+encodeURI(search))).text()
-  return {
-      media:(a=result.split("panel-search-story")[1].split("search-story-item"),a.splice(0,1),a).map((str)=>({
-        img:str.split("<img")[1].split("src=\"")[1].split("\"")[0],
-        name:str.split("item-right")[1].split(">")[3].split("<")[0],
-        url:str.split("href=\"")[1].split("\"")[0]})),
-      pageCount:+result.split("page-blue page-last")[1].split("(")[1].split(")")[0]
-      
-
+function ifError(cb,el){
+  var retVal = el
+  try{
+      retVal = cb()
+  }catch{
+      return el
   }
+  return retVal
+}
+async function search(search) {
+  const result = await (await fetch(
+    `https://manganato.com/advanced_search?s=all&page=1${search?"&keyw="+encodeURI(search):""}`
+  )).text()
+  return await {
+    media:((a=result.split("panel-content-genres")[1].split("content-genres-item"),a.splice(1))).map((str)=>({
+      img:str.split("src=\"")[1].split("\"")[0],
+      name:str.split("title=\"")[1].split("\"")[0],
+      url:str.split("href=\"")[1].split("\"")[0]
+    })),
+    pageCount:ifError(()=>+result.split("page-blue page-last")[1].split("(")[1].split(")")[0],1)
+}
 }
 
 async function getInfo(URL){
@@ -39,7 +48,7 @@ async function getInfo(URL){
 }
 /*
 //example fetch to run the getInfo function for chapmanta.to
-await (await fetch('http://localhost:3000/example/getInfo', {
+await (await fetch('http://localhost:3000/template/getInfo', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
