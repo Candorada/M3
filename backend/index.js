@@ -125,13 +125,13 @@ app.get("/", (req, res) => {
 //end of extension download handler
 app.get("/:extension/search", async (req, res) => {
   const extension = extensions[req.params.extension];
-  try{
-    var x = await extension.search(req.query.q)
-  }catch{
-    var x = []
-    res.status(400)
+  try {
+    var x = await extension.search(req.query.q);
+  } catch {
+    var x = [];
+    res.status(400);
   }
-  res.send(x)
+  res.send(x);
 });
 
 app.post("/button-press", (req, res) => {
@@ -144,6 +144,11 @@ app.post("/:extension/getInfo", async (req, res) => {
   const body = req.body;
   res.json(await extension.getInfo(body.url));
   //TODO: make compatible with multiple extensions later :)
+});
+
+app.post("/addToLibrary", (req, res) => {
+  const url = res.url;
+  res.statusCode = 200;
 });
 
 app.get("/extensionList", (req, res) => {
