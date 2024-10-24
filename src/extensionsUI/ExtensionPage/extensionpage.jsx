@@ -83,7 +83,7 @@ function ExtensionPage(){
                 <input type="text" name="search" id="searchBar" placeholder="search"/>
                 <input type="button" value="search" onClick={()=>{search(document.querySelector("#searchBar").value.replace(" ","_"))}}/>
                 <div id = "searchResult">
-                    {searchResult.media.map((item,i)=><SearchItem key = {i} item = {item}/>)}
+                {searchResult.media.map((item,i)=><SearchItem key = {i} item = {item}/>)}
                 </div>
             </div>
         </div>
