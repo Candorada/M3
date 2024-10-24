@@ -5,16 +5,24 @@ function extensionImagePathGetter(path,extension){
     return (path?(path.match(/^http/)?"":"../backend/extensions/"+extension+"/")+path:"../src/extensionsUI/Error.jpg")
 }
 
-function SearchItem({item}){
-return (<>
-<a href={item.url}> {/* this element will be replaced with a clickable button*/}
-    <img src={item.img} alt={item.name}/>
-</a>
-</>)
-}
 function ExtensionPage(){
     var extensionObj;
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
+    function addToLibrary(item){
+        fetch("http://localhost:3000/addToLibrary",{
+            method:"POST",
+            url:item.url,
+            extension:extension
+        })
+    
+    }
+    function SearchItem({item}){
+    return (<>
+    <div onClick = {()=>{addToLibrary(item)}}> {/* this element will be replaced with a clickable button*/}
+        <img src={item.img} alt={item.url}/>
+    </div>
+    </>)
+    }
     const [jsonData,setJSONData] = useState({
         properties:{
             iconPath:"../../../src/extensionsUI/Error.jpg",
