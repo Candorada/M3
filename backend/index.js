@@ -146,9 +146,14 @@ app.post("/:extension/getInfo", async (req, res) => {
   //TODO: make compatible with multiple extensions later :)
 });
 
-app.post("/addToLibrary", (req, res) => {
-  const url = res.url;
-  res.statusCode = 200;
+app.post("/:extension/addToLibrary",async (req, res) => {
+  try{
+    const extension = extensions[req.params.extension];
+    const body = req.body;
+    res.json(await extension.getInfo(body.url));
+  }catch{
+    res.json({youSuck:true})
+  }
 });
 
 app.get("/extensionList", (req, res) => {

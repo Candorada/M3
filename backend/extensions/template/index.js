@@ -30,7 +30,7 @@ async function search(search) {
 }
 
 async function getInfo(URL){
-  const htmldata = await (await fetch("https://chapmanganato.to/manga-wf999362")).text()
+  const htmldata = await (await fetch(URL)).text()
   const regex = /<li[^>]*>((?:(?!<\/li)(?:.|\s))*)<\/li>/g
   var chapterData = (htmldata.split("row-content-chapter")[1].split("</ul>")[0])
   return await{

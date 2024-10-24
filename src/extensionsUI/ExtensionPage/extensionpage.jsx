@@ -8,12 +8,16 @@ function extensionImagePathGetter(path,extension){
 function ExtensionPage(){
     var extensionObj;
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
-    function addToLibrary(item){
-        fetch("http://localhost:3000/addToLibrary",{
-            method:"POST",
-            url:item.url,
-            extension:extension
-        })
+    async function addToLibrary(item){
+        await (await fetch('http://localhost:3000/addToLibrary', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                            url:item.url,
+                extension:extension}),
+        })).json()
     
     }
     function SearchItem({item}){

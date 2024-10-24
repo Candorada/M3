@@ -87,6 +87,7 @@
     border: 0px solid var(--secondary2);
     outline-width: 0px;
 }
+
 #searchBar:focus{
     border-width: 0px 0px 3px;
 }
