@@ -9,7 +9,7 @@ function ExtensionPage(){
     var extensionObj;
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
     async function addToLibrary(item){
-        await (await fetch('http://localhost:3000/addToLibrary', {
+        await (await fetch(`http://localhost:3000/${extension}/addToLibrary`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
