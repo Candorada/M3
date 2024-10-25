@@ -150,24 +150,37 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const body = req.body;
     const data = await extension.getInfo(body.url);
     db.serialize(() => {
-      db.run(
-        "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
-        [
-          data.id,
-          data.name,
-          data.url,
-          data.coverImage,
-          JSON.stringify(data.tags),
-        ],
-        (err) => {
-          if (err) {
-            console.error("Error inserting into comics:", err.message);
-          } else {
-            console.log("Successfully inserted into comics");
-          }
-        },
-      );
+      db.get("SELECT id FROM comics WHERE id = ?", [data.id], (err, row) => {
+        if (err) {
+          console.error("Error checking for existing entry:", err.message);
+          return;
+        }
+
+        if (!row) {
+          // If no entry exists with the same id, proceed with the insert
+          db.run(
+            "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
+            [
+              data.id,
+              data.name,
+              data.url,
+              data.coverImage,
+              JSON.stringify(data.tags),
+            ],
+            (err) => {
+              if (err) {
+                console.error("Error inserting into comics:", err.message);
+              } else {
+                console.log("Successfully inserted into comics");
+              }
+            },
+          );
+        } else {
+          console.log("Entry already exists with id:", data.id);
+        }
+      });
     });
+
     res.json(await extension.getInfo(body.url));
   } catch {
     res.json({ youSuck: true });
