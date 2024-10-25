@@ -91,3 +91,18 @@
 #searchBar:focus{
     border-width: 0px 0px 3px;
 }
+#searchResult{
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    /*grid-auto-rows: 200px;*/
+    justify-items: stretch;
+    align-items: stretch;
+    width: 100%;
+}
+#searchResult > *{
+    position: relative;
+    display: block;
+    aspect-ratio: 0.75; /* 300px width to 400px height */
+    overflow: hidden;
+}
