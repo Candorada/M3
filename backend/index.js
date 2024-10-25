@@ -27,16 +27,14 @@ updateExtensionList();
 app.use(express.json());
 app.use(cors());
 db.serialize(() => {
-  //db.run(`DROP TABLE comics`);
+  db.run(`DROP TABLE comics`);
   db.run(
     `CREATE TABLE IF NOT EXISTS comics (
-id INTEGER PRIMARY KEY,
+id TEXT PRIMARY KEY,
 name TEXT,
 source TEXT,
 cover TEXT,
-tags TEXT,
-upload_date TEXT,
-recent_acuess TEXT
+tags TEXT
 )`,
     (err) => {
       if (err) {
@@ -151,11 +149,16 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const extension = extensions[req.params.extension];
     const body = req.body;
     const data = await extension.getInfo(body.url);
-    console.log(body.name, body.url, body.coverImage);
     db.serialize(() => {
       db.run(
-        "INSERT INTO comics (name, source, cover) VALUES (?, ?, ?)",
-        [data.name, data.url, data.coverImage],
+        "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
+        [
+          data.id,
+          data.name,
+          data.url,
+          data.coverImage,
+          JSON.stringify(data.tags),
+        ],
         (err) => {
           if (err) {
             console.error("Error inserting into comics:", err.message);
