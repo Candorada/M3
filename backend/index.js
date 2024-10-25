@@ -31,9 +31,9 @@ db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS comics (
 id INTEGER PRIMARY KEY,
-name TEXT NOT NULL,
-source TEXT NOT NULL,
-cover TEXT NOT NULL,
+name TEXT,
+source TEXT,
+cover TEXT,
 tags TEXT,
 upload_date TEXT,
 recent_acuess TEXT
@@ -146,13 +146,28 @@ app.post("/:extension/getInfo", async (req, res) => {
   //TODO: make compatible with multiple extensions later :)
 });
 
-app.post("/:extension/addToLibrary",async (req, res) => {
-  try{
+app.post("/:extension/addToLibrary", async (req, res) => {
+  try {
     const extension = extensions[req.params.extension];
     const body = req.body;
+    const data = await extension.getInfo(body.url);
+    console.log(body.name, body.url, body.coverImage);
+    db.serialize(() => {
+      db.run(
+        "INSERT INTO comics (name, source, cover) VALUES (?, ?, ?)",
+        [data.name, data.url, data.coverImage],
+        (err) => {
+          if (err) {
+            console.error("Error inserting into comics:", err.message);
+          } else {
+            console.log("Successfully inserted into comics");
+          }
+        },
+      );
+    });
     res.json(await extension.getInfo(body.url));
-  }catch{
-    res.json({youSuck:true})
+  } catch {
+    res.json({ youSuck: true });
   }
 });
 
