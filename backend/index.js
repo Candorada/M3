@@ -35,7 +35,7 @@ local_id TEXT
 
   Object.values(extensions).forEach((extension) => {
     //TODO: fix this
-    const tableName = "hi"; //extension.properties.name;
+    const tableName = "comics"; //extension.properties.name;
     db.run(
       `CREATE TABLE IF NOT EXISTS ${tableName} (
 id TEXT PRIMARY KEY,
@@ -236,21 +236,22 @@ app.get("/library", (req, res) => {
   });
 });
 app.get("/library/:category", async (req, res) => {
-  res.json(await new Promise((resolve,reject)=>{
-    db.all("SELECT * FROM comics",[],(err,data)=>{
-      if(err){
-        reject(err)
-      }else{
-        resolve(
-          data.map((item)=>{
-            item.tags = JSON.parse(item.tags);
-            return item
-          }
-          )
-        )
-      }
-    })
-  }));
+  res.json(
+    await new Promise((resolve, reject) => {
+      db.all("SELECT * FROM comics", [], (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(
+            data.map((item) => {
+              item.tags = JSON.parse(item.tags);
+              return item;
+            }),
+          );
+        }
+      });
+    }),
+  );
 });
 
 const port = 3000;
