@@ -226,11 +226,22 @@ app.get("/library", (req, res) => {
     balls: "bye",
   });
 });
-app.get("library/:category", (req, res) => {
-  res.json([
-    //yes this is currently empty.
-  ]);
-  //TODO work later with multiple categories
+app.get("/library/:category", async (req, res) => {
+  res.json(await new Promise((resolve,reject)=>{
+    db.all("SELECT * FROM comics",[],(err,data)=>{
+      if(err){
+        reject(err)
+      }else{
+        resolve(
+          data.map((item)=>{
+            item.tags = JSON.parse(item.tags);
+            return item
+          }
+          )
+        )
+      }
+    })
+  }));
 });
 
 const port = 3000;
