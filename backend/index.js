@@ -27,23 +27,32 @@ updateExtensionList();
 app.use(express.json());
 app.use(cors());
 db.serialize(() => {
-  db.run(`DROP TABLE comics`);
-  db.run(
-    `CREATE TABLE IF NOT EXISTS comics (
+  db.run(`CREATE TABLE IF NOT EXISTS main (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+extension TEXT,
+local_id TEXT
+)`);
+
+  Object.values(extensions).forEach((extension) => {
+    //TODO: fix this
+    const tableName = "hi"; //extension.properties.name;
+    db.run(
+      `CREATE TABLE IF NOT EXISTS ${tableName} (
 id TEXT PRIMARY KEY,
 name TEXT,
 source TEXT,
 cover TEXT,
 tags TEXT
 )`,
-    (err) => {
-      if (err) {
-        console.error("Error creating table:", err.message);
-      } else {
-        console.log("Table created or already exits");
-      }
-    },
-  );
+      (err) => {
+        if (err) {
+          console.error("Error creating table:", err.message);
+        } else {
+          console.log("Table created or already exits");
+        }
+      },
+    );
+  });
 });
 
 app.get("/", (req, res) => {
