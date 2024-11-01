@@ -36,14 +36,29 @@ db.serialize(() => {
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
-      } else {
-        console.log("'main' table created or already exists");
       }
     },
   );
 
-  Object.values(extensions).forEach((extension) => {
-    const tableName = extension.properties.name;
+  db.run(
+    `CREATE TABLE IF NOT EXISTS chapters (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+extension TEXT,
+manga_id TEXT,
+chapter_number INTEGER,
+name TEXT,
+source TEXT,
+date, TEXT
+)`,
+    (err) => {
+      if (err) {
+        console.error("Error creating chapters table:", err.message);
+      }
+    },
+  );
+
+  Object.keys(extensions).forEach((extension) => {
+    const tableName = extension;
     db.run(
       `CREATE TABLE IF NOT EXISTS ${tableName} (
         id TEXT PRIMARY KEY,
@@ -55,8 +70,6 @@ db.serialize(() => {
       (err) => {
         if (err) {
           console.error(`Error creating table ${tableName}:`, err.message);
-        } else {
-          console.log(`Table '${tableName}' created or already exists`);
         }
       },
     );
@@ -199,12 +212,20 @@ app.post("/:extension/addToLibrary", async (req, res) => {
               ],
               (err) => {
                 if (err) {
-                  console.error("Error inserting into comics:", err.message);
+                  console.error(
+                    `Error inserting into ${tableName}:`,
+                    err.message,
+                  );
                 }
               },
             );
-          } else {
-            console.log("Entry already exists with id:", data.id);
+
+            data.chapters.forEach((chapter) => {
+              db.run(
+                `INSERT INTO chapters (extension, manga_id, name, source, date) VALUES (?,?,?,?,?)`,
+                [tableName, data.id, chapter.name, chapter.url, chapter.date],
+              );
+            });
           }
         },
       );
