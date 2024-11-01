@@ -27,28 +27,36 @@ updateExtensionList();
 app.use(express.json());
 app.use(cors());
 db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS main (
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-extension TEXT,
-local_id TEXT
-)`);
+  db.run(
+    `CREATE TABLE IF NOT EXISTS main (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      extension TEXT,
+      local_id TEXT
+    )`,
+    (err) => {
+      if (err) {
+        console.error("Error creating 'main' table:", err.message);
+      } else {
+        console.log("'main' table created or already exists");
+      }
+    },
+  );
 
   Object.values(extensions).forEach((extension) => {
-    //TODO: fix this
-    const tableName = "comics"; //extension.properties.name;
+    const tableName = extension.properties.name;
     db.run(
       `CREATE TABLE IF NOT EXISTS ${tableName} (
-id TEXT PRIMARY KEY,
-name TEXT,
-source TEXT,
-cover TEXT,
-tags TEXT
-)`,
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        source TEXT,
+        cover TEXT,
+        tags TEXT
+      )`,
       (err) => {
         if (err) {
-          console.error("Error creating table:", err.message);
+          console.error(`Error creating table ${tableName}:`, err.message);
         } else {
-          console.log("Table created or already exits");
+          console.log(`Table '${tableName}' created or already exists`);
         }
       },
     );
@@ -159,7 +167,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const body = req.body;
     const data = await extension.getInfo(body.url);
     db.serialize(() => {
-      db.get("SELECT id FROM comics WHERE id = ?", [data.id], (err, row) => {
+      db.get("SELECT id FROM manganato WHERE id = ?", [data.id], (err, row) => {
         if (err) {
           console.error("Error checking for existing entry:", err.message);
           return;
@@ -168,7 +176,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         if (!row) {
           // If no entry exists with the same id, proceed with the insert
           db.run(
-            "INSERT INTO comics (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO manganato (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)",
             [
               data.id,
               data.name,
@@ -238,7 +246,7 @@ app.get("/library", (req, res) => {
 app.get("/library/:category", async (req, res) => {
   res.json(
     await new Promise((resolve, reject) => {
-      db.all("SELECT * FROM comics", [], (err, data) => {
+      db.all("SELECT * FROM manganato", [], (err, data) => {
         if (err) {
           reject(err);
         } else {
