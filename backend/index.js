@@ -45,7 +45,7 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
 extension TEXT,
 manga_id TEXT,
-chapter_number INTEGER,
+number REAL,
 name TEXT,
 source TEXT,
 date, TEXT
@@ -222,8 +222,15 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
             data.chapters.forEach((chapter) => {
               db.run(
-                `INSERT INTO chapters (extension, manga_id, name, source, date) VALUES (?,?,?,?,?)`,
-                [tableName, data.id, chapter.name, chapter.url, chapter.date],
+                `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
+                [
+                  tableName,
+                  data.id,
+                  chapter.name,
+                  chapter.index,
+                  chapter.url,
+                  chapter.date,
+                ],
               );
             });
           }
