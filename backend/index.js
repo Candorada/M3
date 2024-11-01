@@ -42,8 +42,7 @@ db.serialize(() => {
     },
   );
 
-  Object.values(extensions).forEach((extension) => {
-    const tableName = extension.properties.name;
+  Object.keys(extensions).forEach((tableName) => {
     db.run(
       `CREATE TABLE IF NOT EXISTS ${tableName} (
         id TEXT PRIMARY KEY,
