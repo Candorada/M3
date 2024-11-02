@@ -1,5 +1,6 @@
 const extensionProperties = {
   name: "Manganato",
+  type: "Comic",
   sourceUrl: "https://manganato.com/",
   iconPath: "./icon.png", // can be webURL or path. Path must be relative, but can be relative to current directory
   description: `This extension is really cool. it is made for Manganato`,
@@ -51,8 +52,8 @@ async function getInfo(URL) {
       .split("</td>")[0]
       .match(/(?<=>)\w+(?=<)/g),
     coverImage: htmldata.split("info-image")[1].split('src="')[1].split('"')[0],
-    chapters: chapterData.match(regex).map((str,i,arr) => ({
-      index:arr.length - i, //decimals allowed
+    chapters: chapterData.match(regex).map((str, i, arr) => ({
+      index: arr.length - i, //decimals allowed
       name: str.split("</a>")[0].split(">")[2],
       url: str.split('href="')[1].split('"')[0],
       date: new Date(

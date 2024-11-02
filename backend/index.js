@@ -31,8 +31,10 @@ db.serialize(() => {
     `CREATE TABLE IF NOT EXISTS main (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       extension TEXT,
+      downloaded BOOLEAN DEFAULT 0,
       local_id TEXT
     )`,
+    //downloaded: 0 means not downloaded, 1 means downloaded
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
@@ -57,22 +59,43 @@ date, TEXT
     },
   );
 
-  Object.keys(extensions).forEach((extension) => {
+  Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
-    db.run(
-      `CREATE TABLE IF NOT EXISTS ${tableName} (
+    const type = data.properties.type;
+    if (type == "Comic") {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
         id TEXT PRIMARY KEY,
         name TEXT,
         source TEXT,
         cover TEXT,
         tags TEXT
       )`,
-      (err) => {
-        if (err) {
-          console.error(`Error creating table ${tableName}:`, err.message);
-        }
-      },
-    );
+        (err) => {
+          if (err) {
+            console.error(`Error creating table ${tableName}:`, err.message);
+          }
+        },
+      );
+    }
+    if (type == "Music") {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        source TEXT,
+        artist TEXT,
+        cover TEXT,
+        length TEXT,
+        tags TEXT
+      )`,
+        (err) => {
+          if (err) {
+            console.error(`Error creating table ${tableName}:`, err.message);
+          }
+        },
+      );
+    }
   });
 });
 
@@ -200,7 +223,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                 }
               },
             );
-
+            //TODO: fix for different types of media
             db.run(
               `INSERT INTO ${tableName} (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)`,
               [
@@ -271,15 +294,7 @@ app.get("/render", (req, res) => {
 
 app.get("/library", (req, res) => {
   res.json({
-    categories: [
-      "manga",
-      "comics",
-      "movies",
-      "games",
-      "ebooks",
-      "audiobooks",
-      "music",
-    ],
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
     balls: "bye",
   });
 });
