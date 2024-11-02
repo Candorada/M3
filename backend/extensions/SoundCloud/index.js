@@ -1,5 +1,6 @@
 const properties = {
   name: "SoundCloud",
+  type: "Music",
   sourceUrl: "https://soundcloud.com/",
   iconPath: "icon.png", //optional
   description: `<h2 style = "margin-top:0px;"><b>About Us</b></h2>
@@ -30,4 +31,3 @@ module.exports = {
   getInfo: getInfo,
   properties: properties,
 };
-
