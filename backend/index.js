@@ -23,6 +23,7 @@ function updateExtensionList() {
     }
   });
 }
+
 const tableSchemas = {
   Comic: {
     createColumns: `
@@ -274,6 +275,8 @@ app.post("/:extension/addToLibrary", async (req, res) => {
   try {
     const extension = extensions[req.params.extension];
     const body = req.body;
+    const type = extension.properties.type;
+    const schema = tableSchemas[type];
     const data = await extension.getInfo(body.url);
     db.serialize(() => {
       const tableName = req.params.extension;
@@ -287,7 +290,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             return;
           }
 
-          if (!row) {
+          if (!row && schema) {
             db.run(
               `INSERT INTO main (extension,local_id) VALUES (?,?)`,
               [tableName, data.id],
@@ -298,38 +301,36 @@ app.post("/:extension/addToLibrary", async (req, res) => {
               },
             );
             //TODO: fix for different types of media
-            db.run(
-              `INSERT INTO ${tableName} (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)`,
-              [
-                data.id,
-                data.name,
-                data.url,
-                data.coverImage,
-                JSON.stringify(data.tags),
-              ],
-              (err) => {
-                if (err) {
-                  console.error(
-                    `Error inserting into ${tableName}:`,
-                    err.message,
-                  );
-                }
-              },
-            );
+            const columns = schema.insertColumns.join(", ");
+            const placeholders = schema.insertColumns.map(() => "?").join(", ");
+            const values = schema.getValues(data);
 
-            data.chapters.forEach((chapter) => {
-              db.run(
-                `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
-                [
-                  tableName,
-                  data.id,
-                  chapter.name,
-                  chapter.index,
-                  chapter.url,
-                  chapter.date,
-                ],
-              );
+            const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+
+            db.run(insertQuery, values, (err) => {
+              if (err) {
+                console.error(
+                  `Error inserting into ${tableName}:`,
+                  err.message,
+                );
+              }
             });
+
+            if (type == "Comic") {
+              data.chapters.forEach((chapter) => {
+                db.run(
+                  `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
+                  [
+                    tableName,
+                    data.id,
+                    chapter.name,
+                    chapter.index,
+                    chapter.url,
+                    chapter.date,
+                  ],
+                );
+              });
+            }
           }
         },
       );
