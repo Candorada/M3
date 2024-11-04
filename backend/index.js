@@ -31,34 +31,71 @@ db.serialize(() => {
     `CREATE TABLE IF NOT EXISTS main (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       extension TEXT,
+      downloaded BOOLEAN DEFAULT 0,
       local_id TEXT
     )`,
+    //downloaded: 0 means not downloaded, 1 means downloaded
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
-      } else {
-        console.log("'main' table created or already exists");
       }
     },
   );
 
-  Object.keys(extensions).forEach((tableName) => {
-    db.run(
-      `CREATE TABLE IF NOT EXISTS ${tableName} (
+  db.run(
+    `CREATE TABLE IF NOT EXISTS chapters (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+extension TEXT,
+manga_id TEXT,
+number REAL,
+name TEXT,
+source TEXT,
+date, TEXT
+)`,
+    (err) => {
+      if (err) {
+        console.error("Error creating chapters table:", err.message);
+      }
+    },
+  );
+
+  Object.entries(extensions).forEach(([extension, data]) => {
+    const tableName = extension;
+    const type = data.properties.type;
+    if (type == "Comic") {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
         id TEXT PRIMARY KEY,
         name TEXT,
         source TEXT,
         cover TEXT,
         tags TEXT
       )`,
-      (err) => {
-        if (err) {
-          console.error(`Error creating table ${tableName}:`, err.message);
-        } else {
-          console.log(`Table '${tableName}' created or already exists`);
-        }
-      },
-    );
+        (err) => {
+          if (err) {
+            console.error(`Error creating table ${tableName}:`, err.message);
+          }
+        },
+      );
+    }
+    if (type == "Music") {
+      db.run(
+        `CREATE TABLE IF NOT EXISTS ${tableName} (
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        source TEXT,
+        artist TEXT,
+        cover TEXT,
+        length TEXT,
+        tags TEXT
+      )`,
+        (err) => {
+          if (err) {
+            console.error(`Error creating table ${tableName}:`, err.message);
+          }
+        },
+      );
+    }
   });
 });
 
@@ -186,7 +223,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                 }
               },
             );
-
+            //TODO: fix for different types of media
             db.run(
               `INSERT INTO ${tableName} (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)`,
               [
@@ -198,12 +235,27 @@ app.post("/:extension/addToLibrary", async (req, res) => {
               ],
               (err) => {
                 if (err) {
-                  console.error("Error inserting into comics:", err.message);
+                  console.error(
+                    `Error inserting into ${tableName}:`,
+                    err.message,
+                  );
                 }
               },
             );
-          } else {
-            console.log("Entry already exists with id:", data.id);
+
+            data.chapters.forEach((chapter) => {
+              db.run(
+                `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
+                [
+                  tableName,
+                  data.id,
+                  chapter.name,
+                  chapter.index,
+                  chapter.url,
+                  chapter.date,
+                ],
+              );
+            });
           }
         },
       );
@@ -242,15 +294,7 @@ app.get("/render", (req, res) => {
 
 app.get("/library", (req, res) => {
   res.json({
-    categories: [
-      "manga",
-      "comics",
-      "movies",
-      "games",
-      "ebooks",
-      "audiobooks",
-      "music",
-    ],
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
     balls: "bye",
   });
 });
