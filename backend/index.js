@@ -34,7 +34,6 @@ db.serialize(() => {
       downloaded BOOLEAN DEFAULT 0,
       local_id TEXT
     )`,
-    //downloaded: 0 means not downloaded, 1 means downloaded
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
@@ -185,6 +184,58 @@ app.get("/:extension/search", async (req, res) => {
   res.send(x);
 });
 
+app.post("/delete", async (req, res) => {
+  /*
+    (await fetch('http://localhost:3000/delete', {
+      method: 'POST',
+	  	headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: "manga-tq997351",
+      }), 
+    })).json()
+
+   */
+  const body = req.body;
+  const id = body.id;
+
+  try {
+    const table = await new Promise((resolve) => {
+      db.get(
+        `SELECT extension FROM main WHERE local_id = ?`,
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error("Database error:", err);
+            return resolve(null);
+          }
+          resolve(row?.extension || null);
+        },
+      );
+    });
+
+    if (!table) {
+      return res.status(404);
+    }
+
+    const extension = extensions[table];
+    if (!extension) {
+      return res.status(400);
+    }
+
+    const type = extension.properties.type;
+    db.run(`DELETE FROM main WHERE local_id = ?`, [id]);
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
+
+    if (type === "Comic") {
+      db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500);
+  }
+});
 app.post("/button-press", (req, res) => {
   console.log("Button press received:", req.body);
   res.json({ success: true, message: "Button press received on server" });
