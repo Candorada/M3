@@ -277,7 +277,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const body = req.body;
     const type = extension.properties.type;
     const schema = tableSchemas[type];
-    const data = await extension.getInfo(body.url);
+    let data = (await extension.getInfo(body.url)) || body;
     db.serialize(() => {
       const tableName = req.params.extension;
 
@@ -289,7 +289,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             console.error("Error checking for existing entry:", err.message);
             return;
           }
-
           if (!row && schema) {
             db.run(
               `INSERT INTO main (extension,local_id) VALUES (?,?)`,
@@ -300,7 +299,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                 }
               },
             );
-            //TODO: fix for different types of media
             const columns = schema.insertColumns.join(", ");
             const placeholders = schema.insertColumns.map(() => "?").join(", ");
             const values = schema.getValues(data);
@@ -335,8 +333,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         },
       );
     });
-
-    res.json(await extension.getInfo(body.url));
   } catch {
     res.json({ youSuck: true });
   }

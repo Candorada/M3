@@ -26,6 +26,25 @@ function search(search) {
 }
 function getInfo(url) {}
 
+/*
+ 
+  await(await fetch('http://localhost:3000/SoundCloud/addToLibrary', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({url:"https://soundcloud.com/julian-orzabal-416027090/twist-and-shout",
+id: "Twist-and-shout",
+title: "Twist-and-shout",
+artist: "Beatles",
+coverImage: "https://i1.sndcdn.com/artworks-5yojzEO8Gp0ZmTNz-xLjvTg-t500x500.jpg",
+length: "243",
+tags: "good"}),
+})).json()
+
+
+ */
+
 module.exports = {
   search: search,
   getInfo: getInfo,
