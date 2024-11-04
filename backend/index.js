@@ -23,6 +23,54 @@ function updateExtensionList() {
     }
   });
 }
+const tableSchemas = {
+  Comic: {
+    createColumns: `
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      source TEXT,
+      cover TEXT,
+      tags TEXT
+    `,
+    insertColumns: ["id", "name", "source", "cover", "tags"],
+    getValues: (data) => [
+      data.id,
+      data.name,
+      data.url,
+      data.coverImage,
+      JSON.stringify(data.tags),
+    ],
+  },
+  Music: {
+    createColumns: `
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      source TEXT,
+      artist TEXT,
+      cover TEXT,
+      length TEXT,
+      tags TEXT
+    `,
+    insertColumns: [
+      "id",
+      "title",
+      "source",
+      "artist",
+      "cover",
+      "length",
+      "tags",
+    ],
+    getValues: (data) => [
+      data.id,
+      data.title,
+      data.url,
+      data.artist,
+      data.coverImage,
+      data.length,
+      JSON.stringify(data.tags),
+    ],
+  },
+};
 updateExtensionList();
 app.use(express.json());
 app.use(cors());
@@ -61,39 +109,18 @@ date, TEXT
   Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
     const type = data.properties.type;
-    if (type == "Comic") {
-      db.run(
-        `CREATE TABLE IF NOT EXISTS ${tableName} (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        source TEXT,
-        cover TEXT,
-        tags TEXT
-      )`,
-        (err) => {
-          if (err) {
-            console.error(`Error creating table ${tableName}:`, err.message);
-          }
-        },
-      );
-    }
-    if (type == "Music") {
-      db.run(
-        `CREATE TABLE IF NOT EXISTS ${tableName} (
-        id TEXT PRIMARY KEY,
-        title TEXT,
-        source TEXT,
-        artist TEXT,
-        cover TEXT,
-        length TEXT,
-        tags TEXT
-      )`,
-        (err) => {
-          if (err) {
-            console.error(`Error creating table ${tableName}:`, err.message);
-          }
-        },
-      );
+    const schema = tableSchemas[type];
+
+    if (schema) {
+      const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema.createColumns})`;
+
+      db.run(createTableQuery, (err) => {
+        if (err) {
+          console.error(`Error creating table ${tableName}:`, err.message);
+        }
+      });
+    } else {
+      console.warn(`No schema defined for type: ${type}`);
     }
   });
 });
@@ -235,10 +262,6 @@ app.post("/delete", async (req, res) => {
     console.error("Unexpected error:", error);
     res.status(500);
   }
-});
-app.post("/button-press", (req, res) => {
-  console.log("Button press received:", req.body);
-  res.json({ success: true, message: "Button press received on server" });
 });
 
 app.post("/:extension/getInfo", async (req, res) => {
