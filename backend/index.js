@@ -370,22 +370,35 @@ app.get("/library", (req, res) => {
   });
 });
 app.get("/library/:category", async (req, res) => {
-  res.json(
-    await new Promise((resolve, reject) => {
-      db.all("SELECT * FROM manganato", [], (err, data) => {
+  const promises = [];
+
+  Object.keys(extensions).forEach((table) => {
+    const promise = new Promise((resolve, reject) => {
+      db.all(`SELECT * FROM ${table}`, [], (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(
-            data.map((item) => {
+          const parsedData = data.map((item) => {
+            if (item.tags) {
               item.tags = JSON.parse(item.tags);
-              return item;
-            }),
-          );
+            }
+            return item;
+          });
+          resolve(parsedData);
         }
       });
-    }),
-  );
+    });
+    promises.push(promise);
+  });
+
+  try {
+    const allData = await Promise.all(promises);
+    const flattenedData = allData.flat();
+    res.json(flattenedData);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500);
+  }
 });
 
 const port = 3000;
