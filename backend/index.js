@@ -228,7 +228,7 @@ app.post("/delete", async (req, res) => {
    */
   const body = req.body;
   const id = body.id;
-
+  res.sendStatus(200);
   try {
     const table = await new Promise((resolve) => {
       db.get(
@@ -245,12 +245,12 @@ app.post("/delete", async (req, res) => {
     });
 
     if (!table) {
-      return res.status(404);
+      return res.sendStatus(404);
     }
 
     const extension = extensions[table];
     if (!extension) {
-      return res.status(400);
+      return res.sendStatus(400);
     }
 
     const type = extension.properties.type;
@@ -262,7 +262,7 @@ app.post("/delete", async (req, res) => {
     }
   } catch (error) {
     console.error("Unexpected error:", error);
-    res.status(500);
+    res.sendStatus(500);
   }
 });
 

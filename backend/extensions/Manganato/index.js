@@ -44,7 +44,8 @@ async function getInfo(URL) {
   var chapterData = htmldata.split("row-content-chapter")[1].split("</ul>")[0];
   return await {
     url: URL,
-    id: URL.split("/")[3], // this would be a unique identifyer for the comic within the extension.
+    id: "Manganato-"+URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique 
+    //to make it unique just append your extension folder name at the front of your id.
     name: htmldata.split("story-info-right")[1].match(/(?<=<h1>)[^<]*/)[0],
     tags: htmldata
       .split("Genres :")[1]
