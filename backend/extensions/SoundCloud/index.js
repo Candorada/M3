@@ -11,19 +11,7 @@ const properties = {
   creatorSocials: "https://github.com/Jesso3", //optional
 };
 
-function search(search) {
-  //test change
-  return {
-    media: [
-      {
-        img: "",
-        name: "<nam>",
-        url: "",
-      },
-    ],
-    pageCount: 0,
-  };
-}
+function search(search) {}
 function getInfo(url) {}
 
 /*
