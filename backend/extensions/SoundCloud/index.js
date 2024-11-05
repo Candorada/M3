@@ -22,7 +22,7 @@ function getInfo(url) {}
         'Content-Type': 'application/json',
     },
     body: JSON.stringify({url:"https://soundcloud.com/julian-orzabal-416027090/twist-and-shout",
-id: "Twist-and-shout",
+id: "SoundCloud-Twist-and-shout",
 title: "Twist-and-shout",
 artist: "Beatles",
 coverImage: "https://i1.sndcdn.com/artworks-5yojzEO8Gp0ZmTNz-xLjvTg-t500x500.jpg",

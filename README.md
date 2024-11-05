@@ -66,14 +66,14 @@ const properties = {
   creator: "__GitHub name__",
   creatorSocials: "__GitHub url__",
 };
+
+function search(search) {}
+
+function getInfo(url) {}
+
+module.exports = {
+  search: search,
+  getInfo: getInfo,
+  properties: properties,
+};
 ```
-
-    function search(search) {}
-
-    function getInfo(url) {}
-
-    module.exports = {
-        search: search,
-        getInfo: getInfo,
-        properties: properties,
-    };
