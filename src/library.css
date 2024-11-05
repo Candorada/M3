@@ -53,13 +53,14 @@
     border-radius: 6px;
 }
 #libraryItemHolder{
+    --size:150px;
     display: grid;
     grid-gap: 5px;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    max-width: calc(var(--size)*1.5);
+    grid-template-columns: repeat(auto-fit, minmax(var(--size), 1fr));
     /*grid-auto-rows: 200px;*/
     justify-items: stretch;
     align-items: stretch;
-    width: 100%;
 }
 .libraryItem{
     position: relative;
