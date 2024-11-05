@@ -2,7 +2,7 @@
 
 # And Express as well
 
-# with some sql
+# with some SQL
 
 ### <ins>Running the Website</ins>
 
@@ -50,10 +50,28 @@ Delete **node_modules**
 
     npm run dev
 
-*To kill a server without killing the whole terminal press _ctrl + c_
+\*To kill a server without killing the whole terminal press _ctrl + c_
 
+## <ins>Creating extensions</ins>
 
-ToDo List
+### **general template:**
 
-- [ ] make extensions deletable within the UI
-- [ ] make library render based of database
+    const properties = {
+        name: "__name__",
+        type: "__type__",
+        sourceUrl: "__url__",
+        iconPath: "__icon.png__",
+        description: "__html description__"
+        creator: "__GitHub name__",
+        creatorSocials: "__GitHub url__",
+    };
+
+    function search(search) {}
+
+    function getInfo(url) {}
+
+    module.exports = {
+        search: search,
+        getInfo: getInfo,
+        properties: properties,
+    };

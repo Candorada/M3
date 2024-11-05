@@ -23,6 +23,55 @@ function updateExtensionList() {
     }
   });
 }
+
+const tableSchemas = {
+  Comic: {
+    createColumns: `
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      source TEXT,
+      cover TEXT,
+      tags TEXT
+    `,
+    insertColumns: ["id", "name", "source", "cover", "tags"],
+    getValues: (data) => [
+      data.id,
+      data.name,
+      data.url,
+      data.coverImage,
+      JSON.stringify(data.tags),
+    ],
+  },
+  Music: {
+    createColumns: `
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      source TEXT,
+      artist TEXT,
+      cover TEXT,
+      length TEXT,
+      tags TEXT
+    `,
+    insertColumns: [
+      "id",
+      "title",
+      "source",
+      "artist",
+      "cover",
+      "length",
+      "tags",
+    ],
+    getValues: (data) => [
+      data.id,
+      data.title,
+      data.url,
+      data.artist,
+      data.coverImage,
+      data.length,
+      JSON.stringify(data.tags),
+    ],
+  },
+};
 updateExtensionList();
 app.use(express.json());
 app.use(cors());
@@ -62,39 +111,18 @@ date, TEXT
   Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
     const type = data.properties.type;
-    if (type == "Comic") {
-      db.run(
-        `CREATE TABLE IF NOT EXISTS ${tableName} (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        source TEXT,
-        cover TEXT,
-        tags TEXT
-      )`,
-        (err) => {
-          if (err) {
-            console.error(`Error creating table ${tableName}:`, err.message);
-          }
-        },
-      );
-    }
-    if (type == "Music") {
-      db.run(
-        `CREATE TABLE IF NOT EXISTS ${tableName} (
-        id TEXT PRIMARY KEY,
-        title TEXT,
-        source TEXT,
-        artist TEXT,
-        cover TEXT,
-        length TEXT,
-        tags TEXT
-      )`,
-        (err) => {
-          if (err) {
-            console.error(`Error creating table ${tableName}:`, err.message);
-          }
-        },
-      );
+    const schema = tableSchemas[type];
+
+    if (schema) {
+      const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema.createColumns})`;
+
+      db.run(createTableQuery, (err) => {
+        if (err) {
+          console.error(`Error creating table ${tableName}:`, err.message);
+        }
+      });
+    } else {
+      console.warn(`No schema defined for type: ${type}`);
     }
   });
 });
@@ -185,9 +213,57 @@ app.get("/:extension/search", async (req, res) => {
   res.send(x);
 });
 
-app.post("/button-press", (req, res) => {
-  console.log("Button press received:", req.body);
-  res.json({ success: true, message: "Button press received on server" });
+app.post("/delete", async (req, res) => {
+  /*
+    (await fetch('http://localhost:3000/delete', {
+      method: 'POST',
+	  	headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: "manga-tq997351",
+      }), 
+    })).json()
+
+   */
+  const body = req.body;
+  const id = body.id;
+
+  try {
+    const table = await new Promise((resolve) => {
+      db.get(
+        `SELECT extension FROM main WHERE local_id = ?`,
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error("Database error:", err);
+            return resolve(null);
+          }
+          resolve(row?.extension || null);
+        },
+      );
+    });
+
+    if (!table) {
+      return res.status(404);
+    }
+
+    const extension = extensions[table];
+    if (!extension) {
+      return res.status(400);
+    }
+
+    const type = extension.properties.type;
+    db.run(`DELETE FROM main WHERE local_id = ?`, [id]);
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
+
+    if (type === "Comic") {
+      db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
+    }
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    res.status(500);
+  }
 });
 
 app.post("/:extension/getInfo", async (req, res) => {
@@ -200,7 +276,9 @@ app.post("/:extension/addToLibrary", async (req, res) => {
   try {
     const extension = extensions[req.params.extension];
     const body = req.body;
-    const data = await extension.getInfo(body.url);
+    const type = extension.properties.type;
+    const schema = tableSchemas[type];
+    let data = (await extension.getInfo(body.url)) || body;
     db.serialize(() => {
       const tableName = req.params.extension;
 
@@ -212,8 +290,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             console.error("Error checking for existing entry:", err.message);
             return;
           }
-
-          if (!row) {
+          if (!row && schema) {
             db.run(
               `INSERT INTO main (extension,local_id) VALUES (?,?)`,
               [tableName, data.id],
@@ -223,45 +300,40 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                 }
               },
             );
-            //TODO: fix for different types of media
-            db.run(
-              `INSERT INTO ${tableName} (id, name, source, cover, tags) VALUES (?, ?, ?, ?, ?)`,
-              [
-                data.id,
-                data.name,
-                data.url,
-                data.coverImage,
-                JSON.stringify(data.tags),
-              ],
-              (err) => {
-                if (err) {
-                  console.error(
-                    `Error inserting into ${tableName}:`,
-                    err.message,
-                  );
-                }
-              },
-            );
+            const columns = schema.insertColumns.join(", ");
+            const placeholders = schema.insertColumns.map(() => "?").join(", ");
+            const values = schema.getValues(data);
 
-            data.chapters.forEach((chapter) => {
-              db.run(
-                `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
-                [
-                  tableName,
-                  data.id,
-                  chapter.name,
-                  chapter.index,
-                  chapter.url,
-                  chapter.date,
-                ],
-              );
+            const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+
+            db.run(insertQuery, values, (err) => {
+              if (err) {
+                console.error(
+                  `Error inserting into ${tableName}:`,
+                  err.message,
+                );
+              }
             });
+
+            if (type == "Comic") {
+              data.chapters.forEach((chapter) => {
+                db.run(
+                  `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
+                  [
+                    tableName,
+                    data.id,
+                    chapter.name,
+                    chapter.index,
+                    chapter.url,
+                    chapter.date,
+                  ],
+                );
+              });
+            }
           }
         },
       );
     });
-
-    res.json(await extension.getInfo(body.url));
   } catch {
     res.json({ youSuck: true });
   }
@@ -299,22 +371,35 @@ app.get("/library", (req, res) => {
   });
 });
 app.get("/library/:category", async (req, res) => {
-  res.json(
-    await new Promise((resolve, reject) => {
-      db.all("SELECT * FROM manganato", [], (err, data) => {
+  const promises = [];
+
+  Object.keys(extensions).forEach((table) => {
+    const promise = new Promise((resolve, reject) => {
+      db.all(`SELECT * FROM ${table}`, [], (err, data) => {
         if (err) {
           reject(err);
         } else {
-          resolve(
-            data.map((item) => {
+          const parsedData = data.map((item) => {
+            if (item.tags) {
               item.tags = JSON.parse(item.tags);
-              return item;
-            }),
-          );
+            }
+            return item;
+          });
+          resolve(parsedData);
         }
       });
-    }),
-  );
+    });
+    promises.push(promise);
+  });
+
+  try {
+    const allData = await Promise.all(promises);
+    const flattenedData = allData.flat();
+    res.json(flattenedData);
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500);
+  }
 });
 
 const port = 3000;
