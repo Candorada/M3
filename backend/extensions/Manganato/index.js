@@ -19,7 +19,7 @@ function ifError(cb, el) {
 async function search(search) {
   const result = await (
     await fetch(
-      `https://manganato.com/advanced_search?s=all&page=1${search ? "&keyw=" + encodeURI(search) : ""}`,
+      search?`https://manganato.com/advanced_search?s=all&page=1${search ? "&keyw=" + encodeURI(search) : ""}`:"https://manganato.com/genre-all?type=topview",
     )
   ).text();
   return await {
