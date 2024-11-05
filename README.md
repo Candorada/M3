@@ -56,15 +56,17 @@ Delete **node_modules**
 
 ### **general template:**
 
-    const properties = {
-        name: "__name__",
-        type: "__type__",
-        sourceUrl: "__url__",
-        iconPath: "__icon.png__",
-        description: "__html description__"
-        creator: "__GitHub name__",
-        creatorSocials: "__GitHub url__",
-    };
+```js
+const properties = {
+  name: "__name__",
+  type: "__type__",
+  sourceUrl: "__url__",
+  iconPath: "__icon.png__",
+  description: "__html description__",
+  creator: "__GitHub name__",
+  creatorSocials: "__GitHub url__",
+};
+```
 
     function search(search) {}
 
