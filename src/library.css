@@ -92,3 +92,8 @@
     font-weight: bold;
     cursor: pointer;
 }
+.tokens > span.delete{
+    background:#FF0502;
+    font-weight: bold;
+    cursor: pointer;
+}
