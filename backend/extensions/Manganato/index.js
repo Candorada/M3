@@ -42,6 +42,7 @@ async function getInfo(URL) {
   const htmldata = await (await fetch(URL)).text();
   const regex = /<li[^>]*>((?:(?!<\/li)(?:.|\s))*)<\/li>/g;
   var chapterData = htmldata.split("row-content-chapter")[1].split("</ul>")[0];
+  console.log(htmldata.match(/(?<=<\/i>Author\(s\) :<\/td>\n                    <td class="table-value">\n).*(?=<\/td>)/))
   return await {
     url: URL,
     id: "Manganato-"+URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique 
@@ -52,6 +53,7 @@ async function getInfo(URL) {
       .split("<td")[1]
       .split("</td>")[0]
       .match(/(?<=>)\w+(?=<)/g),
+    contributors: [...htmldata.match(/(?<=<\/i>Author\(s\) :<\/td>\r\n                    <td class="table-value">\r\n).*?<\/td>/)[0].matchAll(/<a.*?>(.*?)</g)].map((x)=>x[1]),
     coverImage: htmldata.split("info-image")[1].split('src="')[1].split('"')[0],
     chapters: chapterData.match(regex).map((str, i, arr) => ({
       index: arr.length - i, //decimals allowed
@@ -65,7 +67,7 @@ async function getInfo(URL) {
 }
 /*
 //example fetch to run the getInfo function for chapmanta.to
-await (await fetch('http://localhost:3000/template/getInfo', {
+await (await fetch('http://localhost:3000/Manganato/getInfo', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
