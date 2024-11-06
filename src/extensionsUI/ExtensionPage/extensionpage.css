@@ -100,9 +100,21 @@
     align-items: stretch;
     width: 100%;
 }
-#searchResult > *{
+.searchItem{
     position: relative;
     display: block;
     aspect-ratio: 0.75; /* 300px width to 400px height */
     overflow: hidden;
+    top:0px;
+}
+.searchItem > img{
+    position: absolute;
+    top: 50%;
+    transform: translate(0,-50%);
+    width: 100%;
+
+}
+.overlay{
+    position: relative;
+    height: 100%;
 }

@@ -22,8 +22,9 @@ function ExtensionPage(){
     }
     function SearchItem({item}){
     return (<>
-    <div onClick = {()=>{addToLibrary(item)}}> {/* this element will be replaced with a clickable button*/}
+    <div onClick = {()=>{addToLibrary(item)}} class = "searchItem"> {/* this element will be replaced with a clickable button*/}
         <img src={item.img} alt={item.url}/>
+        <div class = "overlay"></div>
     </div>
     </>)
     }
