@@ -370,6 +370,12 @@ app.get("/library", (req, res) => {
     balls: "bye",
   });
 });
+app.get("/library/:category/:mediaID", async (req, res) => {
+  res.json({
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
+    balls: "bye",
+  });
+});
 app.get("/library/:category", async (req, res) => {
   const promises = [];
 

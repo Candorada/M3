@@ -3,6 +3,7 @@ import SideNav from "./SideNavBar";
 import Library from "./library";
 import ExtensionsPage from "./extensionsUI/extenisonsUI";
 import ExtensionPage from "./extensionsUI/ExtensionPage/extensionpage"
+import ItemPage from  "./libraryItemPage"
 import "./App.css"
 import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
 let sideNavRouter = createBrowserRouter([
@@ -15,6 +16,10 @@ let sideNavRouter = createBrowserRouter([
   {
     path: "/library",
     element: <Library />
+  },
+  {
+    path: "/library/:mediaID",
+    element: <ItemPage />
   },
   {
     path: "/extensions",

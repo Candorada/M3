@@ -16,7 +16,7 @@ function Library() {
     useEffect(()=>{libFetch()},[])
     function LibItem({item, id}){
         return (<>
-            <div className = "libraryItem"  key = {id}>
+            <div className = "libraryItem" onClick={()=>{window.location.href = "library/"+item.id}}>
                 <div className = "tokens">
                     <span className = "delete" onClick={()=>{
                         fetch('http://localhost:3000/delete', {
