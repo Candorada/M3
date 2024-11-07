@@ -31,15 +31,17 @@ const tableSchemas = {
       name TEXT,
       source TEXT,
       cover TEXT,
-      tags TEXT
+      tags TEXT,
+      contributors TEXT
     `,
-    insertColumns: ["id", "name", "source", "cover", "tags"],
+    insertColumns: ["id", "name", "source", "cover", "tags", "contributors"],
     getValues: (data) => [
       data.id,
       data.name,
       data.url,
       data.coverImage,
       JSON.stringify(data.tags),
+      JSON.stringify(data.contributors),
     ],
   },
   Music: {
@@ -99,7 +101,7 @@ manga_id TEXT,
 number REAL,
 name TEXT,
 source TEXT,
-date, TEXT
+date TEXT
 )`,
     (err) => {
       if (err) {
@@ -370,9 +372,61 @@ app.get("/library", (req, res) => {
     balls: "bye",
   });
 });
-app.get("/library/:category/:mediaID", async (req, res) => {
-  res.send("flip you :)")
+
+app.get("/library/:category/:mediaID", (req, res) => {
+  const id = req.params.mediaID;
+
+  db.get(`SELECT extension FROM main WHERE local_id = ?`, [id], (err, row) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send("Internal server error");
+    }
+
+    if (!row || !row.extension) {
+      return res.sendStatus(404);
+    }
+
+    const table = row.extension;
+    const type = extensions[table].properties.type;
+
+    db.get(`SELECT * FROM ${table} WHERE id = ?`, [id], (err, row) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).send("Internal server error");
+      }
+
+      if (!row) {
+        return res.sendStatus(404);
+      }
+      const jsonData = {};
+      Object.assign(jsonData, row);
+
+      if (type == "Comic") {
+        db.all(
+          `SELECT * FROM chapters WHERE manga_id=? ORDER BY number`,
+          [row.id],
+          (err, rows) => {
+            if (err) {
+              console.error("Database error:", err);
+              return res.status(500).send("Internal server error");
+            }
+
+            if (!rows) {
+              console.error("problem getting chapters");
+              return res.sendStatus(404);
+            }
+
+            Object.assign(jsonData, { chapters: rows });
+            res.json(jsonData);
+          },
+        );
+      } else {
+        res.json(row);
+      }
+    });
+  });
 });
+
 app.get("/library/:category", async (req, res) => {
   const promises = [];
 
