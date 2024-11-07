@@ -9,22 +9,33 @@ function ExtensionPage(){
     var extensionObj;
     const {extension} = useParams(); // fetches the paramizer extension from reactDom
     async function addToLibrary(item){
-        await (await fetch(`http://localhost:3000/${extension}/addToLibrary`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                            url:item.url,
-                extension:extension}),
-        })).json()
+        try{
+            return await (await fetch(`http://localhost:3000/${extension}/addToLibrary`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                                url:item.url,
+                    extension:extension}),
+            })).json()
+        }catch{
+            return "";
+        }
     
     }
     function SearchItem({item}){
     return (<>
-    <div onClick = {()=>{addToLibrary(item)}} class = "searchItem"> {/* this element will be replaced with a clickable button*/}
+    <div onClick = {async (event)=>{
+        event.target.querySelector("img").style = "--visible:true;";
+        addToLibrary(item).then(()=>{
+            event.target.querySelector("img").style = "";
+        })
+        }} className = "searchItem"> {/* this element will be replaced with a clickable button*/}
         <img src={item.img} alt={item.url}/>
-        <div class = "overlay"></div>
+        <div className = "overlay">
+            <img src="../src/assets/pencil.svg" alt="" />
+        </div>
     </div>
     </>)
     }

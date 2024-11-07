@@ -117,4 +117,29 @@
 .overlay{
     position: relative;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+@keyframes rotate {
+    from { 
+        transform: rotate(0deg); 
+    } to { 
+        transform: rotate(360deg); 
+    }
+}
+.overlay > img{
+    width: 50px;
+    display: none;
+    position: absolute;
+    animation: rotate 2s infinite;
+    filter: 
+    drop-shadow(-1px -1px 0px #000000) 
+    drop-shadow(1px -1px 0px #000000) 
+    drop-shadow(1px 1px 0px #000000)
+    drop-shadow(-1px 1px 0px #000000)
+    invert(100%);
+}
+.overlay > img[style*="--visible: true;"]{
+    display: unset;
 }

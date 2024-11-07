@@ -336,8 +336,10 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         },
       );
     });
-  } catch {
-    res.json({ youSuck: true });
+    res.status(200);
+    res.send({code:200,msg:"sucessfully added"})
+  } catch (e){
+    res.json(e);
   }
 });
 
