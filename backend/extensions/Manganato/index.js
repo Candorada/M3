@@ -42,9 +42,9 @@ async function getInfo(URL) {
   const htmldata = await (await fetch(URL)).text();
   const regex = /<li[^>]*>((?:(?!<\/li)(?:.|\s))*)<\/li>/g;
   var chapterData = htmldata.split("row-content-chapter")[1].split("</ul>")[0];
-  console.log(htmldata.match(/(?<=<\/i>Author\(s\) :<\/td>\n                    <td class="table-value">\n).*(?=<\/td>)/))
   return await {
     url: URL,
+    about:htmldata.split('class="panel-story-info-description"')[1].split("</h3>")[1].split("</div>")[0],
     id: "Manganato-"+URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique 
     //to make it unique just append your extension folder name at the front of your id.
     name: htmldata.split("story-info-right")[1].match(/(?<=<h1>)[^<]*/)[0],

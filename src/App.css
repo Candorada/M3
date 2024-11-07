@@ -3,7 +3,8 @@
     width: 100%;
 }
 #currentPage{
-    width: calc(100% - 50px);
+    position: relative;
+    width: calc(100% - 60px);
     overflow: hidden;
     height: 100%;
 }
