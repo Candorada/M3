@@ -2,7 +2,7 @@
     font-family: var(--font);
     display:flex;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     flex-direction: column;
     overflow:hidden;
 }
@@ -11,7 +11,7 @@
 }
 #library >div:has(#libraryItemHolder){
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 #topbar{
     display: flex;
@@ -88,6 +88,7 @@
     margin-right: 5px;
 }
 .tokens > span.delete{
+    pointer-events: unset;
     background:#FF0502;
     font-weight: bold;
     cursor: pointer;
