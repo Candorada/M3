@@ -7,7 +7,7 @@ function ItemPage(){
         "id": "exampleID",
         "name": "Template Name",
         "source": "about:blank",
-        "description":"Template",
+        "about": "Template",
         "cover": "src/extensionsUI/Error.jpg",
         "tags":JSON.stringify([
             "Action",
@@ -20,7 +20,7 @@ function ItemPage(){
             "Shounen",
             "Manhua"
         ]),
-        "contributors": JSON.stringify(["Mad Snail"]),
+        "contributors": JSON.stringify(["Template Person"]),
         "chapters": [{
             "id": 1,
             "extension": "TemplateExtension",
@@ -39,16 +39,45 @@ function ItemPage(){
     return <>
         <div id = "libraryItemPage">
             <div className = "banner">
-                    <img src={item.cover} alt=""/>
+                    <img src={item.cover} alt="" onLoad={(x)=>{
+                        if(x.target.naturalWidth < window.innerWidth){
+                            x.target.style = "filter: blur(3px);"
+
+                        }
+                    }}/>
             </div>
             <div id = "about">
                 <div className = "cover">
                     <img src={item.cover} alt="" />
+                    Contributors
+                    <div className = "tks">{JSON.parse(item.contributors).map((name,i)=>(
+                        <div className = "tk" key = {i}>{name}</div>
+                    ))}</div>
+                    Tags
+                    <div className = "tks">{JSON.parse(item.tags).map((name,i)=>(
+                        <div className = "tk" key = {i}>{name}</div>
+                    ))}</div>
                 </div>
                 <div className = "about">
                     <div id = "title">{item.name}</div>
-                    <div id = "description">{item.description}</div>
+                    <div id = "description" dangerouslySetInnerHTML={{__html: item.about}}></div>
                 </div>
+            </div>
+            <div className="chapterList">
+                <div className ="chapterListHeader chapter">
+                    <div className = "name">Chapter Name</div>
+                    <div className = "number">#</div>
+                    <div className="">Date</div>
+                </div>
+                {item.chapters.sort((a,b)=>b.number - a.number).map((chapter,i)=>(
+                            
+                            <div className = "chapter" key = {i}>{console.log(chapter)}
+                                <div className = "name">{chapter.name}</div>
+                                <div className = "number">{chapter.number}</div>
+                                <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d\d\/\d\d\/)20(\d\d)/,"$1$2")}</div>
+                            </div>
+                        )
+                )}
             </div>
         </div>
     </>
