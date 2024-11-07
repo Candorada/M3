@@ -47,7 +47,7 @@ function ItemPage(){
                 </div>
                 <div className = "about">
                     <div id = "title">{item.name}</div>
-                    <div id = "description">{}</div>
+                    <div id = "description">{item.description}</div>
                 </div>
             </div>
         </div>
