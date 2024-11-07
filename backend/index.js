@@ -32,9 +32,18 @@ const tableSchemas = {
       source TEXT,
       cover TEXT,
       tags TEXT,
-      contributors TEXT
+      contributors TEXT,
+      about TEXT
     `,
-    insertColumns: ["id", "name", "source", "cover", "tags", "contributors"],
+    insertColumns: [
+      "id",
+      "name",
+      "source",
+      "cover",
+      "tags",
+      "contributors",
+      "about",
+    ],
     getValues: (data) => [
       data.id,
       data.name,
@@ -42,6 +51,7 @@ const tableSchemas = {
       data.coverImage,
       JSON.stringify(data.tags),
       JSON.stringify(data.contributors),
+      data.about,
     ],
   },
   Music: {
@@ -52,7 +62,8 @@ const tableSchemas = {
       artist TEXT,
       cover TEXT,
       length TEXT,
-      tags TEXT
+      tags TEXT,
+      about TEXT
     `,
     insertColumns: [
       "id",
@@ -62,6 +73,7 @@ const tableSchemas = {
       "cover",
       "length",
       "tags",
+      "about",
     ],
     getValues: (data) => [
       data.id,
@@ -71,6 +83,7 @@ const tableSchemas = {
       data.coverImage,
       data.length,
       JSON.stringify(data.tags),
+      data.about,
     ],
   },
 };
@@ -337,8 +350,8 @@ app.post("/:extension/addToLibrary", async (req, res) => {
       );
     });
     res.status(200);
-    res.send({code:200,msg:"sucessfully added"})
-  } catch (e){
+    res.send({ code: 200, msg: "sucessfully added" });
+  } catch (e) {
     res.json(e);
   }
 });
