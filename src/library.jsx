@@ -18,7 +18,8 @@ function Library() {
         return (<>
             <div className = "libraryItem" onClick={()=>{window.location.href = "library/"+item.id}}>
                 <div className = "tokens">
-                    <span className = "delete" onClick={()=>{
+                    <span className = "delete" onClick={(event)=>{
+                        event.stopPropagation();
                         fetch('http://localhost:3000/delete', {
                             method: 'POST',
                                 headers: {

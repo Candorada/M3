@@ -88,6 +88,7 @@
     margin-right: 5px;
 }
 .tokens > span.delete{
+    pointer-events: unset;
     background:#FF0502;
     font-weight: bold;
     cursor: pointer;
