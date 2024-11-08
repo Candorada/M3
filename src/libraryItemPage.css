@@ -67,11 +67,17 @@
 #libraryItemPage{
     display: flex;
     flex-direction: column;
-
     height: 100%;
     overflow: auto;
 }
+.about{
+    overflow: hidden;
+    width: 100%;
+}
 #description{
+    text-wrap: wrap;
+    word-break: break-all;
+    width: 100%;
     max-height: 16rem;
     overflow: auto;
     border-bottom: dotted var(--secondary2);
