@@ -65,6 +65,10 @@ async function getInfo(URL) {
     })),
   };
 }
+
+async function getChapterData(url) {
+  return [url];
+}
 /*
 //example fetch to run the getInfo function for chapmanta.to
 await (await fetch('http://localhost:3000/Manganato/getInfo', {
@@ -78,5 +82,6 @@ await (await fetch('http://localhost:3000/Manganato/getInfo', {
 module.exports = {
   search: search,
   getInfo: getInfo,
+  getChapterData: getChapterData,
   properties: extensionProperties,
 };
