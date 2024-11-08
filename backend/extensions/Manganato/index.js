@@ -19,7 +19,9 @@ function ifError(cb, el) {
 async function search(search) {
   const result = await (
     await fetch(
-      search?`https://manganato.com/advanced_search?s=all&page=1${search ? "&keyw=" + encodeURI(search) : ""}`:"https://manganato.com/genre-all?type=topview",
+      search
+        ? `https://manganato.com/advanced_search?s=all&page=1${search ? "&keyw=" + encodeURI(search) : ""}`
+        : "https://manganato.com/genre-all?type=topview",
     )
   ).text();
   return await {
@@ -44,8 +46,11 @@ async function getInfo(URL) {
   var chapterData = htmldata.split("row-content-chapter")[1].split("</ul>")[0];
   return await {
     url: URL,
-    about:htmldata.split('class="panel-story-info-description"')[1].split("</h3>")[1].split("</div>")[0],
-    id: "Manganato-"+URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique 
+    about: htmldata
+      .split('class="panel-story-info-description"')[1]
+      .split("</h3>")[1]
+      .split("</div>")[0],
+    id: "Manganato-" + URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique
     //to make it unique just append your extension folder name at the front of your id.
     name: htmldata.split("story-info-right")[1].match(/(?<=<h1>)[^<]*/)[0],
     tags: htmldata
@@ -53,7 +58,13 @@ async function getInfo(URL) {
       .split("<td")[1]
       .split("</td>")[0]
       .match(/(?<=>)\w+(?=<)/g),
-    contributors: [...htmldata.match(/(?<=<\/i>Author\(s\) :<\/td>\r\n                    <td class="table-value">\r\n).*?<\/td>/)[0].matchAll(/<a.*?>(.*?)</g)].map((x)=>x[1]),
+    contributors: [
+      ...htmldata
+        .match(
+          /(?<=<\/i>Author\(s\) :<\/td>\r\n                    <td class="table-value">\r\n).*?<\/td>/,
+        )[0]
+        .matchAll(/<a.*?>(.*?)</g),
+    ].map((x) => x[1]),
     coverImage: htmldata.split("info-image")[1].split('src="')[1].split('"')[0],
     chapters: chapterData.match(regex).map((str, i, arr) => ({
       index: arr.length - i, //decimals allowed
@@ -70,6 +81,7 @@ async function getChapterData(url) {
 
   var text = await (await fetch(url)).text()
   return text.split("container-chapter-reader")[1].match(/<img.*?>/g).map((x)=>x.match(/(?<=src=\").*?(?=\")/)[0])
+  return { extension: url };
 }
 /*
 //example fetch to run the getInfo function for chapmanta.to
