@@ -26,6 +26,7 @@ function updateExtensionList() {
 
 const tableSchemas = {
   Comic: {
+    //database entry with types
     createColumns: `
       id TEXT PRIMARY KEY,
       name TEXT,
@@ -35,6 +36,7 @@ const tableSchemas = {
       contributors TEXT,
       about TEXT
     `,
+    //database column names in the same order
     insertColumns: [
       "id",
       "name",
@@ -44,6 +46,7 @@ const tableSchemas = {
       "contributors",
       "about",
     ],
+    //same names as being returned in extension file, in the same order as database
     getValues: (data) => [
       data.id,
       data.name,
@@ -276,7 +279,7 @@ app.post("/delete", async (req, res) => {
       db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
     }
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error("Unexected error:", error);
     res.sendStatus(500);
   }
 });
@@ -287,10 +290,10 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
-app.get("/library/:category/:mediaID/getChapter", async (req, res) => {
-  // example: http://localhost:3000/library/comics/Manganato-manga-aa951409/getChapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
+app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
+  // example: http://localhost:3000/library/comics/manganato-manga-aa951409/getchapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
   const url = req.query.url;
-  const id = req.params.mediaID;
+  const id = req.params.mediaid;
 
   const extension = await new Promise((resolve) => {
     db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {

@@ -31,19 +31,15 @@ let sideNavRouter = createBrowserRouter([
   },
 ])
 function App() {
-  const [count, setCount] = useState(0);
-  console.log(sideNavRouter)
   return (
     <>
     {(()=>{
       let route = sideNavRouter.state.matches[0].route.path
       if(route == "/library/:mediaID"){
-        return (<input type="button" value = "< back" style = {{
-          position: "absolute",
-          zIndex:1,
-          top:0,
-          left:0
-        }} />)
+        return (<input type="button" value = "< back" className="backButton"
+          onClick={()=>{
+            sideNavRouter.navigate(-1)
+          }} />)
       }
     return <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
     })()}
