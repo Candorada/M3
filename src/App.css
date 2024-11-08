@@ -4,6 +4,7 @@
 }
 #currentPage{
     position: relative;
+    flex-grow:1;
     width: calc(100% - 60px);
     overflow: hidden;
     height: 100vh;

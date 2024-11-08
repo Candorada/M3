@@ -71,7 +71,7 @@ function ItemPage(){
                 </div>
                 {item.chapters.sort((a,b)=>b.number - a.number).map((chapter,i)=>(
                             
-                            <div className = "chapter" key = {i}>{console.log(chapter)}
+                            <div className = "chapter" key = {i}>
                                 <div className = "name">{chapter.name}</div>
                                 <div className = "number">{chapter.number}</div>
                                 <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d\d\/\d\d\/)20(\d\d)/,"$1$2")}</div>
