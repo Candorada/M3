@@ -1,7 +1,9 @@
 import "./libraryItemPage.css"
 import {useParams} from "react-router-dom"
+import { useNavigate } from 'react-router-dom';
 import {useState, useEffect} from "react"
 function ItemPage(){
+    const navigate = useNavigate()
     const {mediaID} = useParams();
     const [item,setItem] = useState({
         "id": "exampleID",
@@ -70,11 +72,12 @@ function ItemPage(){
                     <div className="">Date</div>
                 </div>
                 {item.chapters.sort((a,b)=>b.number - a.number).map((chapter,i)=>(
-                            
-                            <div className = "chapter" key = {i}>
+                            <div className = "chapter" key = {i} onClick={()=>{
+                                navigate("./"+chapter.id)
+                            }}>
                                 <div className = "name">{chapter.name}</div>
                                 <div className = "number">{chapter.number}</div>
-                                <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d\d\/\d\d\/)20(\d\d)/,"$1$2")}</div>
+                                <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d+\/\d+\/)20(\d+)/,"$1$2").replace(/(?<!\d)(\d)(?!\d)/g,"0$1")}</div>
                             </div>
                         )
                 )}
