@@ -67,7 +67,9 @@ async function getInfo(URL) {
 }
 
 async function getChapterData(url) {
-  return [url];
+
+  var text = await (await fetch(url)).text()
+  return text.split("container-chapter-reader")[1].match(/<img.*?>/g).map((x)=>x.match(/(?<=src=\").*?(?=\")/)[0])
 }
 /*
 //example fetch to run the getInfo function for chapmanta.to
