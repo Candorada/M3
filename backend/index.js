@@ -287,6 +287,28 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
+app.get("/library/:category/:mediaID/getChapter", async (req, res) => {
+  // example: http://localhost:3000/library/comics/Manganato-manga-aa951409/getChapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
+  const url = req.query.url;
+  const id = req.params.mediaID;
+
+  const extension = await new Promise((resolve) => {
+    db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
+      if (err) {
+        console.error("Error retrieving chapter data:", err);
+        return resolve(null);
+      }
+      if (!row) {
+        console.error("No data found for given mediaID.");
+        return resolve(null);
+      }
+      resolve(row.extension);
+    });
+  });
+
+  res.json(await extensions[extension].getChapterData(url));
+});
+
 app.post("/:extension/addToLibrary", async (req, res) => {
   try {
     const extension = extensions[req.params.extension];
