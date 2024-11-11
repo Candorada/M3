@@ -291,7 +291,7 @@ app.post("/:extension/getInfo", async (req, res) => {
 });
 
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
-  // example: http://localhost:3000/library/comics/manganato-manga-aa951409/getchapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
+  // example: http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
   const url = req.query.url;
   const id = req.params.mediaid;
 
@@ -309,7 +309,7 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
     });
   });
 
-  res.json(await extensions[extension].getChapterData(url));
+  res.send(await extensions[extension].getChapterData(url));
 });
 
 app.post("/:extension/addToLibrary", async (req, res) => {

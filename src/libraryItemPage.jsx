@@ -38,6 +38,12 @@ function ItemPage(){
             setItem(json)
         })
     },[])
+    let description = item.about
+    
+    .replaceAll(
+        /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>]+)*)(?<!\))/g,
+        `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`
+    )
     return <>
         <div id = "libraryItemPage">
             <div className = "banner">
@@ -62,7 +68,7 @@ function ItemPage(){
                 </div>
                 <div className = "about">
                     <div id = "title">{item.name}</div>
-                    <div id = "description" dangerouslySetInnerHTML={{__html: item.about}}></div>
+                    <div id = "description" dangerouslySetInnerHTML={{__html: description}}></div>
                 </div>
             </div>
             <div className="chapterList">
