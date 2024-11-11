@@ -76,7 +76,7 @@
 }
 #description{
     text-wrap: wrap;
-    word-break: break-all;
+    word-break:break-word;
     width: 100%;
     max-height: 16rem;
     overflow: auto;
