@@ -24,6 +24,7 @@ function updateExtensionList() {
   });
 }
 
+//shemas for all types of media in the database tables
 const tableSchemas = {
   Comic: {
     //database entry with types
@@ -112,13 +113,14 @@ db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS chapters (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-extension TEXT,
-manga_id TEXT,
-number REAL,
-name TEXT,
-source TEXT,
-date TEXT
-)`,
+      downloaded BOOLEAN DEFAULT 0,
+      extension TEXT,
+      manga_id TEXT,
+      number REAL,
+      name TEXT,
+      source TEXT,
+      date TEXT
+      )`,
     (err) => {
       if (err) {
         console.error("Error creating chapters table:", err.message);
@@ -231,6 +233,7 @@ app.get("/:extension/search", async (req, res) => {
   res.send(x);
 });
 
+//delete media from library
 app.post("/delete", async (req, res) => {
   /*
     (await fetch('http://localhost:3000/delete', {
@@ -239,7 +242,7 @@ app.post("/delete", async (req, res) => {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: "manga-tq997351",
+        id: "Manganato-manga-aa951409",
       }), 
     })).json()
 
@@ -290,9 +293,12 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
+//get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
-  // example: http://localhost:3000/library/comics/manganato-manga-aa951409/getchapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
-  const url = req.query.url;
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
+  let url = req.query.url;
+  const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
   const extension = await new Promise((resolve) => {
     db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
@@ -307,9 +313,31 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
       resolve(row.extension);
     });
   });
-  res.json(await extensions[extension].getChapterData(url));
+
+  if (chapterID != undefined) {
+    url = await new Promise((resolve) => {
+      db.get(
+        `SELECT source FROM chapters WHERE manga_id=?`,
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error("Error retrieving chapter data:", err);
+            return resolve(null);
+          }
+          if (!row) {
+            console.error("No data found for given mediaID.");
+            return resolve(null);
+          }
+          resolve(row.source);
+        },
+      );
+    });
+  }
+
+  res.send(await extensions[extension].getChapterData(url));
 });
 
+//add media to your library
 app.post("/:extension/addToLibrary", async (req, res) => {
   try {
     const extension = extensions[req.params.extension];
@@ -379,29 +407,46 @@ app.post("/:extension/addToLibrary", async (req, res) => {
   }
 });
 
+//show all extensions and their properties
 app.get("/extensionList", (req, res) => {
   updateExtensionList();
   res.json(extensions);
 });
 
-app.get("/test", async (req, res) => {
-  let img = await await fetch(
-    "https://cdn-icons-png.flaticon.com/512/3460/3460831.png",
-  );
-  console.log(img.arrayBuffer);
-  res.set("Content-Type", "image/png");
-  res.send(Buffer.from(await img.arrayBuffer()));
-});
+app.post("/download", async (req, res) => {
+  /*
+    (await fetch('http://localhost:3000/download', {
+      method: 'POST',
+          headers: {
+          'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        media_id: "manganato-manga-aa951409",
 
-app.get("/html", (req, res) => {
-  res.send(
-    "<a href = 'https://www.google.com'>html stuff</a> <br></br> <a>hi</a>",
-  );
-});
+				//if manga put chapter_id (id in chapters table)
+				chapter_id: 2641,
+      }), 
+    })).json()
+*/
+  const body = req.body;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id;
 
-app.get("/render", (req, res) => {
-  console.log("ass");
-  res.send("balls");
+  const table = await new Promise((resolve) => {
+    db.get(
+      `SELECT extension FROM main WHERE local_id = ? COLLATE NOCASE`,
+      [media_id],
+      (err, row) => {
+        if (err) {
+          console.error("Database error:", err);
+          return resolve(null);
+        }
+        resolve(row?.extension || null);
+      },
+    );
+  });
+
+  res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
 
 app.get("/library", (req, res) => {
@@ -411,6 +456,7 @@ app.get("/library", (req, res) => {
   });
 });
 
+//get data about a certain piece of media
 app.get("/library/:category/:mediaID", (req, res) => {
   const id = req.params.mediaID;
 
@@ -465,6 +511,7 @@ app.get("/library/:category/:mediaID", (req, res) => {
   });
 });
 
+//get all media data
 app.get("/library/:category", async (req, res) => {
   const promises = [];
 
