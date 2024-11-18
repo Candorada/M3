@@ -242,7 +242,7 @@ app.post("/delete", async (req, res) => {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: "manga-tq997351",
+        id: "Manganato-manga-aa951409",
       }), 
     })).json()
 
@@ -414,24 +414,40 @@ app.get("/extensionList", (req, res) => {
   res.json(extensions);
 });
 
-app.get("/test", async (req, res) => {
-  let img = await await fetch(
-    "https://cdn-icons-png.flaticon.com/512/3460/3460831.png",
-  );
-  console.log(img.arrayBuffer);
-  res.set("Content-Type", "image/png");
-  res.send(Buffer.from(await img.arrayBuffer()));
-});
+app.post("/download", async (req, res) => {
+  /*
+    (await fetch('http://localhost:3000/download', {
+      method: 'POST',
+          headers: {
+          'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        media_id: "manganato-manga-aa951409",
 
-app.get("/html", (req, res) => {
-  res.send(
-    "<a href = 'https://www.google.com'>html stuff</a> <br></br> <a>hi</a>",
-  );
-});
+				//if manga put chapter_id (id in chapters table)
+				chapter_id: 2641,
+      }), 
+    })).json()
+*/
+  const body = req.body;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id;
 
-app.get("/render", (req, res) => {
-  console.log("ass");
-  res.send("balls");
+  const table = await new Promise((resolve) => {
+    db.get(
+      `SELECT extension FROM main WHERE local_id = ? COLLATE NOCASE`,
+      [media_id],
+      (err, row) => {
+        if (err) {
+          console.error("Database error:", err);
+          return resolve(null);
+        }
+        resolve(row?.extension || null);
+      },
+    );
+  });
+
+  res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
 
 app.get("/library", (req, res) => {
