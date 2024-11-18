@@ -36,24 +36,21 @@ let sideNavRouter = createBrowserRouter([
   },
 ])
 function App() {
-  let [backButton,setBackButton] = useState()
-  useEffect(()=>{
-    setBackButton((()=>{
       let route = sideNavRouter.state.matches[0].route.path
-      console.log(route)
+      let backb = null
       if(route == "/library/:mediaID" ||route=="/library/:mediaID/:chapterID"){
-        return (<input type="button" value = "< back" className="backButton"
+        backb = (<input type="button" value = "< back" className="backButton"
           onClick={()=>{
             sideNavRouter.navigate("./..")
+            window.location.reload()
           }} />)
+      }else{
+        backb = <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
       }
-    return <SideNav selected={window.location.href.split(/(?<!\/)\/(?!\/)/)[1]}/>
-    })())
-  })
   return (
     <>
     {
-      backButton
+      backb
     }
       <div id = "currentPage">
       <RouterProvider router = {sideNavRouter}/>
