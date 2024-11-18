@@ -294,7 +294,6 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // example: http://localhost:3000/library/comics/manganato-manga-aa951409/getchapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
   const url = req.query.url;
   const id = req.params.mediaid;
-
   const extension = await new Promise((resolve) => {
     db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
       if (err) {
@@ -308,7 +307,6 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
       resolve(row.extension);
     });
   });
-
   res.json(await extensions[extension].getChapterData(url));
 });
 
