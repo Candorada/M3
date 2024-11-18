@@ -300,6 +300,7 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
+
   const extension = await new Promise((resolve) => {
     db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
       if (err) {
@@ -413,6 +414,7 @@ app.get("/extensionList", (req, res) => {
   res.json(extensions);
 });
 
+//download media
 app.post("/download", async (req, res) => {
   /*
     (await fetch('http://localhost:3000/download', {
@@ -445,6 +447,13 @@ app.post("/download", async (req, res) => {
       },
     );
   });
+
+  if (!table) {
+    console.error("no row");
+    return res.sendStatus(404);
+  }
+
+  db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
 
   res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
