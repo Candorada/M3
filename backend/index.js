@@ -458,11 +458,62 @@ app.post("/download", async (req, res) => {
   res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
 
-app.get("/library", (req, res) => {
-  res.json({
-    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
-    balls: "bye",
+app.get("/view", async (req, res) => {
+  const imageUrl =
+    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1129_living_dolls/2-1728644329-o.jpg"; // Replace with your image URL
+  const filePath = path.join(__dirname, "downloaded-image.jpg"); // Path to save the file locally
+
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    console.log(response.arrayBuffer);
+
+    res.set("Content-Type", "image/jpg");
+    fileSystem.writeFileSync(
+      filePath,
+      Buffer.from(await response.arrayBuffer()),
+    );
+
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error("Error downloading or serving the image:", error.message);
+    res.status(500).send("Failed to fetch and serve the image.");
+  }
+});
+
+app.get("/imageProxy", async (req, res) => {
+  if (!req.query.url) {
+    res.sendStatus(400);
+    return;
+  }
+  let fet = fetch(req.query.url, {
+    headers: {
+      accept:
+        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "accept-language": "en-US,en;q=0.9",
+      "cache-control": "no-cache",
+      pragma: "no-cache",
+      priority: "i",
+      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "image",
+      "sec-fetch-mode": "no-cors",
+      "sec-fetch-site": "cross-site",
+    },
+    referrer: req.query.referer,
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+    credentials: "omit",
   });
+  res.set("Content-Type", "image/jpeg");
+  let buffer = Buffer.from(await (await fet).arrayBuffer());
+  console.log(buffer);
+  res.send(buffer);
 });
 
 //get data about a certain piece of media
