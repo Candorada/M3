@@ -1,0 +1,8 @@
+.ScrollboxComicReader{
+    height: 100%;
+    overflow: auto;
+}
+.comicPage{
+    width: 100%;
+    max-width: 800px;
+}
