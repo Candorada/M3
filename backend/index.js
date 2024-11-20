@@ -493,15 +493,18 @@ app.post("/download", async (req, res) => {
 
 app.get("/view", async (req, res) => {
   const imageUrl =
-    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1129_living_dolls/2-1728644329-o.jpg"; // Replace with your image URL
+    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1120/10-1720731306-o.jpg"; // Replace with your image URL
   const filePath = path.join(__dirname, "downloaded-image.jpg"); // Path to save the file locally
 
   try {
-    const response = await fetch(imageUrl);
+    const response = await fetch(
+      "http://localhost:3000/imageProxy?url=" +
+        imageUrl +
+        "&referer=http://chapmanganato.to",
+    );
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
-    console.log(response.arrayBuffer);
 
     res.set("Content-Type", "image/jpg");
     fileSystem.writeFileSync(
