@@ -292,37 +292,38 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
-app.get("/imageProxy",async (req,res)=>{
-  if(!req.query.url){
-    res.sendStatus(400)
-    return
+app.get("/imageProxy", async (req, res) => {
+  if (!req.query.url) {
+    res.sendStatus(400);
+    return;
   }
   let fet = fetch(req.query.url, {
-    "headers": {
-      "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    headers: {
+      accept:
+        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
       "accept-language": "en-US,en;q=0.9",
       "cache-control": "no-cache",
-      "pragma": "no-cache",
-      "priority": "i",
-      "sec-ch-ua": "\"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
+      pragma: "no-cache",
+      priority: "i",
+      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
       "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": "\"macOS\"",
+      "sec-ch-ua-platform": '"macOS"',
       "sec-fetch-dest": "image",
       "sec-fetch-mode": "no-cors",
-      "sec-fetch-site": "cross-site"
+      "sec-fetch-site": "cross-site",
     },
-    "referrer": req.query.referer,
-    "referrerPolicy": "strict-origin-when-cross-origin",
-    "body": null,
-    "method": "GET",
-    "mode": "cors",
-    "credentials": "omit"
+    referrer: req.query.referer,
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+    credentials: "omit",
   });
   res.set("Content-Type", "image/jpeg");
-  let buffer = Buffer.from(await (await fet).arrayBuffer())
-  console.log(buffer)
-  res.send(buffer)
-})
+  let buffer = Buffer.from(await (await fet).arrayBuffer());
+  console.log(buffer);
+  res.send(buffer);
+});
 
 //get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
@@ -599,6 +600,13 @@ app.get("/library/:category/:mediaID", (req, res) => {
         res.json(row);
       }
     });
+  });
+});
+
+app.get("/library", (req, res) => {
+  res.json({
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
+    balls: "bye",
   });
 });
 
