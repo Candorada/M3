@@ -328,7 +328,7 @@ app.get("/imageProxy", async (req, res) => {
 //get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
-  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=2104
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
@@ -348,10 +348,11 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   });
 
   if (chapterID != undefined) {
+    console.log("balls");
     url = await new Promise((resolve) => {
       db.get(
-        `SELECT source FROM chapters WHERE manga_id=?`,
-        [id],
+        `SELECT source FROM chapters WHERE id=?`,
+        [chapterID],
         (err, row) => {
           if (err) {
             console.error("Error retrieving chapter data:", err);
