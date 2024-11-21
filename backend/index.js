@@ -382,6 +382,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const type = extension.properties.type;
     const schema = tableSchemas[type];
     let data = (await extension.getInfo(body.url)) || body;
+
     db.serialize(() => {
       const tableName = req.params.extension;
 
@@ -393,50 +394,97 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             console.error("Error checking for existing entry:", err.message);
             return;
           }
+
           if (!row && schema) {
             db.run(
-              `INSERT INTO main (extension,local_id) VALUES (?,?)`,
+              `INSERT INTO main (extension, local_id) VALUES (?, ?)`,
               [tableName, data.id],
               (err) => {
                 if (err) {
                   console.error("Error inserting into main:", err.message);
+                  return;
                 }
+
+                const columns = schema.insertColumns.join(", ");
+                const placeholders = schema.insertColumns
+                  .map(() => "?")
+                  .join(", ");
+                const values = schema.getValues(data);
+
+                const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+
+                db.run(insertQuery, values, (err) => {
+                  if (err) {
+                    console.error(
+                      `Error inserting into ${tableName}:`,
+                      err.message,
+                    );
+                    return;
+                  }
+
+                  if (type === "Comic") {
+                    let chapterInserts = 0;
+                    const totalChapters = data.chapters.length;
+
+                    if (totalChapters === 0) {
+                      // No chapters, call fetch immediately
+                      makeFetchCall();
+                    }
+
+                    data.chapters.forEach((chapter) => {
+                      db.run(
+                        `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?, ?, ?, ?, ?, ?)`,
+                        [
+                          tableName,
+                          data.id,
+                          chapter.name,
+                          chapter.index,
+                          chapter.url,
+                          chapter.date,
+                        ],
+                        (err) => {
+                          if (err) {
+                            console.error(
+                              "Error inserting chapter:",
+                              err.message,
+                            );
+                            return;
+                          }
+
+                          chapterInserts++;
+                          if (chapterInserts === totalChapters) {
+                            makeFetchCall();
+                          }
+                        },
+                      );
+                    });
+                  } else {
+                    makeFetchCall();
+                  }
+                });
               },
             );
-            const columns = schema.insertColumns.join(", ");
-            const placeholders = schema.insertColumns.map(() => "?").join(", ");
-            const values = schema.getValues(data);
-
-            const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-
-            db.run(insertQuery, values, (err) => {
-              if (err) {
-                console.error(
-                  `Error inserting into ${tableName}:`,
-                  err.message,
-                );
-              }
-            });
-
-            if (type == "Comic") {
-              data.chapters.forEach((chapter) => {
-                db.run(
-                  `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
-                  [
-                    tableName,
-                    data.id,
-                    chapter.name,
-                    chapter.index,
-                    chapter.url,
-                    chapter.date,
-                  ],
-                );
-              });
-            }
+          } else {
+            makeFetchCall();
           }
         },
       );
     });
+
+    function makeFetchCall() {
+      fetch("http://localhost:3000/download", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          media_id: data.id,
+          referer: "http://chapmanganato.to",
+          cover: true,
+        }),
+      }).then((res) => console.log("Fetch complete:", res.status));
+    }
+
     res.status(200);
     res.send({ code: 200, msg: "sucessfully added" });
   } catch (e) {
@@ -681,6 +729,13 @@ app.get("/library/:category", async (req, res) => {
     console.error("Database error:", error);
     res.status(500);
   }
+});
+
+app.get("/library", (req, res) => {
+  res.json({
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
+    balls: "bye",
+  });
 });
 
 const port = 3000;
