@@ -292,43 +292,42 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
-app.get("/imageProxy", async (req, res) => {
-  if (!req.query.url) {
-    res.sendStatus(400);
-    return;
+app.get("/imageProxy",async (req,res)=>{
+  if(!req.query.url){
+    res.sendStatus(400)
+    return
   }
   let fet = fetch(req.query.url, {
-    headers: {
-      accept:
-        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+    "headers": {
+      "accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
       "accept-language": "en-US,en;q=0.9",
       "cache-control": "no-cache",
-      pragma: "no-cache",
-      priority: "i",
-      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+      "pragma": "no-cache",
+      "priority": "i",
+      "sec-ch-ua": "\"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
       "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
+      "sec-ch-ua-platform": "\"macOS\"",
       "sec-fetch-dest": "image",
       "sec-fetch-mode": "no-cors",
-      "sec-fetch-site": "cross-site",
+      "sec-fetch-site": "cross-site"
     },
-    referrer: req.query.referer,
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: null,
-    method: "GET",
-    mode: "cors",
-    credentials: "omit",
+    "referrer": req.query.referer,
+    "referrerPolicy": "strict-origin-when-cross-origin",
+    "body": null,
+    "method": "GET",
+    "mode": "cors",
+    "credentials": "omit"
   });
   res.set("Content-Type", "image/jpeg");
-  let buffer = Buffer.from(await (await fet).arrayBuffer());
-  console.log(buffer);
-  res.send(buffer);
-});
+  let buffer = Buffer.from(await (await fet).arrayBuffer())
+  console.log(buffer)
+  res.send(buffer)
+})
 
 //get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
-  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=2104
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
@@ -348,11 +347,10 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   });
 
   if (chapterID != undefined) {
-    console.log("balls");
     url = await new Promise((resolve) => {
       db.get(
-        `SELECT source FROM chapters WHERE id=?`,
-        [chapterID],
+        `SELECT source FROM chapters WHERE manga_id=?`,
+        [id],
         (err, row) => {
           if (err) {
             console.error("Error retrieving chapter data:", err);
@@ -493,18 +491,15 @@ app.post("/download", async (req, res) => {
 
 app.get("/view", async (req, res) => {
   const imageUrl =
-    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1120/10-1720731306-o.jpg"; // Replace with your image URL
+    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1129_living_dolls/2-1728644329-o.jpg"; // Replace with your image URL
   const filePath = path.join(__dirname, "downloaded-image.jpg"); // Path to save the file locally
 
   try {
-    const response = await fetch(
-      "http://localhost:3000/imageProxy?url=" +
-        imageUrl +
-        "&referer=http://chapmanganato.to",
-    );
+    const response = await fetch(imageUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
+    console.log(response.arrayBuffer);
 
     res.set("Content-Type", "image/jpg");
     fileSystem.writeFileSync(
@@ -604,13 +599,6 @@ app.get("/library/:category/:mediaID", (req, res) => {
         res.json(row);
       }
     });
-  });
-});
-
-app.get("/library", (req, res) => {
-  res.json({
-    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
-    balls: "bye",
   });
 });
 
