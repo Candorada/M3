@@ -278,6 +278,14 @@ app.post("/delete", async (req, res) => {
     db.run(`DELETE FROM main WHERE local_id = ?`, [id]);
     db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
 
+    try {
+      let filepath = __dirname + "/downloadedMedia/" + "/" + id;
+
+      fileSystem.rmSync(filepath, {
+        recursive: true,
+      });
+    } catch (e) {}
+
     if (type === "Comic") {
       db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
     }
