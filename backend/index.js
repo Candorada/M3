@@ -455,6 +455,8 @@ app.post("/download", async (req, res) => {
       },
       body: JSON.stringify({
         media_id: "manganato-manga-aa951409",
+				cover: true,
+				referer: "http://chapmanganato.to",
 
 				//if manga put chapter_id (id in chapters table)
 				chapter_id: 2641,
@@ -464,6 +466,8 @@ app.post("/download", async (req, res) => {
   const body = req.body;
   const media_id = body.media_id;
   const chapter_id = body.chapter_id;
+  const cover = body.cover;
+  const referer = body.referer;
 
   const table = await new Promise((resolve) => {
     db.get(
@@ -484,36 +488,49 @@ app.post("/download", async (req, res) => {
     return res.sendStatus(404);
   }
 
+  if (cover) {
+    const coverUrl = await new Promise((resolve) => {
+      db.get(
+        `SELECT cover FROM ${table} WHERE id = ? COLLATE NOCASE`,
+        [media_id],
+        (err, row) => {
+          if (err) {
+            console.error("error getting cover url:", err);
+            return resolve(null);
+          }
+          resolve(row?.cover || null);
+        },
+      );
+    });
+    const response = await fetch(
+      "http://localhost:3000/imageProxy?url=" +
+        coverUrl +
+        "&referer=" +
+        referer,
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+
+    const filepath = __dirname + "/downloadedMedia/" + "/" + media_id;
+
+    fileSystem.mkdirSync(filepath, {
+      recursive: true,
+    });
+
+    res.set("Content-Type", "image/jpg");
+    fileSystem.writeFileSync(
+      path.join(filepath, "cover.jpg"),
+      Buffer.from(await response.arrayBuffer()),
+    );
+  }
+
   db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
 
   res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
 
-app.get("/view", async (req, res) => {
-  const imageUrl =
-    "https://v12.mkklcdnv6tempv4.com/img/tab_32/00/00/52/aa951409/chapter_1129_living_dolls/2-1728644329-o.jpg"; // Replace with your image URL
-  const filePath = path.join(__dirname, "downloaded-image.jpg"); // Path to save the file locally
-
-  try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.statusText}`);
-    }
-    console.log(response.arrayBuffer);
-
-    res.set("Content-Type", "image/jpg");
-    fileSystem.writeFileSync(
-      filePath,
-      Buffer.from(await response.arrayBuffer()),
-    );
-
-    res.sendFile(filePath);
-  } catch (error) {
-    console.error("Error downloading or serving the image:", error.message);
-    res.status(500).send("Failed to fetch and serve the image.");
-  }
-});
-
+//run fetch requests for images through a proxy
 app.get("/imageProxy", async (req, res) => {
   if (!req.query.url) {
     res.sendStatus(400);
@@ -543,7 +560,6 @@ app.get("/imageProxy", async (req, res) => {
   });
   res.set("Content-Type", "image/jpeg");
   let buffer = Buffer.from(await (await fet).arrayBuffer());
-  console.log(buffer);
   res.send(buffer);
 });
 
