@@ -322,7 +322,6 @@ app.get("/imageProxy", async (req, res) => {
   });
   res.set("Content-Type", "image/jpeg");
   let buffer = Buffer.from(await (await fet).arrayBuffer());
-  console.log(buffer);
   res.send(buffer);
 });
 
@@ -525,11 +524,9 @@ app.post("/download", async (req, res) => {
       path.join(filepath, "cover.jpg"),
       Buffer.from(await response.arrayBuffer()),
     );
+  } else {
+    db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
   }
-
-  db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
-
-  res.json({ media: media_id, chapter: chapter_id, extension: table });
 });
 
 //run fetch requests for images through a proxy
