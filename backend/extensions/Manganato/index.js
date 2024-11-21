@@ -16,12 +16,13 @@ function ifError(cb, el) {
   }
   return retVal;
 }
-async function search(search) {
+async function search(search,page) {
+  if(!page) page = 1;
   const result = await (
     await fetch(
       search
-        ? `https://manganato.com/advanced_search?s=all&page=1${search ? "&keyw=" + encodeURI(search) : ""}`
-        : "https://manganato.com/genre-all?type=topview",
+        ? `https://manganato.com/advanced_search?s=all&page=${page}${search ? "&keyw=" + encodeURI(search) : ""}`
+        : "https://manganato.com/genre-all/"+page+"?type=topview",
     )
   ).text();
   return await {

@@ -223,8 +223,9 @@ app.get("/", (req, res) => {
 //end of extension download handler
 app.get("/:extension/search", async (req, res) => {
   const extension = extensions[req.params.extension];
+
   try {
-    var x = await extension.search(req.query.q);
+    var x = await extension.search(req.query.q,req.query.page);
   } catch {
     var x = [];
     res.status(400);
