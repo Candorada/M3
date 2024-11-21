@@ -225,7 +225,7 @@ app.get("/:extension/search", async (req, res) => {
   const extension = extensions[req.params.extension];
 
   try {
-    var x = await extension.search(req.query.q,req.query.page);
+    var x = await extension.search(req.query.q, req.query.page);
   } catch {
     var x = [];
     res.status(400);
@@ -334,24 +334,28 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   const id = req.params.mediaid;
 
   const extension = await new Promise((resolve) => {
-    db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
-      if (err) {
-        console.error("Error retrieving chapter data:", err);
-        return resolve(null);
-      }
-      if (!row) {
-        console.error("No data found for given mediaID.");
-        return resolve(null);
-      }
-      resolve(row.extension);
-    });
+    db.get(
+      `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
+      [id],
+      (err, row) => {
+        if (err) {
+          console.error("Error retrieving chapter data:", err);
+          return resolve(null);
+        }
+        if (!row) {
+          console.error("No data found for given mediaID.");
+          return resolve(null);
+        }
+        resolve(row.extension);
+      },
+    );
   });
 
   if (chapterID != undefined) {
     url = await new Promise((resolve) => {
       db.get(
-        `SELECT source FROM chapters WHERE manga_id=?`,
-        [id],
+        `SELECT source FROM chapters WHERE id=?`,
+        [chapterID],
         (err, row) => {
           if (err) {
             console.error("Error retrieving chapter data:", err);
@@ -489,6 +493,8 @@ app.post("/download", async (req, res) => {
     return res.sendStatus(404);
   }
 
+  let filepath = __dirname + "/downloadedMedia/" + "/" + media_id;
+
   if (cover) {
     const coverUrl = await new Promise((resolve) => {
       db.get(
@@ -513,8 +519,6 @@ app.post("/download", async (req, res) => {
       throw new Error(`Failed to fetch image: ${response.statusText}`);
     }
 
-    const filepath = __dirname + "/downloadedMedia/" + "/" + media_id;
-
     fileSystem.mkdirSync(filepath, {
       recursive: true,
     });
@@ -524,8 +528,37 @@ app.post("/download", async (req, res) => {
       path.join(filepath, "cover.jpg"),
       Buffer.from(await response.arrayBuffer()),
     );
-  } else {
+  } else if (chapter_id) {
+    const resp = await fetch(
+      `http://localhost:3000/library/comics/${media_id}/getchapter?chapterID=${chapter_id}`,
+    );
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch chapter: ${resp.statusText}`);
+    }
+
+    const data = await resp.json();
+    filepath += "/" + chapter_id;
+
     db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
+
+    for (const [index, img] of data.entries()) {
+      const response = await fetch(
+        "http://localhost:3000/imageProxy?url=" + img + "&referer=" + referer,
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+
+      fileSystem.mkdirSync(filepath, {
+        recursive: true,
+      });
+
+      res.set("Content-Type", "image/jpg");
+      fileSystem.writeFileSync(
+        path.join(filepath, index + ".jpg"),
+        Buffer.from(await response.arrayBuffer()),
+      );
+    }
   }
 });
 
