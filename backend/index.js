@@ -327,10 +327,9 @@ app.get("/imageProxy", async (req, res) => {
 
 //get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
-  console.log("test")
+  console.log("test");
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
-  console.log("helloooooo");
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
