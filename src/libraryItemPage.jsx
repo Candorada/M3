@@ -39,15 +39,16 @@ function ItemPage(){
         })
     },[])
     let description = item.about
-    
+    let coverPath =  `../backend/downloadedMedia/${item.id}/cover.jpg`
+    //item.cover is the url of the cover source
     .replaceAll(
-        /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>]+)*)(?<!\))/g,
+        /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
         `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`
     )
     return <>
         <div id = "libraryItemPage">
             <div className = "banner">
-                    <img src={item.cover} alt="" onLoad={(x)=>{
+                    <img src={coverPath} alt="" onLoad={(x)=>{
                         if(x.target.naturalWidth < window.innerWidth){
                             x.target.style = "filter: blur(3px);"
 
@@ -56,7 +57,7 @@ function ItemPage(){
             </div>
             <div id = "about">
                 <div className = "cover">
-                    <img src={item.cover} alt="" />
+                    <img src={coverPath} alt="" />
                     Contributors
                     <div className = "tks">{JSON.parse(item.contributors).map((name,i)=>(
                         <div className = "tk" key = {i}>{name}</div>
