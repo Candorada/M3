@@ -82,8 +82,22 @@ function ItemPage(){
                                 navigate("./"+chapter.id)
                             }}>
                                 <div className = "name">{chapter.name}</div>
-                                <div className = "number">{chapter.number}</div>
                                 <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d+\/\d+\/)20(\d+)/,"$1$2").replace(/(?<!\d)(\d)(?!\d)/g,"0$1")}</div>
+                                <div className = "downloadBTN"><input type="button" value="download" onClick={(e)=>{
+                                    e.stopPropagation()
+                                    console.log(item,chapter)
+                                    fetch('http://localhost:3000/download', {
+                                        method: 'POST',
+                                        headers: {'content-type': 'application/json'},
+                                        body: JSON.stringify({
+                                          media_id: chapter.manga_id,
+                                            referer: chapter.source,
+                                            chapter_id: 1329,
+                                        }), 
+                                      }).then((response)=>{
+                                        console.log(response)
+                                      })
+                                }}/></div>
                             </div>
                         )
                 )}
