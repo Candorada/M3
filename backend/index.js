@@ -7,6 +7,9 @@ const AdmZip = require("adm-zip");
 const path = require("path"); //for downloading extensions via drag & drop
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
+const port = 3000;
+const fport = 5173;
+
 var extensions = {};
 function updateExtensionList() {
   const extensionPath = path.join(__dirname, "extensions");
@@ -112,7 +115,7 @@ db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS chapters (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      downloaded BOOLEAN DEFAULT 0,
+      downloaded INTEGER DEFAULT 0,
 			read INTEGER DEFAULT 0,
       extension TEXT,
       manga_id TEXT,
@@ -307,11 +310,15 @@ app.post("/:extension/getInfo", async (req, res) => {
 });
 
 app.get("/imageProxy", async (req, res) => {
-  if (!req.query.url) {
+  let url = req.query.url;
+  if (!url) {
     res.sendStatus(400);
     return;
   }
-  let fet = fetch(req.query.url, {
+  if (!url.startsWith("http")) {
+    url = `http://localhost:${fport}/${url}`;
+  }
+  let fet = fetch(url, {
     headers: {
       accept:
         "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
@@ -342,33 +349,15 @@ app.get("/imageProxy", async (req, res) => {
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
-  let url = req.query.url;
-  const chapterID = req.query.chapterID;
-  const id = req.params.mediaid;
+  try {
+    let url = req.query.url;
+    const chapterID = req.query.chapterID;
+    const id = req.params.mediaid;
 
-  const extension = await new Promise((resolve) => {
-    db.get(
-      `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
-      [id],
-      (err, row) => {
-        if (err) {
-          console.error("Error retrieving chapter data:", err);
-          return resolve(null);
-        }
-        if (!row) {
-          console.error("No data found for given mediaID.");
-          return resolve(null);
-        }
-        resolve(row.extension);
-      },
-    );
-  });
-
-  if (chapterID != undefined) {
-    url = await new Promise((resolve) => {
+    const extension = await new Promise((resolve) => {
       db.get(
-        `SELECT source FROM chapters WHERE id=?`,
-        [chapterID],
+        `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
+        [id],
         (err, row) => {
           if (err) {
             console.error("Error retrieving chapter data:", err);
@@ -378,13 +367,35 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
             console.error("No data found for given mediaID.");
             return resolve(null);
           }
-          resolve(row.source);
+          resolve(row.extension);
         },
       );
     });
-  }
 
-  res.send(await extensions[extension].getChapterData(url));
+    if (chapterID != undefined) {
+      url = await new Promise((resolve) => {
+        db.get(
+          `SELECT source FROM chapters WHERE id=?`,
+          [chapterID],
+          (err, row) => {
+            if (err) {
+              console.error("Error retrieving chapter data:", err);
+              return resolve(null);
+            }
+            if (!row) {
+              console.error("No data found for given mediaID.");
+              return resolve(null);
+            }
+            resolve(row.source);
+          },
+        );
+      });
+    }
+
+    res.send(await extensions[extension].getChapterData(url));
+  } catch (e) {
+    res.json(["../backend/notFound.png"]);
+  }
 });
 
 //add media to your library
@@ -600,8 +611,6 @@ app.post("/download", async (req, res) => {
       const data = await chapterResp.json();
       filepath = path.join(filepath, chapter_id.toString());
 
-      db.run(`UPDATE chapters SET downloaded = 1 WHERE id = ?`, [chapter_id]);
-
       for (const [index, img] of data.entries()) {
         const imgResp = await fetch(
           `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
@@ -617,8 +626,19 @@ app.post("/download", async (req, res) => {
           path.join(filepath, `${index}.jpg`),
           Buffer.from(await imgResp.arrayBuffer()),
         );
+        db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
+          index + 1,
+          chapter_id,
+        ]);
+        if (index + 1 == data.length) {
+          db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [
+            chapter_id,
+          ]);
+        }
       }
-      return res.sendStatus(200);
+      db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [chapter_id]);
+
+      res.status(200).json({ done: true });
     }
   } catch (err) {
     console.error("Unexpected error:", err.message);
@@ -754,7 +774,6 @@ app.get("/library", (req, res) => {
   });
 });
 
-const port = 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}\nhttp://localhost:${port}`);
 });
