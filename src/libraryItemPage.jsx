@@ -38,8 +38,8 @@ function ItemPage(){
             setItem(json)
         })
     },[])
+        let coverPath =  `../backend/downloadedMedia/${item.id}/cover.jpg`
     let description = item.about
-    let coverPath =  `../backend/downloadedMedia/${item.id}/cover.jpg`
     //item.cover is the url of the cover source
     .replaceAll(
         /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
