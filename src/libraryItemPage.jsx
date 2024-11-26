@@ -42,7 +42,6 @@ function ItemPage() {
         setItem(json);
       });
   }, []);
-  //comment
   let coverPath = `../backend/downloadedMedia/${item.id}/cover.jpg`;
   let description = item.about
     //item.cover is the url of the cover source
@@ -50,7 +49,8 @@ function ItemPage() {
       /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
       `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`,
     );
-  return (<>
+  return (
+    <>
       <div id="libraryItemPage">
         <div className="banner">
           <img
@@ -114,35 +114,32 @@ function ItemPage() {
                     .replace(/(\d+\/\d+\/)20(\d+)/, "$1$2")
                     .replace(/(?<!\d)(\d)(?!\d)/g, "0$1")}
                 </div>
-                {item.chapters.sort((a,b)=>b.number - a.number).map((chapter,i)=>(
-                  <div className = "chapter" key = {i} onClick={()=>{
-                                navigate("./"+chapter.id)
-                            }}>
-                                <div className = "name">{chapter.name}</div>
-                                <div className="">{(new Date(+chapter.date)).toLocaleDateString().replace(/(\d+\/\d+\/)20(\d+)/,"$1$2").replace(/(?<!\d)(\d)(?!\d)/g,"0$1")}</div>
-                                <div className = "downloadBTN"><input type="button" value="download" onClick={(e)=>{
-                                    e.stopPropagation()
-                                    console.log(item,chapter)
-                                    fetch('http://localhost:3000/download', {
-                                        method: 'POST',
-                                        headers: {'content-type': 'application/json'},
-                                        body: JSON.stringify({
-                                          media_id: chapter.manga_id,
-                                            referer: chapter.source,
-                                            chapter_id: chapter.id,
-                                        }), 
-                                      }).then((response)=>{
-                                        console.log(response)
-                                      })
-                                }}/></div>
-                      </div>))}
-                </div> 
-              ))
-          }
-        </div >
-        </div >
-      </>
-    )
+                <div className="downloadBTN">
+                  <input
+                    type="button"
+                    value="download"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log(item, chapter);
+                      fetch("http://localhost:3000/download", {
+                        method: "POST",
+                        headers: { "content-type": "application/json" },
+                        body: JSON.stringify({
+                          media_id: chapter.manga_id,
+                          referer: chapter.source,
+                          chapter_id: chapter.id,
+                        }),
+                      }).then((response) => {
+                        console.log(response);
+                      });
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    </>
+  );
 }
 export default ItemPage;
-
