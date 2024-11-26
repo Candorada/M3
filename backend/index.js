@@ -317,6 +317,7 @@ app.get("/imageProxy", async (req, res) => {
   }
   if (!url.startsWith("http")) {
     url = `http://localhost:${fport}/${url}`;
+    //comment
   }
   let fet = fetch(url, {
     headers: {
