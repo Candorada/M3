@@ -34,6 +34,3 @@ function ChapterPage(){
 <div className="ScrollboxComicReader">
     {images.map((img,i)=><img className = "comicPage" key = {i} src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`}></img>)}
 </div>
-
-    </>)}
-export default ChapterPage
