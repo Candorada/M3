@@ -32,6 +32,8 @@ function ItemPage() {
         name: "Template Chapter",
         source: "about:blank",
         date: "1566691680000",
+        downloaded:-1,
+        read: 0,
       },
     ],
   });
@@ -115,25 +117,26 @@ function ItemPage() {
                     .replace(/(?<!\d)(\d)(?!\d)/g, "0$1")}
                 </div>
                 <div className="downloadBTN">
-                  <input
-                    type="button"
-                    value="download"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log(item, chapter);
-                      fetch("http://localhost:3000/download", {
-                        method: "POST",
-                        headers: { "content-type": "application/json" },
-                        body: JSON.stringify({
-                          media_id: chapter.manga_id,
-                          referer: chapter.source,
-                          chapter_id: chapter.id,
-                        }),
-                      }).then((response) => {
-                        console.log(response);
-                      });
-                    }}
-                  />
+                {(()=>{
+                  let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
+                    e.stopPropagation();
+                    console.log(item, chapter);
+                    fetch("http://localhost:3000/download", {
+                      method: "POST",
+                      headers: { "content-type": "application/json" },
+                      body: JSON.stringify({
+                        media_id: chapter.manga_id,
+                        referer: chapter.source,
+                        chapter_id: chapter.id,
+                      }),
+                    }).then((response) => {
+                      console.log(response);
+                    });
+                  }}
+                />):(<>Yeee</>)
+                console.log(value);
+                  return value
+                })()}
                 </div>
               </div>
             ))}

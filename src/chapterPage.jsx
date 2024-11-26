@@ -21,9 +21,9 @@ function ChapterPage(){
                     setChapterData(chap)
                     console.log(chap)
                     if(chap.downloaded == -1){
-                        fetch(`http://localhost:3000/downloadedImages/${mediaID}/${chap.id}`).then((imgs)=>{
-                            console.log(imgs)
-                            setImages(imgs.json())
+                        fetch(`http://localhost:3000/downloadedImages/${mediaID}/${chap.id}`).then(async (imgs)=>{
+                            let imgsJson = await imgs.json()
+                            setImages(imgsJson)
                         })
                     }
                 }
