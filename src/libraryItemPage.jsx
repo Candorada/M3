@@ -42,6 +42,7 @@ function ItemPage() {
         setItem(json);
       });
   }, []);
+  //comment
   let coverPath = `../backend/downloadedMedia/${item.id}/cover.jpg`;
   let description = item.about
     //item.cover is the url of the cover source
