@@ -625,7 +625,17 @@ app.post("/download", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
+app.get("/downloadedImages/:mediaID/:chapterID",async (req,res)=>{
+  let chapID = req.params.chapterID
+  let mediaID = req.params.mediaID
+  let path = "../backend/downloadedMedia/"+mediaID+"/"+chapID
+  let files = fileSystem.readdirSync(path)
+  if(!files){
+    res.send(["vite.svg"])
+    return 
+  }
+  res.send(files.map((x)=>path+`/${x}`))
+})
 //run fetch requests for images through a proxy
 app.get("/imageProxy", async (req, res) => {
   if (!req.query.url) {

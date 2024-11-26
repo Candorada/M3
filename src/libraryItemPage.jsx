@@ -93,7 +93,7 @@ function ItemPage(){
                                         body: JSON.stringify({
                                           media_id: chapter.manga_id,
                                             referer: chapter.source,
-                                            chapter_id: 1329,
+                                            chapter_id: chapter.id,
                                         }), 
                                       }).then((response)=>{
                                         console.log(response)
