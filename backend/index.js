@@ -104,7 +104,7 @@ db.serialize(() => {
       downloaded BOOLEAN DEFAULT 0,
       local_id TEXT
     )`,
-    //downloaded: 0 means not downloaded, 1 means downloaded
+    //downloaded: 0 means not downloaded, -1 means downloaded
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
@@ -350,11 +350,11 @@ app.get("/imageProxy", async (req, res) => {
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
-  try {
-    let url = req.query.url;
-    const chapterID = req.query.chapterID;
-    const id = req.params.mediaid;
+  let url = req.query.url;
+  const chapterID = req.query.chapterID;
+  const id = req.params.mediaid;
 
+  try {
     const extension = await new Promise((resolve) => {
       db.get(
         `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
@@ -612,31 +612,43 @@ app.post("/download", async (req, res) => {
       const data = await chapterResp.json();
       filepath = path.join(filepath, chapter_id.toString());
 
-      for (const [index, img] of data.entries()) {
-        const imgResp = await fetch(
-          `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
-        );
+      const downloadPromises = data.map((img, index) =>
+        (async () => {
+          try {
+            const imgResp = await fetch(
+              `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
+            );
 
-        if (!imgResp.ok) {
-          console.error(`Failed to fetch image: ${imgResp.statusText}`);
-          continue;
-        }
+            if (!imgResp.ok) {
+              console.error(
+                `Failed to fetch image ${index}: ${imgResp.statusText}`,
+              );
+              return;
+            }
 
-        await fileSystem.promises.mkdir(filepath, { recursive: true });
-        await fileSystem.promises.writeFile(
-          path.join(filepath, `${index}.jpg`),
-          Buffer.from(await imgResp.arrayBuffer()),
-        );
-        db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
-          index + 1,
-          chapter_id,
-        ]);
-        if (index + 1 == data.length) {
-          db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [
-            chapter_id,
-          ]);
-        }
-      }
+            const imageBuffer = await imgResp.arrayBuffer();
+            const imageFilePath = path.join(filepath, `${index}.jpg`);
+
+            await fileSystem.promises.mkdir(filepath, { recursive: true });
+            await fileSystem.promises.writeFile(
+              imageFilePath,
+              Buffer.from(imageBuffer),
+            );
+
+            db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
+              index + 1,
+              chapter_id,
+            ]);
+          } catch (err) {
+            console.error(`Error downloading image ${index}:`, err.message);
+          }
+        })(),
+      );
+
+      // Wait for all download promises to complete
+      await Promise.allSettled(downloadPromises);
+
+      // Mark the chapter as fully downloaded
       db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [chapter_id]);
 
       res.status(200).json({ done: true });
@@ -646,17 +658,17 @@ app.post("/download", async (req, res) => {
     res.sendStatus(500);
   }
 });
-app.get("/downloadedImages/:mediaID/:chapterID",async (req,res)=>{
-  let chapID = req.params.chapterID
-  let mediaID = req.params.mediaID
-  let path = "../backend/downloadedMedia/"+mediaID+"/"+chapID
-  let files = fileSystem.readdirSync(path)
-  if(!files){
-    res.send(["vite.svg"])
-    return 
+app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
+  let chapID = req.params.chapterID;
+  let mediaID = req.params.mediaID;
+  let path = "../backend/downloadedMedia/" + mediaID + "/" + chapID;
+  let files = fileSystem.readdirSync(path);
+  if (!files) {
+    res.send(["vite.svg"]);
+    return;
   }
-  res.send(files.map((x)=>path+`/${x}`))
-})
+  res.send(files.map((x) => path + `/${x}`));
+});
 //run fetch requests for images through a proxy
 app.get("/imageProxy", async (req, res) => {
   if (!req.query.url) {
