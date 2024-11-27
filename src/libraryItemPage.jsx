@@ -4,10 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 function DownloadButton({chapter}){
   let delBTN = <>Delete</>
-  let loading = <>Loading...</>
+  let loading = <><div className = "loading">{chapter.downloaded}</div></>
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
     setBTN(loading)
+    let interval = setInterval(()=>{
+      fetch("http://localhost:3000/library/_/"+chapter.manga_id)
+      .then((res) => res.json())
+      .then((json) => {
+           let BTN = document.querySelector(`[chapter_id="${chapter.id}"] >.downloadBTN .loading`)
+           if(BTN){
+            let status = json.chapters.filter((chap)=>chap.id == chapter.id)[0].downloaded
+            console.log(status)
+            BTN.innerHTML = json.chapters.filter((chap)=>chap.id == chapter.id)[0].downloaded
+           }
+      });
+    },50)
     fetch("http://localhost:3000/download", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -17,12 +29,13 @@ function DownloadButton({chapter}){
         chapter_id: chapter.id,
       }),
     }).then((r)=>{
+      clearInterval(interval)
       setBTN(delBTN)
     })
   }}/>
-  let starterBTN = chapter.downloaded == -1 ? delBTN:downBTN
+  let starterBTN = chapter.downloaded == -1 ? delBTN:chapter.downloaded==0?downBTN:loading
   let [btn,setBTN] = useState(starterBTN)
-  return <div className="downloadBTN">{btn}{(chapter.downloaded)}</div>
+  return <div className="downloadBTN">{btn}</div>
 }
 /*
 {(()=>{}
