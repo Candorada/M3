@@ -44,7 +44,7 @@ function ItemPage() {
         setItem(json);
       });
   }, []);
-  let coverPath = `../backend/downloadedMedia/${item.id}/cover.jpg`;
+  let coverPath = `../backend/downloadedMedia/${mediaID}/cover.jpg`;
   let description = item.about
     //item.cover is the url of the cover source
     .replaceAll(
@@ -120,7 +120,6 @@ function ItemPage() {
                 {(()=>{
                   let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
                     e.stopPropagation();
-                    console.log(item, chapter);
                     fetch("http://localhost:3000/download", {
                       method: "POST",
                       headers: { "content-type": "application/json" },
@@ -129,12 +128,9 @@ function ItemPage() {
                         referer: chapter.source,
                         chapter_id: chapter.id,
                       }),
-                    }).then((response) => {
-                      console.log(response);
-                    });
+                    })
                   }}
                 />):(<>Yeee</>)
-                console.log(value);
                   return value
                 })()}
                 </div>
