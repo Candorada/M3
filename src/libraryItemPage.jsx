@@ -96,8 +96,8 @@ function ItemPage() {
         <div className="chapterList">
           <div className="chapterListHeader chapter">
             <div className="name">Chapter Name</div>
-            <div className="number">#</div>
-            <div className="">Date</div>
+            <div className="number">Date</div>
+            <div className="">installed</div>
           </div>
           {item.chapters
             .sort((a, b) => b.number - a.number)
