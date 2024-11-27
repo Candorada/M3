@@ -423,6 +423,19 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   }
 });
 
+app.get("/downloadingMedia", async (req, res) => {
+  db.all(`SELECT * FROM chapters WHERE downloaded > 0`, (err, rows) => {
+    if (err || !rows) {
+      console.error("problem getting downloaded media: ", err);
+      return;
+    }
+
+    res.json(rows);
+  });
+
+  //TODO: add functionality for different media types
+});
+
 //add media to your library
 app.post("/:extension/addToLibrary", async (req, res) => {
   try {
@@ -677,6 +690,8 @@ app.post("/download", async (req, res) => {
 
       res.status(200).json({ done: true });
     }
+
+    //TODO: add functionality for different media types
   } catch (err) {
     console.error("Unexpected error:", err.message);
     res.sendStatus(500);
