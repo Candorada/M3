@@ -115,10 +115,32 @@
     }
 }
 .chapter{
+    user-select: none;
     width: 100%;
     display: flex;
     text-overflow: ellipsis;
     text-wrap: nowrap;
+}
+.chapter:not(.chapterListHeader):hover{
+    background-color: var(--secondary2);
+    cursor:pointer;
+}
+.downloadBTN{
+    display: flex;
+}
+.downloadBTN > input{
+    background-color: rgba(0,0,0,0);
+    display: flex;
+    border: solid 1px white;
+    border-radius: 2px;
+    margin: auto;
+}
+.downloadBTN > input:hover{
+    cursor: pointer;
+}
+.downloadBTN > input:active{
+    background-color: white;
+    color:var(--secondary1);
 }
 .chapter > *{
     width: 5rem;

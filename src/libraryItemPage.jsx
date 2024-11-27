@@ -108,6 +108,8 @@ function ItemPage() {
                 onClick={() => {
                   navigate("./" + chapter.id);
                 }}
+                chapter_id={chapter.id}
+                chapter_num = {chapter.number}
               >
                 <div className="name">{chapter.name}</div>
                 <div className="">
@@ -119,7 +121,9 @@ function ItemPage() {
                 <div className="downloadBTN">
                 {(()=>{
                   let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
+                    let elm = e.target.parentElement
                     e.stopPropagation();
+                    elm.innerHTML = "Downloading..."
                     fetch("http://localhost:3000/download", {
                       method: "POST",
                       headers: { "content-type": "application/json" },
@@ -129,7 +133,7 @@ function ItemPage() {
                         chapter_id: chapter.id,
                       }),
                     }).then((r)=>{
-                      e.target.outerHTML = "Yeee"
+                      elm.innerHTML = "Yeee"
                     })
                   }}
                 />):(<>Yeee</>)
