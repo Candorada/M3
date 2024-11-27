@@ -128,6 +128,8 @@ function ItemPage() {
                         referer: chapter.source,
                         chapter_id: chapter.id,
                       }),
+                    }).then((r)=>{
+                      e.target.outerHTML = "Yeee"
                     })
                   }}
                 />):(<>Yeee</>)
