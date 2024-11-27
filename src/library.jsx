@@ -10,11 +10,31 @@ function Library() {
     }
     const libFetch = async (category) => {
         let res = await fetch("http://localhost:3000/library/"+category);
-        setLibItems((await res.json()));
+        let json = await res.json()
+        setLibItems(json);
     }
     useEffect(()=>{catFetch()},[])
     useEffect(()=>{libFetch()},[])
-    function LibItem({item, id}){
+    function LibItem({item}){
+        let url = `../backend/downloadedMedia/${item.id}/cover.jpg`
+        let [coverArt,setCoverArt] = useState(url);
+            new Promise((res,rej)=>{
+                fetch(url).then((r)=>{
+                    let resed = false
+                    r.headers.forEach((v,h)=>{
+                        if(h=="content-type"){
+                            res(v)
+                            resed = true
+                            return;
+                        }
+                    })
+                    if(!resed){res(false)}
+                })
+            }).then((r)=>{
+                if(r != "image/jpeg"){
+                    setCoverArt(`http://localhost:3000/imageProxy?url=${item.cover}&referer=${""}`)
+                }
+            })
         return (<>
             <div className = "libraryItem" onClick={()=>{window.location.href = "library/"+item.id}}>
                 <div className = "tokens">
@@ -28,14 +48,13 @@ function Library() {
                             body: JSON.stringify({
                                 id: item.id,
                             }), 
-                            }).then(()=>{
-                                console.log("then")
-                                libFetch()
-                            })
+                        }).then((r)=>{
+                            libFetch()
+                        })
                     }}>delete</span>
                     <span>{10}</span>
                 </div>
-                <img src = {`../backend/downloadedMedia/${item.id}/cover.jpg`} alt = {item.title}/>
+                <img src = {coverArt} alt = {item.title}/>
             </div>
         </>)
     }
