@@ -445,6 +445,19 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   }
 });
 
+app.get("/downloadingMedia", async (req, res) => {
+  db.all(`SELECT * FROM chapters WHERE downloaded > 0`, (err, rows) => {
+    if (err || !rows) {
+      console.error("problem getting downloaded media: ", err);
+      return;
+    }
+
+    res.json(rows);
+  });
+
+  //TODO: add functionality for different media types
+});
+
 //add media to your library
 app.post("/:extension/addToLibrary", async (req, res) => {
   try {
@@ -652,10 +665,14 @@ app.post("/download", async (req, res) => {
       }
 
       const data = await chapterResp.json();
-      filepath = path.join(filepath, chapter_id.toString());
+      const chapterPath = path.join(
+        "downloadedMedia",
+        media_id,
+        chapter_id.toString(),
+      );
 
-      const downloadPromises = data.map((img, index) =>
-        (async () => {
+      await Promise.allSettled(
+        data.map(async (img, index) => {
           try {
             const imgResp = await fetch(
               `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
@@ -669,9 +686,9 @@ app.post("/download", async (req, res) => {
             }
 
             const imageBuffer = await imgResp.arrayBuffer();
-            const imageFilePath = path.join(filepath, `${index}.jpg`);
+            const imageFilePath = path.join(chapterPath, `${index}.jpg`);
 
-            await fileSystem.promises.mkdir(filepath, { recursive: true });
+            await fileSystem.promises.mkdir(chapterPath, { recursive: true });
             await fileSystem.promises.writeFile(
               imageFilePath,
               Buffer.from(imageBuffer),
@@ -684,43 +701,43 @@ app.post("/download", async (req, res) => {
           } catch (err) {
             console.error(`Error downloading image ${index}:`, err.message);
           }
-        })(),
+        }),
       );
 
-      // Wait for all download promises to complete
-      await Promise.allSettled(downloadPromises);
-
-      // Mark the chapter as fully downloaded
       db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [chapter_id]);
 
       res.status(200).json({ done: true });
     }
+
+    //TODO: add functionality for different media types
   } catch (err) {
     console.error("Unexpected error:", err.message);
     res.sendStatus(500);
   }
 });
+
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
-  try{
+  try {
     let chapID = req.params.chapterID;
     let mediaID = req.params.mediaID;
     let path = "../backend/downloadedMedia/" + mediaID + "/" + chapID;
     let files = fileSystem.readdirSync(path);
-    files = files.sort((x,y)=>{
-      let a = +x.split(".")[0]
-      let b = +y.split(".")[0]
-      return a-b
-  })
+    files = files.sort((x, y) => {
+      let a = +x.split(".")[0];
+      let b = +y.split(".")[0];
+      return a - b;
+    });
     if (!files) {
       res.send(["vite.svg"]);
       return;
     }
     res.send(files.map((x) => path + `/${x}`));
-  }catch{
-    res.status(400)
-    res.send(["../backend/notFound.png"])
+  } catch {
+    res.status(400);
+    res.send(["../backend/notFound.png"]);
   }
 });
+
 //run fetch requests for images through a proxy
 app.get("/imageProxy", async (req, res) => {
   if (!req.query.url) {
