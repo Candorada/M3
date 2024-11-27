@@ -237,6 +237,30 @@ app.get("/:extension/search", async (req, res) => {
   res.send(x);
 });
 
+app.post("/deleteChapter", async (req, res) => {
+  const body = req.body;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id.toString();
+
+  try {
+    const filepath = path.join(
+      __dirname,
+      "downloadedMedia",
+      media_id,
+      chapter_id,
+    );
+    try {
+      await fileSystem.promises.rm(filepath, { recursive: true, force: true });
+    } catch (e) {
+      console.error("Chapter deletion error:", e);
+    }
+
+    db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
+  } catch (e) {
+    console.error("didn't work: ", e);
+  }
+});
+
 //delete media from library
 app.post("/delete", async (req, res) => {
   /*
