@@ -20,8 +20,9 @@ function DownloadButton({chapter}){
       setBTN(delBTN)
     })
   }}/>
-  let [btn,setBTN] = useState(chapter.downloaded != -1?downBTN:delBTN)
-  return <div className="downloadBTN">{btn}</div>
+  let starterBTN = chapter.downloaded == -1 ? delBTN:downBTN
+  let [btn,setBTN] = useState(starterBTN)
+  return <div className="downloadBTN">{btn}{(chapter.downloaded)}</div>
 }
 /*
 {(()=>{}
@@ -75,7 +76,7 @@ function ItemPage() {
         name: "Template Chapter",
         source: "about:blank",
         date: "1566691680000",
-        downloaded:-1,
+        downloaded:0,
         read: 0,
       },
     ],
@@ -147,7 +148,7 @@ function ItemPage() {
             .map((chapter, i) => (
               <div
                 className="chapter"
-                key={i}
+                key={chapter.id}
                 onClick={() => {
                   navigate("./" + chapter.id);
                 }}
