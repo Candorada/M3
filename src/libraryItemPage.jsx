@@ -2,6 +2,49 @@ import "./libraryItemPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+function DownloadButton({chapter}){
+  let delBTN = <>Delete</>
+  let loading = <>Loading...</>
+  let downBTN = <input type="button" value="download" onClick={(e) => {
+    e.stopPropagation();
+    setBTN(loading)
+    fetch("http://localhost:3000/download", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        media_id: chapter.manga_id,
+        referer: chapter.source,
+        chapter_id: chapter.id,
+      }),
+    }).then((r)=>{
+      setBTN(delBTN)
+    })
+  }}/>
+  let [btn,setBTN] = useState(chapter.downloaded != -1?downBTN:delBTN)
+  return <div className="downloadBTN">{btn}</div>
+}
+/*
+{(()=>{}
+  let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
+    let elm = e.target.parentElement
+    e.stopPropagation();
+    elm.innerHTML = "Downloading..."
+    fetch("http://localhost:3000/download", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        media_id: chapter.manga_id,
+        referer: chapter.source,
+        chapter_id: chapter.id,
+      }),
+    }).then((r)=>{
+      elm.innerHTML = "Yeee"
+    })
+  }}
+/>):(<>Yeee</>)
+  return value
+})()}
+*/
 function ItemPage() {
   const navigate = useNavigate();
   const { mediaID } = useParams();
@@ -118,28 +161,7 @@ function ItemPage() {
                     .replace(/(\d+\/\d+\/)20(\d+)/, "$1$2")
                     .replace(/(?<!\d)(\d)(?!\d)/g, "0$1")}
                 </div>
-                <div className="downloadBTN">
-                {(()=>{
-                  let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
-                    let elm = e.target.parentElement
-                    e.stopPropagation();
-                    elm.innerHTML = "Downloading..."
-                    fetch("http://localhost:3000/download", {
-                      method: "POST",
-                      headers: { "content-type": "application/json" },
-                      body: JSON.stringify({
-                        media_id: chapter.manga_id,
-                        referer: chapter.source,
-                        chapter_id: chapter.id,
-                      }),
-                    }).then((r)=>{
-                      elm.innerHTML = "Yeee"
-                    })
-                  }}
-                />):(<>Yeee</>)
-                  return value
-                })()}
-                </div>
+                <DownloadButton chapter = {chapter}/>
               </div>
             ))}
         </div>
