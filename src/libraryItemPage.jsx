@@ -69,7 +69,7 @@ function ItemPage() {
     contributors: JSON.stringify(["Template Person"]),
     chapters: [
       {
-        id: 1,
+        id: -1,
         extension: "TemplateExtension",
         manga_id: "exampleID",
         number: 1,
