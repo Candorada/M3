@@ -35,7 +35,7 @@ function Library() {
                     }}>delete</span>
                     <span>{10}</span>
                 </div>
-                <img src = {item.cover} alt = {item.title}/>
+                <img src = {`../backend/downloadedMedia/${item.id}/cover.jpg`} alt = {item.title}/>
             </div>
         </>)
     }

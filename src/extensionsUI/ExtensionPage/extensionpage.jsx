@@ -56,10 +56,14 @@ function ExtensionPage(){
             "name": "Searching",
             "url": "./"+extension
           })),
-        "pageCount": 1
+        "pageCount": -1
     })
+    let [page,sPage] = useState(1)
+    let [searchTerm,setSearchTerm] = useState("")
     async function search(keyword){
-        var queryString = (keyword?"q="+keyword:"")
+        console.log("searched")
+        setSearchTerm(keyword)
+        var queryString = (keyword?"q="+keyword:"")+(page?"&page="+page:"")
         var json = await ((await fetch("http://localhost:3000/"+extension+"/search"+(queryString?"?"+queryString:""))).json())
         if(await json){
             setSearchResult(await json)
@@ -73,9 +77,22 @@ function ExtensionPage(){
                 setJSONData(await json[extension])
                 fetch(`http://localhost:3000/${extension}/search`)
             }
-            search()
+            search(searchTerm)
         })()
-    },[])
+    },[page])
+    function setPage(num){
+        if(searchResult.pageCount > 0 && num <=searchResult.pageCount && num > 0){
+            sPage(num)
+        }else{
+            if(num<=0){
+                sPage(searchResult.pageCount)
+                page = searchResult.pageCount
+            }else{
+                sPage(1)
+                page = 1
+            }
+        }
+    }
     return (<>
         <div id = "extensionPage">
             <div className = "top">
@@ -106,6 +123,11 @@ function ExtensionPage(){
                             return <div>No results</div>
                         }
                     })()}
+                </div>
+                <div>
+                <input type="button" value = "<" onClick={()=>{setPage(page-1)}}/> 
+                <span>{page}/{searchResult.pageCount}</span>
+                <input type="button" value = ">" onClick={()=>{setPage(page+1)}}/>
                 </div>
             </div>
         </div>

@@ -7,6 +7,8 @@ const AdmZip = require("adm-zip");
 const path = require("path"); //for downloading extensions via drag & drop
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
+const port = 3000;
+const fport = 5173;
 
 var extensions = {};
 function updateExtensionList() {
@@ -24,8 +26,10 @@ function updateExtensionList() {
   });
 }
 
+//shemas for all types of media in the database tables
 const tableSchemas = {
   Comic: {
+    //database entry with types
     createColumns: `
       id TEXT PRIMARY KEY,
       name TEXT,
@@ -35,6 +39,7 @@ const tableSchemas = {
       contributors TEXT,
       about TEXT
     `,
+    //database column names in the same order
     insertColumns: [
       "id",
       "name",
@@ -44,6 +49,7 @@ const tableSchemas = {
       "contributors",
       "about",
     ],
+    //same names as being returned in extension file, in the same order as database
     getValues: (data) => [
       data.id,
       data.name,
@@ -98,7 +104,7 @@ db.serialize(() => {
       downloaded BOOLEAN DEFAULT 0,
       local_id TEXT
     )`,
-    //downloaded: 0 means not downloaded, 1 means downloaded
+    //downloaded: 0 means not downloaded, -1 means downloaded
     (err) => {
       if (err) {
         console.error("Error creating 'main' table:", err.message);
@@ -109,13 +115,15 @@ db.serialize(() => {
   db.run(
     `CREATE TABLE IF NOT EXISTS chapters (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-extension TEXT,
-manga_id TEXT,
-number REAL,
-name TEXT,
-source TEXT,
-date TEXT
-)`,
+      downloaded INTEGER DEFAULT 0,
+			read INTEGER DEFAULT 0,
+      extension TEXT,
+      manga_id TEXT,
+      number REAL,
+      name TEXT,
+      source TEXT,
+      date TEXT
+      )`,
     (err) => {
       if (err) {
         console.error("Error creating chapters table:", err.message);
@@ -219,8 +227,9 @@ app.get("/", (req, res) => {
 //end of extension download handler
 app.get("/:extension/search", async (req, res) => {
   const extension = extensions[req.params.extension];
+
   try {
-    var x = await extension.search(req.query.q);
+    var x = await extension.search(req.query.q, req.query.page);
   } catch {
     var x = [];
     res.status(400);
@@ -228,6 +237,31 @@ app.get("/:extension/search", async (req, res) => {
   res.send(x);
 });
 
+app.post("/deleteChapter", async (req, res) => {
+  const body = req.body;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id.toString();
+
+  try {
+    const filepath = path.join(
+      __dirname,
+      "downloadedMedia",
+      media_id,
+      chapter_id,
+    );
+    try {
+      await fileSystem.promises.rm(filepath, { recursive: true, force: true });
+    } catch (e) {
+      console.error("Chapter deletion error:", e);
+    }
+
+    db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
+  } catch (e) {
+    console.error("didn't work: ", e);
+  }
+});
+
+//delete media from library
 app.post("/delete", async (req, res) => {
   /*
     (await fetch('http://localhost:3000/delete', {
@@ -236,14 +270,15 @@ app.post("/delete", async (req, res) => {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: "manga-tq997351",
+        id: "Manganato-manga-aa951409",
       }), 
     })).json()
 
    */
+
   const body = req.body;
   const id = body.id;
-  res.sendStatus(200);
+
   try {
     const table = await new Promise((resolve) => {
       db.get(
@@ -269,12 +304,23 @@ app.post("/delete", async (req, res) => {
     }
 
     const type = extension.properties.type;
-    db.run(`DELETE FROM main WHERE local_id = ?`, [id]);
-    db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
 
-    if (type === "Comic") {
-      db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
+    db.serialize(() => {
+      db.run(`DELETE FROM main WHERE local_id = ?`, [id]);
+      db.run(`DELETE FROM ${table} WHERE id = ?`, [id]);
+      if (type === "Comic") {
+        db.run(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
+      }
+    });
+
+    const filepath = path.join(__dirname, "downloadedMedia", id);
+    try {
+      await fileSystem.promises.rm(filepath, { recursive: true, force: true });
+    } catch (e) {
+      console.error("File deletion error:", e);
     }
+
+    res.sendStatus(200);
   } catch (error) {
     console.error("Unexpected error:", error);
     res.sendStatus(500);
@@ -287,28 +333,97 @@ app.post("/:extension/getInfo", async (req, res) => {
   res.json(await extension.getInfo(body.url));
 });
 
-app.get("/library/:category/:mediaID/getChapter", async (req, res) => {
-  // example: http://localhost:3000/library/comics/Manganato-manga-aa951409/getChapter/?url=https://chapmanganato.to/manga-aa951409/chapter-1130
-  const url = req.query.url;
-  const id = req.params.mediaID;
-
-  const extension = await new Promise((resolve) => {
-    db.get(`SELECT extension FROM main WHERE local_id=?`, [id], (err, row) => {
-      if (err) {
-        console.error("Error retrieving chapter data:", err);
-        return resolve(null);
-      }
-      if (!row) {
-        console.error("No data found for given mediaID.");
-        return resolve(null);
-      }
-      resolve(row.extension);
-    });
+app.get("/imageProxy", async (req, res) => {
+  let url = req.query.url;
+  if (!url) {
+    res.sendStatus(400);
+    return;
+  }
+  if (!url.startsWith("http")) {
+    url = `http://localhost:${fport}/${url}`;
+    //comment
+  }
+  let fet = fetch(url, {
+    headers: {
+      accept:
+        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "accept-language": "en-US,en;q=0.9",
+      "cache-control": "no-cache",
+      pragma: "no-cache",
+      priority: "i",
+      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "image",
+      "sec-fetch-mode": "no-cors",
+      "sec-fetch-site": "cross-site",
+    },
+    referrer: req.query.referer,
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+    credentials: "omit",
   });
-
-  res.json(await extensions[extension].getChapterData(url));
+  res.set("Content-Type", "image/jpeg");
+  let buffer = Buffer.from(await (await fet).arrayBuffer());
+  res.send(buffer);
 });
 
+//get images for comic chapters
+app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
+  // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?chapterID=21621
+  let url = req.query.url;
+  const chapterID = req.query.chapterID;
+  const id = req.params.mediaid;
+
+  try {
+    const extension = await new Promise((resolve) => {
+      db.get(
+        `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error("Error retrieving chapter data:", err);
+            return resolve(null);
+          }
+          if (!row) {
+            console.error("No data found for given mediaID.");
+            return resolve(null);
+          }
+          resolve(row.extension);
+        },
+      );
+    });
+
+    if (chapterID != undefined) {
+      url = await new Promise((resolve) => {
+        db.get(
+          `SELECT source FROM chapters WHERE id=?`,
+          [chapterID],
+          (err, row) => {
+            if (err) {
+              console.error("Error retrieving chapter data:", err);
+              return resolve(null);
+            }
+            if (!row) {
+              console.error("No data found for given mediaID.");
+              return resolve(null);
+            }
+            resolve(row.source);
+          },
+        );
+      });
+    }
+
+    res.send(await extensions[extension].getChapterData(url));
+  } catch (e) {
+    res.json(["../backend/notFound.png"]);
+  }
+});
+
+//add media to your library
 app.post("/:extension/addToLibrary", async (req, res) => {
   try {
     const extension = extensions[req.params.extension];
@@ -316,6 +431,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const type = extension.properties.type;
     const schema = tableSchemas[type];
     let data = (await extension.getInfo(body.url)) || body;
+
     db.serialize(() => {
       const tableName = req.params.extension;
 
@@ -327,89 +443,300 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             console.error("Error checking for existing entry:", err.message);
             return;
           }
+
           if (!row && schema) {
             db.run(
-              `INSERT INTO main (extension,local_id) VALUES (?,?)`,
+              `INSERT INTO main (extension, local_id) VALUES (?, ?)`,
               [tableName, data.id],
               (err) => {
                 if (err) {
                   console.error("Error inserting into main:", err.message);
+                  return;
                 }
+
+                const columns = schema.insertColumns.join(", ");
+                const placeholders = schema.insertColumns
+                  .map(() => "?")
+                  .join(", ");
+                const values = schema.getValues(data);
+
+                const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+
+                db.run(insertQuery, values, (err) => {
+                  if (err) {
+                    console.error(
+                      `Error inserting into ${tableName}:`,
+                      err.message,
+                    );
+                    return;
+                  }
+
+                  if (type === "Comic") {
+                    let chapterInserts = 0;
+                    const totalChapters = data.chapters.length;
+
+                    if (totalChapters === 0) {
+                      // No chapters, call fetch immediately
+                      makeFetchCall();
+                    }
+
+                    data.chapters.forEach((chapter) => {
+                      db.run(
+                        `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?, ?, ?, ?, ?, ?)`,
+                        [
+                          tableName,
+                          data.id,
+                          chapter.name,
+                          chapter.index,
+                          chapter.url,
+                          chapter.date,
+                        ],
+                        (err) => {
+                          if (err) {
+                            console.error(
+                              "Error inserting chapter:",
+                              err.message,
+                            );
+                            return;
+                          }
+
+                          chapterInserts++;
+                          if (chapterInserts === totalChapters) {
+                            makeFetchCall();
+                          }
+                        },
+                      );
+                    });
+                  } else {
+                    makeFetchCall();
+                  }
+                });
               },
             );
-            const columns = schema.insertColumns.join(", ");
-            const placeholders = schema.insertColumns.map(() => "?").join(", ");
-            const values = schema.getValues(data);
-
-            const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-
-            db.run(insertQuery, values, (err) => {
-              if (err) {
-                console.error(
-                  `Error inserting into ${tableName}:`,
-                  err.message,
-                );
-              }
-            });
-
-            if (type == "Comic") {
-              data.chapters.forEach((chapter) => {
-                db.run(
-                  `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?,?,?,?,?,?)`,
-                  [
-                    tableName,
-                    data.id,
-                    chapter.name,
-                    chapter.index,
-                    chapter.url,
-                    chapter.date,
-                  ],
-                );
-              });
-            }
+          } else {
+            makeFetchCall();
           }
         },
       );
     });
-    res.status(200);
-    res.send({ code: 200, msg: "sucessfully added" });
+
+    function makeFetchCall() {
+      fetch("http://localhost:3000/download", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          media_id: data.id,
+          referer: "http://chapmanganato.to",
+          cover: true,
+        }),
+      });
+    }
+
+    res.sendStatus(200);
   } catch (e) {
     res.json(e);
   }
 });
 
+//show all extensions and their properties
 app.get("/extensionList", (req, res) => {
   updateExtensionList();
   res.json(extensions);
 });
 
-app.get("/test", async (req, res) => {
-  let img = await await fetch(
-    "https://cdn-icons-png.flaticon.com/512/3460/3460831.png",
-  );
-  console.log(img.arrayBuffer);
-  res.set("Content-Type", "image/png");
-  res.send(Buffer.from(await img.arrayBuffer()));
-});
+//download media
+app.post("/download", async (req, res) => {
+  /*
+    (await fetch('http://localhost:3000/download', {
+      method: 'POST',
+          headers: {
+          'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        media_id: "manganato-manga-aa951409",
+					referer: "http://chapmanganato.to",
 
-app.get("/html", (req, res) => {
-  res.send(
-    "<a href = 'https://www.google.com'>html stuff</a> <br></br> <a>hi</a>",
-  );
-});
+					//if manga put chapter_id (id in chapters table)
+					chapter_id: 1329,
+      }), 
+    })).json()
 
-app.get("/render", (req, res) => {
-  console.log("ass");
-  res.send("balls");
-});
 
-app.get("/library", (req, res) => {
-  res.json({
-    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
-    balls: "bye",
+*/
+  const body = req.body;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id;
+  const cover = body.cover;
+  const referer = body.referer;
+
+  try {
+    const table = await new Promise((resolve) => {
+      db.get(
+        `SELECT extension FROM main WHERE local_id = ? COLLATE NOCASE`,
+        [media_id],
+        (err, row) => {
+          if (err) {
+            console.error("Database error:", err);
+            return resolve(null);
+          }
+          resolve(row?.extension || null);
+        },
+      );
+    });
+
+    if (!table) {
+      console.error("No row found for media_id:", media_id);
+      return res.sendStatus(404);
+    }
+
+    let filepath = path.join(__dirname, "downloadedMedia", media_id);
+
+    if (cover) {
+      const coverUrl = await new Promise((resolve) => {
+        db.get(
+          `SELECT cover FROM ${table} WHERE id = ? COLLATE NOCASE`,
+          [media_id],
+          (err, row) => {
+            if (err) {
+              console.error("Error getting cover URL:", err);
+              return resolve(null);
+            }
+            resolve(row?.cover || null);
+          },
+        );
+      });
+
+      const response = await fetch(
+        `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
+      );
+
+      if (!response.ok) {
+        console.error(`Failed to fetch cover image: ${response.statusText}`);
+        return res.sendStatus(500);
+      }
+
+      await fileSystem.promises.mkdir(filepath, { recursive: true });
+      await fileSystem.promises.writeFile(
+        path.join(filepath, "cover.jpg"),
+        Buffer.from(await response.arrayBuffer()),
+      );
+      return res.sendStatus(200);
+    } else if (chapter_id) {
+      const chapterResp = await fetch(
+        `http://localhost:3000/library/comics/${media_id}/getchapter?chapterID=${chapter_id}`,
+      );
+
+      if (!chapterResp.ok) {
+        console.error(`Failed to fetch chapter: ${chapterResp.statusText}`);
+        return res.sendStatus(500);
+      }
+
+      const data = await chapterResp.json();
+      filepath = path.join(filepath, chapter_id.toString());
+
+      const downloadPromises = data.map((img, index) =>
+        (async () => {
+          try {
+            const imgResp = await fetch(
+              `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
+            );
+
+            if (!imgResp.ok) {
+              console.error(
+                `Failed to fetch image ${index}: ${imgResp.statusText}`,
+              );
+              return;
+            }
+
+            const imageBuffer = await imgResp.arrayBuffer();
+            const imageFilePath = path.join(filepath, `${index}.jpg`);
+
+            await fileSystem.promises.mkdir(filepath, { recursive: true });
+            await fileSystem.promises.writeFile(
+              imageFilePath,
+              Buffer.from(imageBuffer),
+            );
+
+            db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
+              index + 1,
+              chapter_id,
+            ]);
+          } catch (err) {
+            console.error(`Error downloading image ${index}:`, err.message);
+          }
+        })(),
+      );
+
+      // Wait for all download promises to complete
+      await Promise.allSettled(downloadPromises);
+
+      // Mark the chapter as fully downloaded
+      db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [chapter_id]);
+
+      res.status(200).json({ done: true });
+    }
+  } catch (err) {
+    console.error("Unexpected error:", err.message);
+    res.sendStatus(500);
+  }
+});
+app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
+  try{
+    let chapID = req.params.chapterID;
+    let mediaID = req.params.mediaID;
+    let path = "../backend/downloadedMedia/" + mediaID + "/" + chapID;
+    let files = fileSystem.readdirSync(path);
+    files = files.sort((x,y)=>{
+      let a = +x.split(".")[0]
+      let b = +y.split(".")[0]
+      return a-b
+  })
+    if (!files) {
+      res.send(["vite.svg"]);
+      return;
+    }
+    res.send(files.map((x) => path + `/${x}`));
+  }catch{
+    res.status(400)
+    res.send(["../backend/notFound.png"])
+  }
+});
+//run fetch requests for images through a proxy
+app.get("/imageProxy", async (req, res) => {
+  if (!req.query.url) {
+    res.sendStatus(400);
+    return;
+  }
+  let fet = fetch(req.query.url, {
+    headers: {
+      accept:
+        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+      "accept-language": "en-US,en;q=0.9",
+      "cache-control": "no-cache",
+      pragma: "no-cache",
+      priority: "i",
+      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "image",
+      "sec-fetch-mode": "no-cors",
+      "sec-fetch-site": "cross-site",
+    },
+    referrer: req.query.referer,
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+    credentials: "omit",
   });
+  res.set("Content-Type", "image/jpeg");
+  let buffer = Buffer.from(await (await fet).arrayBuffer());
+  res.send(buffer);
 });
 
+//get data about a certain piece of media
 app.get("/library/:category/:mediaID", (req, res) => {
   const id = req.params.mediaID;
 
@@ -464,6 +791,7 @@ app.get("/library/:category/:mediaID", (req, res) => {
   });
 });
 
+//get all media data
 app.get("/library/:category", async (req, res) => {
   const promises = [];
 
@@ -496,7 +824,13 @@ app.get("/library/:category", async (req, res) => {
   }
 });
 
-const port = 3000;
+app.get("/library", (req, res) => {
+  res.json({
+    categories: ["comics", "movies", "games", "ebooks", "audiobooks", "music"],
+    balls: "bye",
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}\nhttp://localhost:${port}`);
 });
