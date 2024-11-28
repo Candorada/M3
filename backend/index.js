@@ -305,18 +305,20 @@ app.post("/delete", async (req, res) => {
 
     const type = extension.properties.type;
     let delProms = []; // deletionPromises
-    function newDel(...vars){
-      delProms.push(new Promise((res,rej)=>{
-        db.serialize(()=>{
-          db.run(...vars,(err)=>{
-            if(!err){
-              res()
-            }else{
-              rej()
-            }
-          })
-        })
-      }))
+    function newDel(...vars) {
+      delProms.push(
+        new Promise((res, rej) => {
+          db.serialize(() => {
+            db.run(...vars, (err) => {
+              if (!err) {
+                res();
+              } else {
+                rej();
+              }
+            });
+          });
+        }),
+      );
     }
     db.serialize(() => {
       newDel(`DELETE FROM main WHERE local_id = ?`, [id]); //newDel is litterally db.run but it adds it to the delProms array which is being awaited later
@@ -332,17 +334,17 @@ app.post("/delete", async (req, res) => {
     } catch (e) {
       console.error("File deletion error:", e);
     }
-    Promise.allSettled(delProms).then((re)=>{
-      let allWorked = true
-      re.forEach((r)=>{
-        allWorked = r.status == "fulfilled" && allWorked
-      })
-      if(allWorked){
+    Promise.allSettled(delProms).then((re) => {
+      let allWorked = true;
+      re.forEach((r) => {
+        allWorked = r.status == "fulfilled" && allWorked;
+      });
+      if (allWorked) {
         res.sendStatus(200);
-      }else{
+      } else {
         res.sendStatus(500);
       }
-    })
+    });
   } catch (error) {
     console.error("Unexpected error:", error);
     res.sendStatus(500);
@@ -446,14 +448,23 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
 });
 
 app.get("/downloadingMedia", async (req, res) => {
-  db.all(`SELECT * FROM chapters WHERE downloaded > 0`, (err, rows) => {
-    if (err || !rows) {
-      console.error("problem getting downloaded media: ", err);
-      return;
-    }
+  let data = [];
 
-    res.json(rows);
+  chapterData = await new Promise((resolve) => {
+    db.all(
+      `SELECT * FROM chapters WHERE downloaded > 0`,
+
+      (err, rows) => {
+        if (err || !rows) {
+          console.error("Error retrieving chapter data:", err);
+          return resolve(null);
+        }
+        resolve(rows);
+      },
+    );
   });
+  data.push(chapterData);
+  res.json(data);
 
   //TODO: add functionality for different media types
 });
@@ -472,7 +483,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         `SELECT id FROM ${tableName} WHERE id = ?`,
         [data.id],
         (err, row) => {
-          console.log(err,row)
+          console.log(err, row);
           if (err) {
             console.error("Error checking for existing entry:", err.message);
             return;
@@ -568,7 +579,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
     res.sendStatus(200);
   } catch (e) {
-    console.error(e)
+    console.error(e);
     res.json(e);
   }
 });
@@ -642,7 +653,7 @@ app.post("/download", async (req, res) => {
       const response = await fetch(
         `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
       );
-      console.log(response)
+      console.log(response);
       if (!response.ok) {
         console.error(`Failed to fetch cover image: ${response.statusText}`);
         return res.sendStatus(500);
