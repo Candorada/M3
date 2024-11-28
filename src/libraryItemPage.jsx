@@ -15,11 +15,12 @@ function DownloadButton({chapter}){
            let BTN = document.querySelector(`[chapter_id="${chapter.id}"] >.downloadBTN .loading`)
            if(BTN){
             let status = json.chapters.filter((chap)=>chap.id == chapter.id)[0].downloaded
-            console.log(status)
-            BTN.innerHTML = json.chapters.filter((chap)=>chap.id == chapter.id)[0].downloaded
+            if(+BTN.innerHTML < status){
+              BTN.innerHTML = status
+            }
            }
       });
-    },50)
+    },200)
     fetch("http://localhost:3000/download", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -37,28 +38,6 @@ function DownloadButton({chapter}){
   let [btn,setBTN] = useState(starterBTN)
   return <div className="downloadBTN">{btn}</div>
 }
-/*
-{(()=>{}
-  let value = (chapter.downloaded != -1)?(<input type="button" value="download" onClick={(e) => {
-    let elm = e.target.parentElement
-    e.stopPropagation();
-    elm.innerHTML = "Downloading..."
-    fetch("http://localhost:3000/download", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        media_id: chapter.manga_id,
-        referer: chapter.source,
-        chapter_id: chapter.id,
-      }),
-    }).then((r)=>{
-      elm.innerHTML = "Yeee"
-    })
-  }}
-/>):(<>Yeee</>)
-  return value
-})()}
-*/
 function ItemPage() {
   const navigate = useNavigate();
   const { mediaID } = useParams();
