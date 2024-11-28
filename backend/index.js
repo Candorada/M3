@@ -579,7 +579,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
     res.sendStatus(200);
   } catch (e) {
-    console.error(e);
     res.json(e);
   }
 });
@@ -653,7 +652,6 @@ app.post("/download", async (req, res) => {
       const response = await fetch(
         `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
       );
-      console.log(response);
       if (!response.ok) {
         console.error(`Failed to fetch cover image: ${response.statusText}`);
         return res.sendStatus(500);
