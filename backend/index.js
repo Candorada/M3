@@ -446,7 +446,6 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
     res.json(["../backend/notFound.png"]);
   }
 });
-
 app.get("/downloadingMedia", async (req, res) => {
   let data = [];
 
