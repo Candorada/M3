@@ -32,6 +32,11 @@ function ChapterPage(){
     },[])
     return (<>
 <div className="ScrollboxComicReader">
+<div>
+    <select name="select" id="">
+    {chapters.map((chap)=><option key={chap.id}>{chap.name}</option>)}
+    </select>
+</div>
     {images.map((img,i)=><img className = "comicPage" key = {i} src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`}></img>)}
 </div>
 </>)
