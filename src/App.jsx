@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {createContext } from "react";
 import SideNav from "./SideNavBar";
 import Library from "./library";
 import ExtensionsPage from "./extensionsUI/extenisonsUI";
@@ -35,6 +35,7 @@ let sideNavRouter = createBrowserRouter([
     element: <ExtensionPage />
   },
 ])
+export const RouterContext = createContext();
 function App() {
       let route = sideNavRouter.state.matches[0].route.path
       let backb = null
@@ -52,9 +53,11 @@ function App() {
     {
       backb
     }
+      <RouterContext.Provider value = { sideNavRouter}>
       <div id = "currentPage">
       <RouterProvider router = {sideNavRouter}/>
       </div>
+      </RouterContext.Provider>
     </>
   );
 }
