@@ -482,6 +482,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         `SELECT id FROM ${tableName} WHERE id = ?`,
         [data.id],
         (err, row) => {
+          console.log(err, row);
           if (err) {
             console.error("Error checking for existing entry:", err.message);
             return;
@@ -705,11 +706,6 @@ app.post("/download", async (req, res) => {
               index + 1,
               chapter_id,
             ]);
-            if (index + 1 >= data.length) {
-              db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [
-                chapter_id,
-              ]);
-            }
           } catch (err) {
             console.error(`Error downloading image ${index}:`, err.message);
           }
