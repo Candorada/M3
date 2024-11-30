@@ -1,5 +1,6 @@
 //https://api.mangadex.org/manga?includes[]=cover_art
-
+//https://mangadex.org/title/274a8e39-71a8-4bd2-af19-4572518fe44f/leviathan
+//https://mangadex.org/title/
 const properties = {
   name: "MangaDex",
   type: "Comic",
@@ -27,11 +28,14 @@ const properties = {
 async function search(search,page) {
   //test change
   console.log("test")
+  api = await (await fetch("https:api.mangadex.org/manga?includes[]=cover_art")).json()
+
+  console.log(api)
   return {
     media: [
       {
         img: "https://mangadex.org/covers/fa933825-c0cb-41f4-94e5-38c042810dab/44bdcbe2-0b71-4854-ac5d-6c24f327f89f.jpg",
-        name: "<nam>",
+        name: "https://mangadex.org/title/" + api["data"]['0']["id"],
         url: "",
       },
     ],
