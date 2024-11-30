@@ -6,3 +6,19 @@
     width: 100%;
     max-width: 800px;
 }
+.chapterTopBar{
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    align-items: center;
+    background-color: var(--primary3);
+    gap:1rem;
+}
+.chapterSelector{
+    width: 20rem;
+}
+.titleText{
+    font-size: 1.5rem;
+    color: var(--secondary2);
+    font-weight: bold;
+}

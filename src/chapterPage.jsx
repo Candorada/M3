@@ -10,6 +10,15 @@ function ChapterPage(){
     let [comicData,setComicData] = useState({})
     let [chapterData,setChapterData] = useState({})
     let [chapters,setChapters] = useState([])
+    console.log(chapterData,comicData)
+    function ChapterSelector({chapters, chapter}){
+        return <select name="select" value = {chapter} className ="chapterSelector" onChange={(e)=>{
+            router.navigate(`./../${e.target.value}`)
+            setChapter(e.target.value)
+        }}>
+        {chapters.sort((a,b)=>b.number-a.number).map((chap)=><option key={chap.id} value = {chap.id}>{chap.name}</option>)}
+        </select>
+    }
     useEffect(()=>{
         fetch(`http://localhost:3000/library/comics/${mediaID}/getchapter?chapterID=${chapter}`)
         .then((r)=>r.json())
@@ -34,15 +43,13 @@ function ChapterPage(){
     },[chapter])
     return (<>
 <div className="ScrollboxComicReader">
-<div>
-    <select name="select" value = {chapter} onChange={(e)=>{
-        router.navigate(`./../${e.target.value}`)
-        setChapter(e.target.value)
-    }}>
-    {chapters.sort((a,b)=>b.number-a.number).map((chap)=><option key={chap.id} value = {chap.id}>{chap.name}</option>)}
-    </select>
-</div>
+    <div className = "chapterTopBar">
+    <div className = "titleText">{comicData.name}: {chapterData.name}</div>
+    <ChapterSelector chapters = {chapters} chapter = {chapter}/>
+    </div>
+    <div className="images">
     {images.map((img,i)=><img className = "comicPage" key = {i} src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`}></img>)}
+    </div>
 </div>
 </>)
 }
