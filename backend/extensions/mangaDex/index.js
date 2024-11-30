@@ -31,12 +31,13 @@ async function search(search,page) {
   api = await (await fetch("https:api.mangadex.org/manga?includes[]=cover_art")).json()
 
   console.log(api)
+  console.log(api.data[0].id)
   return {
     media: [
       {
         img: "https://mangadex.org/covers/fa933825-c0cb-41f4-94e5-38c042810dab/44bdcbe2-0b71-4854-ac5d-6c24f327f89f.jpg",
-        name: "https://mangadex.org/title/" + api["data"]['0']["id"],
-        url: "",
+        name: "https://mangadex.org/title/" + api.data[0].attributes.title.en,
+        url: "https://mangadex.org/title/" + api.data[0].id,
       },
     ],
     pageCount: 0,
