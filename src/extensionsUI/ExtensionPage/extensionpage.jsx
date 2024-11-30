@@ -71,12 +71,6 @@ function ExtensionPage(){
     }
     useEffect(()=>{
         (async()=>{
-            var json = await ((await fetch("http://localhost:3000/extensionList")).json())
-            if(await json[extension]){
-                extensionObj = await json[extension]
-                setJSONData(await json[extension])
-                fetch(`http://localhost:3000/${extension}/search`)
-            }
             search(searchTerm)
         })()
     },[page])
