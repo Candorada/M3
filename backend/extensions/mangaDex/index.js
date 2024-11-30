@@ -31,7 +31,7 @@ async function search(search,page) {
   
   //cover art url: `https://api.mangadex.org/cover?limit=10&offset=${page}&manga%5B%5D=${mangaID}&order%5BlatestUploadedChapter%5D=desc`
   console.log("test 1")
-
+  
   //set up defaults
   if (page == null){
     page = "1"
