@@ -1,3 +1,5 @@
+//https://api.mangadex.org/manga?includes[]=cover_art
+
 const properties = {
   name: "MangaDex",
   type: "Comic",
@@ -10,9 +12,7 @@ const properties = {
   creator: "Krognard",
   creatorSocials: "https://github.com/Krognard", //optional
 };
-
-function search(search) {
-  //test change
+/*
   return {
     media: [
       {
@@ -23,10 +23,25 @@ function search(search) {
     ],
     pageCount: 0,
   };
+ */
+async function search(search,page) {
+  //test change
+  console.log("test")
+  return {
+    media: [
+      {
+        img: "https://mangadex.org/covers/fa933825-c0cb-41f4-94e5-38c042810dab/44bdcbe2-0b71-4854-ac5d-6c24f327f89f.jpg",
+        name: "<nam>",
+        url: "",
+      },
+    ],
+    pageCount: 0,
+  };
 }
 function getInfo(url) {}
-
+function getChapData(url) {}
 module.exports = {
+  getChapterData:getChapData,
   search: search,
   getInfo: getInfo,
   properties: properties,
