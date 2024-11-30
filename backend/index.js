@@ -354,8 +354,21 @@ app.post("/delete", async (req, res) => {
 app.post("/:extension/getInfo", async (req, res) => {
   const extension = extensions[req.params.extension];
   const body = req.body;
+  console.log(body)
   res.json(await extension.getInfo(body.url));
 });
+/*
+//example get info
+await fetch("http://localhost:3000/Manganato/getInfo",{
+    method:"POST",
+    headers:{
+        "content-type":"application/json"
+    },
+    body:JSON.stringify({
+        url:"https://chapmanganato.to/manga-tn997122"
+    })
+}).then(x=>x.json())
+*/
 
 app.get("/imageProxy", async (req, res) => {
   let url = req.query.url;
