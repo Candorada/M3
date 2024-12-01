@@ -32,30 +32,35 @@ async function search(search,page) {
   //cover art url: `https://api.mangadex.org/cover?limit=10&offset=${page}&manga%5B%5D=${mangaID}&order%5BlatestUploadedChapter%5D=desc`
   console.log("test 1")
   
-  //set up defaults
-  if (page == null){
-    page = "1"
-  }
-
-  if (search == null){
-    search = "hunter"
-  }
-  console.log(page)
-  console.log(search)
-  console.log("test")
 
   //everything works up to here
-  mangas = await (await fetch(`https://api.mangadex.org/manga?limit=10&offset=${page}&title=${search}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
-  console.log(managas)
+
+  //mangas = await (await fetch(`https://api.mangadex.org/manga?limit=10&offset=${page}&title=${search}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
+  let comicArr = []
+  let numberOfComics = 20
+  for(let i = 0; i < numberOfComics; i++){
+    let data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
+    let mangaId = data.data[i].id
+    console.log(mangaId)
+
+
+    let coverData = await (await fetch(`https://api.mangadex.org/cover?limit=${numberOfComics}&manga%5B%5D=${mangaId}&order%5BcreatedAt%5D=asc&order%5BupdatedAt%5D=asc&order%5Bvolume%5D=asc`)).json()
+    let coverFileName = coverData.data[0].attributes.fileName
+    
+
+    let coverURL = `https://mangadex.org/covers/${mangaId}/${coverFileName}`
+
+
+
+    comicArr.push({
+        img: coverURL,
+        name: "randomAssName",
+        url: mangaId,
+    })//have mulitiple of these objects (one per comic) contains information on comics being displayed on the one page
+  }
 
   return {
-    media: [
-      { //have mulitiple of these objects (one per comic) contains information on comics being displayed on the one page
-        img: "https://mangadex.org/covers/fa933825-c0cb-41f4-94e5-38c042810dab/44bdcbe2-0b71-4854-ac5d-6c24f327f89f.jpg",
-        name: "https://mangadex.org/title/" + api.data[0].attributes.title.en,
-        url: "https://mangadex.org/title/" + api.data[0].id,
-      },
-    ],
+    media: comicArr,
     pageCount: 0, //total number of pages that you can cycle through in the website
   };
 }
