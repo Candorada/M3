@@ -16,6 +16,7 @@ function Library() {
     useEffect(()=>{catFetch()},[])
     useEffect(()=>{libFetch()},[])
     function LibItem({item}){
+        console.log(item)
         let url = `../backend/downloadedMedia/${item.id}/cover.jpg`
         let [coverArt,setCoverArt] = useState(url);
             new Promise((res,rej)=>{
@@ -47,6 +48,7 @@ function Library() {
                             },
                             body: JSON.stringify({
                                 id: item.id,
+                                extension:item.extension
                             }), 
                         }).then((r)=>{
                             libFetch()
