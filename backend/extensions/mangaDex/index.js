@@ -36,7 +36,7 @@ async function search(search,page) {
 
   //mangas = await (await fetch(`https://api.mangadex.org/manga?limit=10&offset=${page}&title=${search}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
   let comicArr = []
-  let numberOfComics = 20
+  let numberOfComics = 24
   for(let i = 0; i < numberOfComics; i++){
     let data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
     let mangaId = data.data[i].id
