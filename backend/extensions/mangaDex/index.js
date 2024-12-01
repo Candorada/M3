@@ -30,7 +30,6 @@ async function search(search,page) {
   //manga itself url: `https://api.mangadex.org/manga?limit=10&offset=${page}&title=${search}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`
   
   //cover art url: `https://api.mangadex.org/cover?limit=10&offset=${page}&manga%5B%5D=${mangaID}&order%5BlatestUploadedChapter%5D=desc`
-  console.log("test 1")
   
 
   //everything works up to here
@@ -41,7 +40,6 @@ async function search(search,page) {
   for(let i = 0; i < numberOfComics; i++){
     let data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
     let mangaId = data.data[i].id
-    console.log(mangaId)
 
 
     let coverData = await (await fetch(`https://api.mangadex.org/cover?limit=${numberOfComics}&manga%5B%5D=${mangaId}&order%5BcreatedAt%5D=asc&order%5BupdatedAt%5D=asc&order%5Bvolume%5D=asc`)).json()
