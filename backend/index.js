@@ -279,57 +279,42 @@ app.post("/delete", async (req, res) => {
   const body = req.body;
   const id = body.id;
 
+
   try {
-    const table = await new Promise((resolve) => {
-      db.get(
-        `SELECT extension FROM main WHERE local_id = ?`,
-        [id],
-        (err, row) => {
-          if (err) {
-            console.error("Database error:", err);
-            return resolve(null);
-          }
-          resolve(row?.extension || null);
-        },
-      );
-    });
-
-    if (!table) {
-      return res.sendStatus(404);
-    }
-
+    const table = body.extension;
     const extension = extensions[table];
     if (!extension) {
-      return res.sendStatus(400);
+      //return res.sendStatus(400);
     }
-
-    const type = extension.properties.type;
+    const type = extension?.properties?.type;
     let delProms = []; // deletionPromises
     function newDel(...vars) {
-      delProms.push(
-        new Promise((res, rej) => {
-          db.serialize(() => {
-            db.run(...vars, (err) => {
-              if (!err) {
-                res();
-              } else {
-                rej();
-              }
-            });
+      let prom = new Promise((res, rej) => {
+        db.serialize(() => {
+          db.run(...vars, (err,data) => {
+            if (!err) {
+              res(data);
+            } else {
+              rej(err);
+            }
           });
-        }),
-      );
+        });
+      })
+      delProms.push(prom);
+      return prom
     }
     db.serialize(() => {
-      newDel(`DELETE FROM main WHERE local_id = ?`, [id]); //newDel is litterally db.run but it adds it to the delProms array which is being awaited later
-      newDel(`DELETE FROM ${table} WHERE id = ?`, [id]);
+      let isStr = typeof id == "string";
+      let q = typeof id == "string"?" = ?":" IS "+id // uses is with the id concated or = ?. if the id is null then the fetch fails so this is needed to make a search based on id work with broken installs
+      newDel(`DELETE FROM main WHERE local_id${q}`, isStr?[id]:[]); //newDel is litterally db.run but it adds it to the delProms array which is being awaited later
+      newDel(`DELETE FROM ${table} WHERE id${q}`, isStr?[id]:[]);
       if (type === "Comic") {
-        newDel(`DELETE FROM chapters WHERE manga_id = ?`, [id]);
+        newDel(`DELETE FROM chapters WHERE manga_id${q}`, isStr?[id]:[]);
       }
     });
-
-    const filepath = path.join(__dirname, "downloadedMedia", id);
+    console.log(delProms)
     try {
+      const filepath = path.join(__dirname, "downloadedMedia", id);
       await fileSystem.promises.rm(filepath, { recursive: true, force: true });
     } catch (e) {
       console.error("File deletion error:", e);
@@ -516,8 +501,10 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                   .map(() => "?")
                   .join(", ");
                 const values = schema.getValues(data);
-
                 const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+                if(values[0] == undefined){
+                  return
+                }
 
                 db.run(insertQuery, values, (err) => {
                   if (err) {
@@ -530,13 +517,13 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
                   if (type === "Comic") {
                     let chapterInserts = 0;
-                    const totalChapters = data.chapters.length;
+                    const totalChapters = data?.chapters?.length;
 
                     if (totalChapters === 0) {
                       // No chapters, call fetch immediately
                       makeFetchCall();
                     }
-                    data.chapters.forEach((chapter) => {
+                    data?.chapters?.forEach((chapter) => {
                       db.run(
                         `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?, ?, ?, ?, ?, ?)`,
                         [
@@ -861,6 +848,7 @@ app.get("/library/:category", async (req, res) => {
             if (item.tags) {
               item.tags = JSON.parse(item.tags);
             }
+            item.extension = table
             return item;
           });
           resolve(parsedData);
