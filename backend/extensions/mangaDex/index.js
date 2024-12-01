@@ -35,10 +35,12 @@ async function search(search,page) {
   //everything works up to here
 
   //mangas = await (await fetch(`https://api.mangadex.org/manga?limit=10&offset=${page}&title=${search}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
+ 
   let comicArr = []
+  let offset = (page - 1)*24
   let numberOfComics = 24
   for(let i = 0; i < numberOfComics; i++){
-    let data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
+    let data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includedTagsMode=AND&excludedTagsMode=OR&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&order%5BlatestUploadedChapter%5D=desc`)).json()
     let mangaId = data.data[i].id
 
 
@@ -59,7 +61,7 @@ async function search(search,page) {
 
   return {
     media: comicArr,
-    pageCount: 0, //total number of pages that you can cycle through in the website
+    pageCount: 3366, //total number of pages that you can cycle through in the website
   };
 }
 function getInfo(url) {}
