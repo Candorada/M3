@@ -241,7 +241,6 @@ app.post("/deleteChapter", async (req, res) => {
   const body = req.body;
   const media_id = body.media_id;
   const chapter_id = body.chapter_id.toString();
-
   try {
     const filepath = path.join(
       __dirname,
@@ -249,16 +248,13 @@ app.post("/deleteChapter", async (req, res) => {
       media_id,
       chapter_id,
     );
-    try {
-      await fileSystem.promises.rm(filepath, { recursive: true, force: true });
-    } catch (e) {
-      console.error("Chapter deletion error:", e);
-    }
-
+    let delProm = await fileSystem.promises.rm(filepath, { recursive: true, force: true });
     db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
   } catch (e) {
+    res.sendStatus(400);
     console.error("didn't work: ", e);
   }
+  res.sendStatus(200);
 });
 
 //delete media from library
