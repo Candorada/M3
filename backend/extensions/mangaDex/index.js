@@ -1,3 +1,4 @@
+//example image url: 
 const properties = {
   name: "MangaDex",
   type: "Comic",
@@ -21,7 +22,9 @@ async function search(search,page) {
     }else{
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${search}&includes%5B%5D=cover_art`)).json()
     }
-    data = data.data.map(x=>({
+    
+    data = data.data.map(x=>(
+      {
         img: `https://mangadex.org/covers/${x.id}/${x.relationships.find(x=>x.type == "cover_art").attributes.fileName}`,
         name: "randomAssName",
         url: "https://mangadex.org/title/"+x.id
@@ -31,24 +34,45 @@ async function search(search,page) {
     pageCount: 3366, //total number of pages that you can cycle through in the website
   };
 }
-function getInfo(url) {
+async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
+  var mangaId = url.slice(27)
+  
+  mangaData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator`)).json() // information about manga
+  //example: https://api.mangadex.org/manga/9ef560c3-e1b9-4451-9103-1fc5af45c09e?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator
+
+
+
+  
+  chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
+
+  var chapterses = []
+
+  Object.keys(chapterData.volumes[1].chapters).forEach(key => {
+
+    chapterses.push({
+      index: key,
+      name: key.chapter,
+      url: key.id,
+      date: new Date().getTime()
+    })
+    
+  })
   return {
-    url: "",
-    about: "",
-    id:"",
-    name: "",
-    tags:[],
-    contributors: [],
-    coverImage: "",
-    chapters: [{
-      index: "",
-      name:"",
-      url:"",
-      date: new Date()
-    }] //different object for each chapter
+    url: url,
+    about: "heres your description asshole",
+    id: mangaId,
+    name: "sharknado",
+    tags:["funny", "erotic"],
+    contributors: ["bob", "jerry"],
+    coverImage: `https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg`,
+    chapters: chapterses //different object for each chapter
   } 
 }
-function getChapData(url) {
+
+
+async function getChapData(url) { //url of a chapter
+ 
+  `https://mangadex.org/chapter/${chapterId}/${page}` //page starts at 1    how does it know which chapter its on?
   return ["https://"] // an array of image urls for that chapter
 }
 module.exports = {

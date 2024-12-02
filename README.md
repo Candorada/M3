@@ -67,11 +67,11 @@ const properties = {
   creatorSocials: "__GitHub url__",
 };
 
-function search(search) {}
+async function search(search) {}
 
-function getInfo(url) {}
+async function getInfo(url) {}
 
-function getChapterData(url) {}
+async function getChapterData(url) {}
 
 module.exports = {
   search: search,
