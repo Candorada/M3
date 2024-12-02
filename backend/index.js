@@ -308,7 +308,6 @@ app.post("/delete", async (req, res) => {
         newDel(`DELETE FROM chapters WHERE manga_id${q}`, isStr?[id]:[]);
       }
     });
-    console.log(delProms)
     try {
       const filepath = path.join(__dirname, "downloadedMedia", id);
       await fileSystem.promises.rm(filepath, { recursive: true, force: true });
@@ -335,7 +334,6 @@ app.post("/delete", async (req, res) => {
 app.post("/:extension/getInfo", async (req, res) => {
   const extension = extensions[req.params.extension];
   const body = req.body;
-  console.log(body)
   res.json(await extension.getInfo(body.url));
 });
 /*
@@ -476,7 +474,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         `SELECT id FROM ${tableName} WHERE id = ?`,
         [data.id],
         (err, row) => {
-          console.log(err, row);
           if (err) {
             console.error("Error checking for existing entry:", err.message);
             return;
