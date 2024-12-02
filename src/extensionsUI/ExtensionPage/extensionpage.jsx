@@ -54,7 +54,7 @@ function ExtensionPage(){
             let data = await x.json()
             setJSONData(data[extension])
         })
-    })
+    },[])
     const loop=(n,cb)=>[...Array(n)].map((_,i)=>i).map(cb) // goofy little line of code that allows inline forloops. loop(10,()=>1) will make an array of 10 ones
     const [searchResult,setSearchResult] = useState({
         "media": loop(100,()=>({
