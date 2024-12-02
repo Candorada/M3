@@ -1,5 +1,8 @@
 #sideNav{
     background-color:var(--primary2);
+    filter:url(#noise);
+    overflow: hidden;
+
     width: 40px;
     padding:10px;
     display: flex;

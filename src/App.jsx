@@ -7,6 +7,7 @@ import ItemPage from  "./libraryItemPage"
 import ChapterPage from "./chapterPage";
 import "./App.css"
 import { Navigate,RouterProvider, createBrowserRouter} from "react-router-dom";
+import Noise from "./filters/noise"
 let sideNavRouter = createBrowserRouter([
   {
     errorElement: <div>Error 404 page not found <a href="/">return</a></div>,
@@ -50,9 +51,8 @@ function App() {
       }
   return (
     <>
-    {
-      backb
-    }
+      <Noise />
+      {backb}
       <RouterContext.Provider value = { sideNavRouter}>
       <div id = "currentPage">
       <RouterProvider router = {sideNavRouter}/>
