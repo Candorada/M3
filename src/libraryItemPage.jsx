@@ -3,7 +3,23 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 function DownloadButton({chapter}){
-  let delBTN = <>Delete</>
+  let delBTN = <input type="button" value="delete" onClick={(e) => {
+    e.stopPropagation();
+    fetch("http://localhost:3000/deleteChapter",{
+      method:"POST",
+      headers:{
+          "content-type":"application/json"
+      },
+      body:JSON.stringify({
+          media_id:chapter.manga_id,
+          chapter_id:chapter.id
+      })
+  }).then(r=>{
+    if(r.ok){
+      setBTN(downBTN)
+    }
+  })
+  }}/>
   let loading = <><div className = "loading">{chapter.downloaded}</div></>
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
