@@ -31,8 +31,26 @@ async function search(search,page) {
     pageCount: 3366, //total number of pages that you can cycle through in the website
   };
 }
-function getInfo(url) {}
-function getChapData(url) {}
+function getInfo(url) {
+  return {
+    url: "",
+    about: "",
+    id:"",
+    name: "",
+    tags:[],
+    contributors: [],
+    coverImage: "",
+    chapters: [{
+      index: "",
+      name:"",
+      url:"",
+      date: new Date()
+    }] //different object for each chapter
+  } 
+}
+function getChapData(url) {
+  return ["https://"] // an array of image urls for that chapter
+}
 module.exports = {
   getChapterData:getChapData,
   search: search,

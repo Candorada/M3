@@ -71,6 +71,8 @@ function search(search) {}
 
 function getInfo(url) {}
 
+function getChapterData(url) {}
+
 module.exports = {
   search: search,
   getInfo: getInfo,
