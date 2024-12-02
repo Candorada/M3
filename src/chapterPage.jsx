@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext} from "react";
 import { useParams } from "react-router-dom";
-import {RouterContext} from "./App";
+import { RouterContext } from "./App";
 import "./chapterPage.css"
+
 function ChapterPage(){
     const router = useContext(RouterContext)
     const {mediaID,chapterID} = useParams();
@@ -10,14 +11,51 @@ function ChapterPage(){
     let [comicData,setComicData] = useState({})
     let [chapterData,setChapterData] = useState({})
     let [chapters,setChapters] = useState([])
-    console.log(chapterData,comicData)
+    function findChapterIndex(chapters,chapterNumber){
+        let min = 0;
+        let max = chapters.length-1;
+        while(min<=max){
+            let mid = Math.floor((min+max)/2);
+            if(chapters[mid].number == chapterNumber){
+                return mid;
+            }else if(chapters[mid].number < chapterNumber){
+                max = mid-1;
+            }else{
+                min = mid+1;
+            }
+        }
+    }
+    function NextChapterBTN(){
+        return <input type="button" value="->" onClick={()=>{
+            let chapterindex = findChapterIndex(chapters,chapterData.number)
+            if(chapterindex-1 >=0){
+                let id = chapters[chapterindex-1].id
+                router.navigate(`./../${id}`)
+                setChapter(id)
+            }
+        }}/>
+    }
+    function PrevChapterBTN(){
+        return <input type="button" value="<-" onClick={()=>{
+            let chapterindex = findChapterIndex(chapters,chapterData.number)
+            if(chapterindex+1 <chapters.length){
+                let id = chapters[chapterindex+1].id
+                router.navigate(`./../${id}`)
+                setChapter(id)
+            }
+        }} />
+    }
     function ChapterSelector({chapters, chapter}){
-        return <select name="select" value = {chapter} className ="chapterSelector" onChange={(e)=>{
-            router.navigate(`./../${e.target.value}`)
-            setChapter(e.target.value)
-        }}>
-        {chapters.sort((a,b)=>b.number-a.number).map((chap)=><option key={chap.id} value = {chap.id}>{chap.name}</option>)}
-        </select>
+        return <div>
+            <PrevChapterBTN />
+            <select name="select" value = {chapter} className ="chapterSelector" onChange={(e)=>{
+                router.navigate(`./../${e.target.value}`)
+                setChapter(e.target.value)
+            }}>
+            {chapters.sort((a,b)=>b.number-a.number).map((chap)=><option key={chap.id} value = {chap.id}>{chap.name}</option>)}
+            </select>
+            <NextChapterBTN />
+        </div>
     }
     useEffect(()=>{
         fetch(`http://localhost:3000/library/comics/${mediaID}/getchapter?chapterID=${chapter}`)
