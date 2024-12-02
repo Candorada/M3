@@ -1,3 +1,4 @@
+//example image url: 
 const properties = {
   name: "MangaDex",
   type: "Comic",
@@ -22,7 +23,8 @@ async function search(search,page) {
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${search}&includes%5B%5D=cover_art`)).json()
     }
     
-    data = data.data.map(x=>({
+    data = data.data.map(x=>(
+      {
         img: `https://mangadex.org/covers/${x.id}/${x.relationships.find(x=>x.type == "cover_art").attributes.fileName}`,
         name: "randomAssName",
         url: "https://mangadex.org/title/"+x.id
@@ -46,7 +48,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
   var chapterses = []
 
   Object.keys(chapterData.volumes[1].chapters).forEach(key => {
-      console.log(key)
 
     chapterses.push({
       index: key,
@@ -58,12 +59,12 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
   })
   return {
     url: url,
-    about: mangaData.data.attributes.description.en,
+    about: "heres your description asshole",
     id: mangaId,
-    name: mangaData.data.attributes.title.en,
+    name: "sharknado",
     tags:["funny", "erotic"],
     contributors: ["bob", "jerry"],
-    coverImage: `https://mangadex.org/covers/${mangaData.data.id}/${mangaData.data.relationships.find(x=>x.type == "cover_art").attributes.fileName}`,
+    coverImage: `https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg`,
     chapters: chapterses //different object for each chapter
   } 
 }
