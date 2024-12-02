@@ -36,36 +36,32 @@ async function search(search,page) {
 }
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
   var mangaId = url.slice(27)
-  
-  mangaData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator`)).json() // information about manga
+  let mangaData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator`)).json() // information about manga
   //example: https://api.mangadex.org/manga/9ef560c3-e1b9-4451-9103-1fc5af45c09e?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator
 
 
 
   
-  chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
-
-  var chapterses = []
-
-  Object.keys(chapterData.volumes[1].chapters).forEach(key => {
-
-    chapterses.push({
-      index: key,
-      name: key.chapter,
-      url: key.id,
+  let chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
+  let chaps = chaptersData.volumes["1"].chapters
+  let computedChaps = []
+  Object.keys(chaps).forEach(key => {
+    computedChaps.push({
+      index: chaps[key].chapter,
+      name: "HELLO",
+      url: `https://mangadex.org/title/${chaps[key].id}`,
       date: new Date().getTime()
     })
-    
   })
   return {
     url: url,
     about: "heres your description asshole",
-    id: mangaId,
+    id: "Mangadex-"+mangaId,
     name: "sharknado",
     tags:["funny", "erotic"],
     contributors: ["bob", "jerry"],
     coverImage: `https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg`,
-    chapters: chapterses //different object for each chapter
+    chapters: computedChaps //different object for each chapter
   } 
 }
 
