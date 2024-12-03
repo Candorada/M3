@@ -36,12 +36,7 @@ async function search(search,page) {
 }
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
   var mangaId = url.slice(27)
-  let mangaData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator`)).json() // information about manga
-  //example: https://api.mangadex.org/manga/9ef560c3-e1b9-4451-9103-1fc5af45c09e?includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=tag&includes%5B%5D=creator
 
-
-
-  
   let chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
   let chaps = chaptersData.volumes["1"].chapters
   let computedChaps = []
@@ -68,8 +63,11 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 async function getChapData(url) { //url of a chapter
  
-  `https://mangadex.org/chapter/${chapterId}/${page}` //page starts at 1    how does it know which chapter its on?
-  return ["https://"] // an array of image urls for that chapter
+  //`https://mangadex.org/chapter/${chapterId}/${page}` //page starts at 1    how does it know which chapter its on?
+  return ["https://t3.ftcdn.net/jpg/07/17/33/40/360_F_717334058_zZu41aMmrR0CvBxI3WLbWRjrqFyLAdW1.jpg",
+    "https://images.ctfassets.net/ub3bwfd53mwy/5WFv6lEUb1e6kWeP06CLXr/acd328417f24786af98b1750d90813de/4_Image.jpg?w=750"
+
+  ] // an array of image urls for that chapter
 }
 module.exports = {
   getChapterData:getChapData,
