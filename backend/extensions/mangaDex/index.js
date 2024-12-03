@@ -62,18 +62,18 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 
 async function getChapData(url) { //url of a chapter
-  console.log(url)
-
-  webpage = await (await fetch(url)).text()
-  console.log(webpage)
-  var numOfPages = Number(document.getElementsByClassName("reader--meta page")["0"].outerText.slice(-3)) //if 1000 or over cuts off!
-
-  
   var imageArr = []
-  for(let page = 1; page <= numOfPages; page++){
-    await fetch(url + `/${page}`)
-  }
-  //`url/${page}` //page starts at 1    how does it know which chapter its on?
+  console.log(url)
+  console.log(url.slice(29))
+  var chapId = url.slice(29)
+
+  let data = await (await fetch(`https://api.mangadex.org/at-home/server/${chapId}`)).json()
+  let chap = data.chapter.data
+  Object.keys(chap).forEach(key => {
+    imageArr.push(`https://cmdxd98sb0x3yprd.mangadex.network/data/${data.chapter.hash}/${chap[key]}`)
+  })
+ 
+
   return imageArr
 }
 module.exports = {
