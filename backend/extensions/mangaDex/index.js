@@ -44,7 +44,7 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
     computedChaps.push({
       index: chaps[key].chapter,
       name: "HELLO",
-      url: `https://mangadex.org/title/${chaps[key].id}`,
+      url: `https://mangadex.org/chapter/${chaps[key].id}`,
       date: new Date().getTime()
     })
   })
@@ -62,12 +62,19 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 
 async function getChapData(url) { //url of a chapter
- 
-  //`https://mangadex.org/chapter/${chapterId}/${page}` //page starts at 1    how does it know which chapter its on?
-  return ["https://t3.ftcdn.net/jpg/07/17/33/40/360_F_717334058_zZu41aMmrR0CvBxI3WLbWRjrqFyLAdW1.jpg",
-    "https://images.ctfassets.net/ub3bwfd53mwy/5WFv6lEUb1e6kWeP06CLXr/acd328417f24786af98b1750d90813de/4_Image.jpg?w=750"
+  console.log(url)
 
-  ] // an array of image urls for that chapter
+  webpage = await (await fetch(url)).text()
+  console.log(webpage)
+  var numOfPages = Number(document.getElementsByClassName("reader--meta page")["0"].outerText.slice(-3)) //if 1000 or over cuts off!
+
+  
+  var imageArr = []
+  for(let page = 1; page <= numOfPages; page++){
+    await fetch(url + `/${page}`)
+  }
+  //`url/${page}` //page starts at 1    how does it know which chapter its on?
+  return imageArr
 }
 module.exports = {
   getChapterData:getChapData,
