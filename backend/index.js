@@ -130,7 +130,7 @@ db.serialize(() => {
       }
     },
   );
-  
+
   Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
     const type = data.properties.type;
@@ -248,7 +248,10 @@ app.post("/deleteChapter", async (req, res) => {
       media_id,
       chapter_id,
     );
-    let delProm = await fileSystem.promises.rm(filepath, { recursive: true, force: true });
+    let delProm = await fileSystem.promises.rm(filepath, {
+      recursive: true,
+      force: true,
+    });
     db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
   } catch (e) {
     res.sendStatus(400);
@@ -275,7 +278,6 @@ app.post("/delete", async (req, res) => {
   const body = req.body;
   const id = body.id;
 
-
   try {
     const table = body.extension;
     const extension = extensions[table];
@@ -287,7 +289,7 @@ app.post("/delete", async (req, res) => {
     function newDel(...vars) {
       let prom = new Promise((res, rej) => {
         db.serialize(() => {
-          db.run(...vars, (err,data) => {
+          db.run(...vars, (err, data) => {
             if (!err) {
               res(data);
             } else {
@@ -295,17 +297,17 @@ app.post("/delete", async (req, res) => {
             }
           });
         });
-      })
+      });
       delProms.push(prom);
-      return prom
+      return prom;
     }
     db.serialize(() => {
       let isStr = typeof id == "string";
-      let q = typeof id == "string"?" = ?":" IS "+id // uses is with the id concated or = ?. if the id is null then the fetch fails so this is needed to make a search based on id work with broken installs
-      newDel(`DELETE FROM main WHERE local_id${q}`, isStr?[id]:[]); //newDel is litterally db.run but it adds it to the delProms array which is being awaited later
-      newDel(`DELETE FROM ${table} WHERE id${q}`, isStr?[id]:[]);
+      let q = typeof id == "string" ? " = ?" : " IS " + id; // uses is with the id concated or = ?. if the id is null then the fetch fails so this is needed to make a search based on id work with broken installs
+      newDel(`DELETE FROM main WHERE local_id${q}`, isStr ? [id] : []); //newDel is litterally db.run but it adds it to the delProms array which is being awaited later
+      newDel(`DELETE FROM ${table} WHERE id${q}`, isStr ? [id] : []);
       if (type === "Comic") {
-        newDel(`DELETE FROM chapters WHERE manga_id${q}`, isStr?[id]:[]);
+        newDel(`DELETE FROM chapters WHERE manga_id${q}`, isStr ? [id] : []);
       }
     });
     try {
@@ -495,8 +497,8 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                   .join(", ");
                 const values = schema.getValues(data);
                 const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-                if(values[0] == undefined){
-                  return
+                if (values[0] == undefined) {
+                  return;
                 }
 
                 db.run(insertQuery, values, (err) => {
@@ -641,9 +643,11 @@ app.post("/download", async (req, res) => {
           },
         );
       });
+
       const response = await fetch(
         `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
       );
+
       if (!response.ok) {
         console.error(`Failed to fetch cover image: ${response.statusText}`);
         return res.sendStatus(500);
@@ -700,6 +704,9 @@ app.post("/download", async (req, res) => {
               chapter_id,
             ]);
           } catch (err) {
+            db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [
+              chapter_id,
+            ]);
             console.error(`Error downloading image ${index}:`, err.message);
           }
         }),
@@ -742,6 +749,7 @@ app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
 //run fetch requests for images through a proxy
 app.get("/imageProxy", async (req, res) => {
   if (!req.query.url) {
+    console.error("not a valid Url");
     res.sendStatus(400);
     return;
   }
@@ -841,7 +849,7 @@ app.get("/library/:category", async (req, res) => {
             if (item.tags) {
               item.tags = JSON.parse(item.tags);
             }
-            item.extension = table
+            item.extension = table;
             return item;
           });
           resolve(parsedData);
