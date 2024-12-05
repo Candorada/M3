@@ -26,23 +26,25 @@ function ChapterPage(){
         }
     }
     function NextChapterBTN(){
+        let chapterindex = findChapterIndex(chapters,chapterData.number)
+        let id = chapters[chapterindex-1]?.id
+        if(chapterindex+1 > chapters.length || chapterindex-1 < 0){
+            return <></>
+        }
         return <input type="button" value="->" onClick={()=>{
-            let chapterindex = findChapterIndex(chapters,chapterData.number)
-            if(chapterindex-1 >=0){
-                let id = chapters[chapterindex-1].id
                 router.navigate(`./../${id}`)
                 setChapter(id)
-            }
         }}/>
     }
     function PrevChapterBTN(){
+        let chapterindex = findChapterIndex(chapters,chapterData.number)
+        let id = chapters[chapterindex+1]?.id
+        if(chapterindex+1 >=chapters.length){
+            return <></>
+        }
         return <input type="button" value="<-" onClick={()=>{
-            let chapterindex = findChapterIndex(chapters,chapterData.number)
-            if(chapterindex+1 <chapters.length){
-                let id = chapters[chapterindex+1].id
                 router.navigate(`./../${id}`)
                 setChapter(id)
-            }
         }} />
     }
     function ChapterSelector({chapters, chapter}){
@@ -87,6 +89,9 @@ function ChapterPage(){
     </div>
     <div className="images">
     {images.map((img,i)=><img className = "comicPage" key = {i} src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`}></img>)}
+    </div>
+    <div className = "chapterTopBar">
+    <ChapterSelector chapters = {chapters} chapter = {chapter}/>
     </div>
 </div>
 </>)

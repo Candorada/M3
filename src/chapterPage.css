@@ -4,7 +4,6 @@
 }
 .comicPage{
     width: 100%;
-    max-width: 800px;
 }
 .chapterTopBar{
     filter:url(#noise);
@@ -22,4 +21,10 @@
     font-size: 1.5rem;
     color: var(--secondary2);
     font-weight: bold;
+}
+.images{
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin:0 auto;
 }

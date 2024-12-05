@@ -130,7 +130,7 @@ db.serialize(() => {
       }
     },
   );
-
+  
   Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
     const type = data.properties.type;
