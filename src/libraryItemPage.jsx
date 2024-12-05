@@ -2,6 +2,7 @@ import "./libraryItemPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import NoiseBlur from "./filters/noiseblur";
 function DownloadButton({chapter}){
   let delBTN = <input type="button" value="delete" onClick={(e) => {
     e.stopPropagation();
@@ -105,6 +106,7 @@ function ItemPage() {
     );
   return (
     <>
+    <NoiseBlur />
       <div id="libraryItemPage">
         <div className="banner">
           <img
@@ -112,7 +114,7 @@ function ItemPage() {
             alt=""
             onLoad={(x) => {
               if (x.target.naturalWidth < window.innerWidth) {
-                x.target.style = "filter: blur(3px);";
+                x.target.style = "filter: url(#noiseBlur);";
               }
             }}
           />
