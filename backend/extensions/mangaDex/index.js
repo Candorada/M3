@@ -48,6 +48,28 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
       date: new Date().getTime()
     })
   })
+
+
+
+  //!!! This is the img getting code!
+  var data = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art`)).json();
+
+  let base = data.data.relationships; // Assuming relationships is an array
+
+  var theFileName = "dummyString";
+
+  base.forEach(item => { // Iterate directly over the array
+    if (item.type === "cover_art") { // Check the type
+      theFileName = item.attributes.fileName; // Access the fileName
+    }
+  });
+  var theCoverImg = `https://mangadex.org/covers/${mangaId}/${theFileName}`
+
+  console.log(theCoverImg);
+
+  
+
+
   return {
     url: url,
     about: "heres your description asshole",
@@ -55,7 +77,7 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
     name: "sharknado",
     tags:["funny", "erotic"],
     contributors: ["bob", "jerry"],
-    coverImage: `https://letsenhance.io/static/73136da51c245e80edc6ccfe44888a99/1015f/MainBefore.jpg`,
+    coverImage: theCoverImg,
     chapters: computedChaps //different object for each chapter
   } 
 }
@@ -63,8 +85,8 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 async function getChapData(url) { //url of a chapter
   var imageArr = []
-  console.log(url)
-  console.log(url.slice(29))
+  //console.log(url)
+  //console.log(url.slice(29))
   var chapId = url.slice(29)
 
   let data = await (await fetch(`https://api.mangadex.org/at-home/server/${chapId}`)).json()
