@@ -565,7 +565,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
         },
         body: JSON.stringify({
           media_id: data.id,
-          referer: "http://chapmanganato.to",
+          referer: req.body.url,
           cover: true,
         }),
       });

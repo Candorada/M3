@@ -35,16 +35,22 @@ async function search(search,page) {
   };
 }
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
-  var mangaId = url.slice(27)
-
+  var mangaId = url.split("/")[4]
+  console.log(mangaId)
   let chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
-  let chaps = chaptersData.volumes["1"].chapters
+  let chaps = []
+  for(vol in chaptersData.volumes){
+    let x = chaptersData.volumes[vol].chapters
+    for(chap in x){
+      chaps.push(x[chap])
+    }
+  }
   let computedChaps = []
-  Object.keys(chaps).forEach(key => {
+  chaps.forEach(chap => {
     computedChaps.push({
-      index: chaps[key].chapter,
+      index: chap.chapter,
       name: "HELLO",
-      url: `https://mangadex.org/chapter/${chaps[key].id}`,
+      url: `https://mangadex.org/chapter/${chap.id}`,
       date: new Date().getTime()
     })
   })
@@ -66,10 +72,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
   var theCoverImg = `https://mangadex.org/covers/${mangaId}/${theFileName}`
 
   console.log(theCoverImg);
-
-  
-
-
   return {
     url: url,
     about: "heres your description asshole",
