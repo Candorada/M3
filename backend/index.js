@@ -9,7 +9,22 @@ const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.Database("media.db");
 const port = 3000;
 const fport = 5173;
+/**
+ * @typedef {String} URL - A URL.
+ * @typedef {String} filePath - A File Path
+ * @typedef {Object} Extension
+ * @property {string} name - The name of the extension.
+ * @property {"Comic"} type - The type of the extension (e.g., "Comic").
+ * @property {URL} sourceUrl - The source URL of the extension.
+ * @property {filePath} iconPath - The path to the extension's icon.
+ * @property {string} description - A description of the extension.
+ * @property {string} creator - The creator of the extension.
+ * @property {URL} creatorSocials - The creator's social handles or links.
+ */
 
+/**
+ * @type {Object.<string, Extension>}
+ */
 var extensions = {};
 function updateExtensionList() {
   const extensionPath = path.join(__dirname, "extensions");
@@ -441,23 +456,7 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   }
 });
 app.get("/downloadingMedia", async (req, res) => {
-  let data = [];
-
-  chapterData = await new Promise((resolve) => {
-    db.all(
-      `SELECT * FROM chapters WHERE downloaded > 0`,
-
-      (err, rows) => {
-        if (err || !rows) {
-          console.error("Error retrieving chapter data:", err);
-          return resolve(null);
-        }
-        resolve(rows);
-      },
-    );
-  });
-  data.push(chapterData);
-  res.json(data);
+  res.json(downloads)
 
   //TODO: add functionality for different media types
 });
@@ -546,7 +545,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                       );
                     });
                   } else {
-                    makeFetchCall();
+                    makeFetchCall(); 
                   }
                 });
               },
@@ -567,6 +566,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
           media_id: data.id,
           referer: req.body.url,
           cover: true,
+          extension:tableName
         }),
       });
     }
@@ -584,6 +584,7 @@ app.get("/extensionList", (req, res) => {
 });
 
 //download media
+const downloads = {}
 app.post("/download", async (req, res) => {
   /*
     (await fetch('http://localhost:3000/download', {
@@ -607,28 +608,9 @@ app.post("/download", async (req, res) => {
   const chapter_id = body.chapter_id;
   const cover = body.cover;
   const referer = body.referer;
-
+  const table = body.extension;
   try {
-    const table = await new Promise((resolve) => {
-      db.get(
-        `SELECT extension FROM main WHERE local_id = ? COLLATE NOCASE`,
-        [media_id],
-        (err, row) => {
-          if (err) {
-            console.error("Database error:", err);
-            return resolve(null);
-          }
-          resolve(row?.extension || null);
-        },
-      );
-    });
-    if (!table) {
-      console.error("No row found for media_id:", media_id);
-      return res.sendStatus(404);
-    }
-
     let filepath = path.join(__dirname, "downloadedMedia", media_id);
-
     if (cover) {
       const coverUrl = await new Promise((resolve) => {
         db.get(
@@ -675,46 +657,45 @@ app.post("/download", async (req, res) => {
         media_id,
         chapter_id.toString(),
       );
+      await db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [1,chapter_id]);
+      downloads[chapter_id] = {done:false,path:chapterPath,data:data,totalImages:data.length,progress:0}
+      data.forEach(async (img,index)=>{
+        let  imgResp = await fetch(
+          `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
+        );
+        if (!imgResp.ok) {
+          console.error(
+            `Failed to fetch image ${index}: ${imgResp.statusText}`,
+          );
+          return;
+        }
+        if(!imgResp.headers.get("content-type").startsWith("image")){
+          console.error("not an image")
+          return;
+        }
+        const imageBuffer = await imgResp.arrayBuffer();
+        const imageFilePath = path.join(chapterPath, `${index}.jpg`);
 
-      await Promise.allSettled(
-        data.map(async (img, index) => {
-          try {
-            const imgResp = await fetch(
-              `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
-            );
+        await fileSystem.promises.mkdir(chapterPath, { recursive: true });
+        await fileSystem.promises.writeFile(
+          imageFilePath,
+          Buffer.from(imageBuffer),
+        );
+        if(downloads[chapter_id]?.progress != undefined){
+          downloads[chapter_id].progress = downloads[chapter_id].progress +1
+        }
+        if(downloads[chapter_id]?.progress >= downloads[chapter_id]?.totalImages){
+          downloads[chapter_id].done = true
+          db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [-1,chapter_id]);
+          setTimeout(() => {
+            if(downloads[chapter_id]?.done){
+              delete downloads[chapter_id]
 
-            if (!imgResp.ok) {
-              console.error(
-                `Failed to fetch image ${index}: ${imgResp.statusText}`,
-              );
-              return;
             }
-
-            const imageBuffer = await imgResp.arrayBuffer();
-            const imageFilePath = path.join(chapterPath, `${index}.jpg`);
-
-            await fileSystem.promises.mkdir(chapterPath, { recursive: true });
-            await fileSystem.promises.writeFile(
-              imageFilePath,
-              Buffer.from(imageBuffer),
-            );
-
-            db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
-              index + 1,
-              chapter_id,
-            ]);
-          } catch (err) {
-            db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [
-              chapter_id,
-            ]);
-            console.error(`Error downloading image ${index}:`, err.message);
-          }
-        }),
-      );
-
-      db.run(`UPDATE chapters SET downloaded = -1 WHERE id = ?`, [chapter_id]);
-
-      res.status(200).json({ done: true });
+          }, 1000);
+        }
+      })
+      res.sendStatus(200);
     }
 
     //TODO: add functionality for different media types
@@ -723,7 +704,6 @@ app.post("/download", async (req, res) => {
     res.sendStatus(500);
   }
 });
-
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
   try {
     let chapID = req.params.chapterID;

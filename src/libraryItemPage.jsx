@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NoiseBlur from "./filters/noiseblur";
 function DownloadButton({chapter}){
-  let delBTN = <input type="button" value="delete" onClick={(e) => {
+  let del = (e) => {
     e.stopPropagation();
     fetch("http://localhost:3000/deleteChapter",{
       method:"POST",
@@ -20,24 +20,27 @@ function DownloadButton({chapter}){
       setBTN(downBTN)
     }
   })
-  }}/>
-  let loading = <><div className = "loading">{chapter.downloaded}</div></>
+  }
+  let delBTN = <input type="button" value="delete" onClick={del}/>
+  let loading = <><div className = "loading" onClick={del}>0/0</div></>
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
     setBTN(loading)
-    let interval = setInterval(()=>{
-      fetch("http://localhost:3000/library/_/"+chapter.manga_id)
-      .then((res) => res.json())
-      .then((json) => {
-           let BTN = document.querySelector(`[chapter_id="${chapter.id}"] >.downloadBTN .loading`)
-           if(BTN){
-            let status = json.chapters.filter((chap)=>chap.id == chapter.id)[0].downloaded
-            if(+BTN.innerHTML < status){
-              BTN.innerHTML = status
-            }
-           }
-      });
-    },200)
+    let interval2 = setInterval(async ()=>{
+      let BTN = document.querySelector(`[chapter_id="${chapter.id}"] >.downloadBTN .loading`)
+      let downlods = await fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json())
+        if(BTN){
+         let status = downlods[chapter.id]?.progress
+         let totalImages = downlods[chapter.id]?.totalImages
+         if(status!=undefined && +BTN.innerHTML.split("/")[0] < status){
+           BTN.innerHTML = status+"/"+totalImages
+         }
+         if(status >=totalImages){
+          setBTN(delBTN)
+          clearInterval(interval2)
+         }
+        }
+    },1)
     fetch("http://localhost:3000/download", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -45,10 +48,12 @@ function DownloadButton({chapter}){
         media_id: chapter.manga_id,
         referer: chapter.source,
         chapter_id: chapter.id,
+        extension: chapter.extension
       }),
     }).then((r)=>{
-      clearInterval(interval)
-      setBTN(delBTN)
+      if(!r.ok){
+        setBTN(downBTN)
+      }
     })
   }}/>
   let starterBTN = chapter.downloaded == -1 ? delBTN:chapter.downloaded==0?downBTN:loading
