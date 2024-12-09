@@ -268,6 +268,7 @@ app.post("/deleteChapter", async (req, res) => {
       force: true,
     });
     db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
+    delete downloads[chapter_id]
   } catch (e) {
     res.sendStatus(400);
     console.error("didn't work: ", e);
@@ -626,10 +627,15 @@ app.post("/download", async (req, res) => {
           },
         );
       });
-
-      const response = await fetch(
-        `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
-      );
+      let response
+      try{
+        response = await fetch(
+          `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
+        );
+      }catch{
+        res.sendStatus(404)
+        return;
+      }
 
       if (!response.ok) {
         console.error(`Failed to fetch cover image: ${response.statusText}`);
@@ -673,6 +679,9 @@ app.post("/download", async (req, res) => {
         let imgResp = await fetch(
           `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
         );
+        if(downloads[chapter_id] == undefined){
+          return;
+        }
         if (!imgResp.ok) {
           console.error(
             `Failed to fetch image ${index}: ${imgResp.statusText}`,
@@ -747,31 +756,35 @@ app.get("/imageProxy", async (req, res) => {
     res.sendStatus(400);
     return;
   }
-  let fet = fetch(req.query.url, {
-    headers: {
-      accept:
-        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "no-cache",
-      pragma: "no-cache",
-      priority: "i",
-      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "image",
-      "sec-fetch-mode": "no-cors",
-      "sec-fetch-site": "cross-site",
-    },
-    referrer: req.query.referer,
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: null,
-    method: "GET",
-    mode: "cors",
-    credentials: "omit",
-  });
-  res.set("Content-Type", "image/jpeg");
-  let buffer = Buffer.from(await (await fet).arrayBuffer());
-  res.send(buffer);
+  try{
+    let fet = fetch(req.query.url, {
+      headers: {
+        accept:
+          "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "no-cache",
+        pragma: "no-cache",
+        priority: "i",
+        "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"macOS"',
+        "sec-fetch-dest": "image",
+        "sec-fetch-mode": "no-cors",
+        "sec-fetch-site": "cross-site",
+      },
+      referrer: req.query.referer,
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: null,
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
+    });
+    res.set("Content-Type", "image/jpeg");
+    let buffer = Buffer.from(await (await fet).arrayBuffer());
+    res.send(buffer);
+  }catch{
+    res.sendStatus(404)
+  }
 });
 
 //get data about a certain piece of media
