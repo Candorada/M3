@@ -6,6 +6,32 @@
 .comicPage{
     width: 100%;
 }
+.imageWrapper{
+    position: relative;
+    display: flex;
+    min-height: 20px;
+}
+.imageWrapper::before{
+    content:" ";
+    left:50%;
+    top:50px;
+    z-index: -1;
+    position:absolute;
+    border-radius: 50%;
+    border:2px solid;
+    border-color: var(--secondary2) transparent;
+    width:50px;
+    height: 50px;
+    animation: loader 1s infinite linear;
+}
+@keyframes loader {
+    0% {
+      transform: translate(-50%,-50%) rotate(0deg);
+    }
+    100% {
+      transform: translate(-50%,-50%) rotate(360deg);
+    }
+  }
 .chapterTopBar{
     filter:url(#noise);
     display: flex;

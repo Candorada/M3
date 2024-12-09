@@ -2,7 +2,10 @@ import { useEffect, useState, useContext} from "react";
 import { useParams } from "react-router-dom";
 import { RouterContext } from "./App";
 import "./chapterPage.css"
-
+function LoadingImg({img, comicData}){
+let imgElm = <img src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`} className = "comicPage"/>
+return <div className="imageWrapper">{imgElm}</div>
+}
 function ChapterPage(){
     const router = useContext(RouterContext)
     const {mediaID,chapterID} = useParams();
@@ -91,7 +94,7 @@ function ChapterPage(){
     <ChapterSelector chapters = {chapters} chapter = {chapter}/>
     </div>
     <div className="images">
-    {images.map((img,i)=><img className = "comicPage" key = {i} src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`}></img>)}
+    {images.map((img,i)=><LoadingImg img = {img} comicData = {comicData} key = {i}/>)}
     </div>
     <div className = "chapterTopBar">
     <ChapterSelector chapters = {chapters} chapter = {chapter}/>
