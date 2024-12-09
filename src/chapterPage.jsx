@@ -34,6 +34,7 @@ function ChapterPage(){
         return <input type="button" value="->" onClick={()=>{
                 router.navigate(`./../${id}`)
                 setChapter(id)
+                document.querySelector(".ScrollboxComicReader").scrollTo(0,0)
         }}/>
     }
     function PrevChapterBTN(){
@@ -45,6 +46,7 @@ function ChapterPage(){
         return <input type="button" value="<-" onClick={()=>{
                 router.navigate(`./../${id}`)
                 setChapter(id)
+                document.querySelector(".ScrollboxComicReader").scrollTo(0,0)
         }} />
     }
     function ChapterSelector({chapters, chapter}){
@@ -53,6 +55,7 @@ function ChapterPage(){
             <select name="select" value = {chapter} className ="chapterSelector" onChange={(e)=>{
                 router.navigate(`./../${e.target.value}`)
                 setChapter(e.target.value)
+                document.querySelector(".ScrollboxComicReader").scrollTo(0,0)
             }}>
             {chapters.sort((a,b)=>b.number-a.number).map((chap)=><option key={chap.id} value = {chap.id}>{chap.name}</option>)}
             </select>

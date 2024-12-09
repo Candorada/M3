@@ -377,31 +377,35 @@ app.get("/imageProxy", async (req, res) => {
     url = `http://localhost:${fport}/${url}`;
     //comment
   }
-  let fet = fetch(url, {
-    headers: {
-      accept:
-        "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
-      "accept-language": "en-US,en;q=0.9",
-      "cache-control": "no-cache",
-      pragma: "no-cache",
-      priority: "i",
-      "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
-      "sec-ch-ua-mobile": "?0",
-      "sec-ch-ua-platform": '"macOS"',
-      "sec-fetch-dest": "image",
-      "sec-fetch-mode": "no-cors",
-      "sec-fetch-site": "cross-site",
-    },
-    referrer: req.query.referer,
-    referrerPolicy: "strict-origin-when-cross-origin",
-    body: null,
-    method: "GET",
-    mode: "cors",
-    credentials: "omit",
-  });
-  res.set("Content-Type", "image/jpeg");
-  let buffer = Buffer.from(await (await fet).arrayBuffer());
-  res.send(buffer);
+  try{
+    let fet = fetch(url, {
+      headers: {
+        accept:
+          "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "accept-language": "en-US,en;q=0.9",
+        "cache-control": "no-cache",
+        pragma: "no-cache",
+        priority: "i",
+        "sec-ch-ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"macOS"',
+        "sec-fetch-dest": "image",
+        "sec-fetch-mode": "no-cors",
+        "sec-fetch-site": "cross-site",
+      },
+      referrer: req.query.referer,
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: null,
+      method: "GET",
+      mode: "cors",
+      credentials: "omit",
+    });
+    res.set("Content-Type", "image/jpeg");
+    let buffer = Buffer.from(await (await fet).arrayBuffer());
+    res.send(buffer);
+  }catch{
+    res.status(404).send("ERROR INSTALLING IMAGE");
+  }
 });
 
 //get images for comic chapters

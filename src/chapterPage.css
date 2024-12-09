@@ -1,6 +1,7 @@
 .ScrollboxComicReader{
     height: 100%;
     overflow: auto;
+    cursor:default;
 }
 .comicPage{
     width: 100%;
