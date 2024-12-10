@@ -56,7 +56,7 @@ function DownloadButton({chapter, activeDownloads}){
   
     }
   },[activeDownloads])
-  return <div className="downloadBTN">{progress!=undefined?`${progress}/${total}`:btn}</div>
+  return <div className="downloadBTN">{progress!=undefined && progress !=total?`${progress}/${total}`:btn}</div>
 }
 function ItemPage() {
   const [activeDownloads,setActiveDownloads] = useState({})
