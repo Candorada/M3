@@ -22,8 +22,13 @@ function DownloadButton({chapter, activeDownloads}){
   })
   }
   let delBTN = <input type="button" value="delete" onClick={del}/>
-  function Loading({progress}){
-    return <div className = "loading" onClick={del}>{progress}/0</div>
+  function Loading({progress, total}){
+    let ttl = total?total:0
+    let prog = ttl?progress/ttl:0
+    return <div className = "loading" onClick={del}>
+      <div className = "variableSize" style = {{"--var":prog*100+"%"}}></div>
+      <div>{progress}/{ttl}</div>
+      </div>
   }
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
@@ -56,7 +61,7 @@ function DownloadButton({chapter, activeDownloads}){
   
     }
   },[activeDownloads])
-  return <div className="downloadBTN">{progress!=undefined && progress !=total?`${progress}/${total}`:btn}</div>
+  return <div className="downloadBTN">{progress!=undefined && progress !=total?<Loading progress = {progress} total = {total}/>:btn}</div>
 }
 function ItemPage() {
   const [activeDownloads,setActiveDownloads] = useState({})

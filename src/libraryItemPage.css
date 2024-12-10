@@ -127,16 +127,42 @@
 }
 .downloadBTN{
     display: flex;
+    height: 1.5rem;
 }
-.downloadBTN > input{
+.downloadBTN > *{
+    font-size: 0.75rem;
+    text-align: center;
+    height: 100%;
     background-color: rgba(0,0,0,0);
-    display: flex;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
     border: solid 1px white;
     border-radius: 2px;
     margin: auto;
 }
-.downloadBTN > input:hover{
-    cursor: pointer;
+.loading{
+    text-align: center;
+    position:relative;
+    vertical-align: center;
+}
+.loading > div:not(.variableSize){
+    z-index: 1;
+    position: absolute;
+    transform: translate(-50%,-50%);
+    top: 50%;
+    left: 50%;
+}
+.variableSize{
+    width: var(--var);
+    height: 100%;
+    z-index: 0;
+    display: flex;
+    position: absolute;
+    background-color: var(--secondary2);
+}
+.chapter:hover > .downloadBTN >.loading > .variableSize{
+    background-color:var(--secondary1);
 }
 .downloadBTN > input:active{
     background-color: white;
