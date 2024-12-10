@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NoiseBlur from "./filters/noiseblur";
-function DownloadButton({chapter}){
+function DownloadButton({chapter, activeDownloads}){
   let del = (e) => {
     e.stopPropagation();
     fetch("http://localhost:3000/deleteChapter",{
@@ -22,25 +22,11 @@ function DownloadButton({chapter}){
   })
   }
   let delBTN = <input type="button" value="delete" onClick={del}/>
-  let loading = <><div className = "loading" onClick={del}>0/0</div></>
+  function Loading({progress}){
+    return <div className = "loading" onClick={del}>{progress}/0</div>
+  }
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
-    setBTN(loading)
-    let interval2 = setInterval(async ()=>{
-      let BTN = document.querySelector(`[chapter_id="${chapter.id}"] >.downloadBTN .loading`)
-      let downlods = await fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json())
-        if(BTN){
-         let status = downlods[chapter.id]?.progress
-         let totalImages = downlods[chapter.id]?.totalImages
-         if(status!=undefined && +BTN.innerHTML.split("/")[0] < status){
-           BTN.innerHTML = status+"/"+totalImages
-         }
-         if(status >=totalImages){
-          setBTN(delBTN)
-          clearInterval(interval2)
-         }
-        }
-    },1)
     fetch("http://localhost:3000/download", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -56,11 +42,31 @@ function DownloadButton({chapter}){
       }
     })
   }}/>
-  let starterBTN = chapter.downloaded == -1 ? delBTN:chapter.downloaded==0?downBTN:loading
+  let starterBTN = chapter.downloaded == -1 ? delBTN:chapter.downloaded==0?downBTN:<Loading progress = "0" />
+  if(activeDownloads[chapter.id]?.progress !=undefined){
+    starterBTN = <Loading progress = {activeDownloads[chapter.id].progress} />
+  }//fix this!!!!!!!
   let [btn,setBTN] = useState(starterBTN)
-  return <div className="downloadBTN">{btn}</div>
+  let progress =activeDownloads[chapter.id]?.progress
+  let total = activeDownloads[chapter.id]?.totalImages
+  useEffect(()=>{
+    if(activeDownloads[chapter.id]?.done == true){
+      setBTN(delBTN)
+  
+    }
+  },[activeDownloads])
+  return <div className="downloadBTN">{progress!=undefined?`${progress}/${total}`:btn}</div>
 }
 function ItemPage() {
+  const [activeDownloads,setActiveDownloads] = useState({})
+  useEffect(()=>{
+    let interval = setInterval(() => {
+      fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{
+        setActiveDownloads(json)
+      })
+    }, 100);
+    return () => clearInterval(interval) //very smart :)
+  },[])
   const navigate = useNavigate();
   const { mediaID } = useParams();
   const [item, setItem] = useState({
@@ -177,7 +183,7 @@ function ItemPage() {
                     .replace(/(\d+\/\d+\/)20(\d+)/, "$1$2")
                     .replace(/(?<!\d)(\d)(?!\d)/g, "0$1")}
                 </div>
-                <DownloadButton chapter = {chapter}/>
+                <DownloadButton chapter = {chapter} activeDownloads = {activeDownloads}/>
               </div>
             ))}
         </div>
