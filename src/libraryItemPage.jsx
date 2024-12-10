@@ -27,6 +27,7 @@ function DownloadButton({chapter, activeDownloads}){
   }
   let downBTN = <input type="button" value="download" onClick={(e) => {
     e.stopPropagation();
+    setBTN(<Loading progress = {0} />)
     fetch("http://localhost:3000/download", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -64,7 +65,7 @@ function ItemPage() {
       fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{
         setActiveDownloads(json)
       })
-    }, 100);
+    }, 10);
     return () => clearInterval(interval) //very smart :)
   },[])
   const navigate = useNavigate();
