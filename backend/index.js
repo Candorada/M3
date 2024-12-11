@@ -982,8 +982,8 @@ app.post("/read", async (req, res) => {
   const body = req.body;
   const status = body.status;
   //const media_id = body.media_id; // uncomment when you need it ;)
-  const chapter_id = body.chapter_id;
-  if (typeof chapter_id == "string") {
+  let  chapter_id = body.chapter_id;
+  if (typeof chapter_id != "object") {
     chapter_id = [chapter_id];
   }
 

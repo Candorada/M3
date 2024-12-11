@@ -177,7 +177,7 @@ function ItemPage() {
             .sort((a, b) => b.number - a.number)
             .map((chapter, i) => (
               <div
-                className="chapter"
+                className={"chapter"+(chapter.read?" read":"")}
                 key={chapter.id}
                 onClick={() => {
                   navigate("./" + chapter.id);

@@ -65,6 +65,24 @@ function ChapterPage(){
             <NextChapterBTN />
         </div>
     }
+    function scrolled(e){
+        let lastChild = e.target.querySelector("div:has(img):last-child")
+        let bounding = lastChild.getBoundingClientRect()
+        let pixelsBellowLastImage =  document.body.clientHeight - bounding.y - bounding.height 
+        if(bounding.height > 0 && pixelsBellowLastImage >=0 && chapterData.read == 0){
+            chapterData.read = 1
+            fetch("http://localhost:3000/read",{
+                method:"POST",
+                headers:{
+                    "content-type":"application/json"
+                },
+                body:JSON.stringify({
+                    status:1,
+                    chapter_id:chapterData.id
+                })
+            })
+        }
+    }
     useEffect(()=>{
         fetch(`http://localhost:3000/library/comics/${mediaID}/getchapter?chapterID=${chapter}`)
         .then((r)=>r.json())
@@ -88,7 +106,7 @@ function ChapterPage(){
         })
     },[chapter])
     return (<>
-<div className="ScrollboxComicReader">
+<div className="ScrollboxComicReader" onScroll={scrolled}>
     <div className = "chapterTopBar">
     <div className = "titleText">{comicData.name}: {chapterData.name}</div>
     <ChapterSelector chapters = {chapters} chapter = {chapter}/>

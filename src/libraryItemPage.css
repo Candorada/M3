@@ -125,6 +125,10 @@
     background-color: var(--secondary2);
     cursor:pointer;
 }
+.chapter.read{
+    filter:brightness(0.9);
+    backdrop-filter: brightness(0.9);
+}
 .downloadBTN{
     display: flex;
     height: 1.5rem;
