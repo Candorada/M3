@@ -43,10 +43,10 @@ function updateExtensionList() {
 
 const downloads = {};
 async function chapterDownload({chapter_id,media_id,referer}){
+  return new Promise(async (res,rej)=>{
   const chapterResp = await fetch(
     `http://localhost:3000/library/comics/${media_id}/getchapter?chapterID=${chapter_id}`,
   );
-
   if (!chapterResp.ok) {
     console.error(`Failed to fetch chapter: ${chapterResp.statusText}`);
     return 500
@@ -65,10 +65,10 @@ async function chapterDownload({chapter_id,media_id,referer}){
   downloads[chapter_id] = {
     done: false,
     path: chapterPath,
-    data: {},
-    totalImages: 0,
+    data: data,
+    totalImages: data.length,
     progress: 0,
-    status:"queued"
+    queued:false,
   };
   data.forEach(async (img, index) => {
     let imgResp = await fetch(
@@ -81,10 +81,12 @@ async function chapterDownload({chapter_id,media_id,referer}){
       console.error(
         `Failed to fetch image ${index}: ${imgResp.statusText}`,
       );
+      delete downloads[chapter_id]
       return;
     }
     if (!imgResp.headers.get("content-type").startsWith("image")) {
       console.error("not an image");
+      delete downloads[chapter_id]
       return;
     }
     const imageBuffer = await imgResp.arrayBuffer();
@@ -106,14 +108,17 @@ async function chapterDownload({chapter_id,media_id,referer}){
         -1,
         chapter_id,
       ]);
+      
       setTimeout(() => {
         if (downloads[chapter_id]?.done) {
           delete downloads[chapter_id];
         }
       }, 1000);
-      return 200;
+      res(200)
     }
+
   });
+  })
 }
 class Node {
   constructor(value,parameters=[]) {
@@ -807,7 +812,14 @@ app.post("/download", async (req, res) => {
       return res.sendStatus(200);
     } else if (chapter_id) {
       let data = {chapter_id:chapter_id,media_id : media_id,referer:referer}
-      downloadQue.enqueue(data)
+      downloads[chapter_id] = {
+        done: false,
+        data: [],
+        totalImages: 0,
+        progress: 0,
+        queued:true,
+      }
+      downloadQue.enqueue(chapterDownload,[data])
       res.sendStatus(200);
     }
 

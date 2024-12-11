@@ -22,12 +22,12 @@ function DownloadButton({chapter, activeDownloads}){
   })
   }
   let delBTN = <input type="button" value="delete" onClick={del}/>
-  function Loading({progress, total}){
+  function Loading({progress, total,queued =true}){
     let ttl = total?total:0
     let prog = ttl?progress/ttl:0
     return <div className = "loading" onClick={del}>
       <div className = "variableSize" style = {{"--var":prog*100+"%"}}></div>
-      <div>{progress}/{ttl}</div>
+      <div>{queued?"queued":`${progress}/${ttl}`}</div>
       </div>
   }
   let downBTN = <input type="button" value="download" onClick={(e) => {
@@ -58,10 +58,9 @@ function DownloadButton({chapter, activeDownloads}){
   useEffect(()=>{
     if(activeDownloads[chapter.id]?.done == true){
       setBTN(delBTN)
-  
     }
   },[activeDownloads])
-  return <div className="downloadBTN">{progress!=undefined && progress !=total?<Loading progress = {progress} total = {total}/>:btn}</div>
+  return <div className="downloadBTN">{progress!=undefined && (progress <total || progress == 0) ?<Loading progress = {progress} total = {total} queued = {activeDownloads[chapter.id]?.queued}/>:btn}</div>
 }
 function ItemPage() {
   const [activeDownloads,setActiveDownloads] = useState({})
@@ -72,8 +71,6 @@ function ItemPage() {
         if(JSON.stringify(json) != activeDownloadStringified){
           setActiveDownloads(json)
           activeDownloadStringified = JSON.stringify(activeDownloads)
-        }else{
-          console.log("hello")
         }
       })
     }, 30);
