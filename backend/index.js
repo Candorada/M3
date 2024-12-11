@@ -41,6 +41,61 @@ function updateExtensionList() {
   });
 }
 
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.next = null;
+  }
+}
+
+class Queue {
+  constructor() {
+    this.head = null;
+    this.tail = null;
+    this.size = 0;
+  }
+  enqueue(value) {
+    const newNode = new Node(value);
+    if (this.size == 0) {
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      this.tail.next = newNode;
+      this.tail = newNode;
+    }
+    this.size++;
+  }
+
+  dequeue() {
+    if (this.size == 0) {
+      return null;
+    }
+
+    this.head = this.head.next;
+
+    if (this.size == 1) {
+      this.tail = null;
+    }
+
+    this.size--;
+  }
+
+  getSize() {
+    return this.size;
+  }
+
+  isEmpty() {
+    return this.size == 0;
+  }
+
+  getHead() {
+    if (this.size === 0) {
+      return null;
+    }
+    return this.head.value;
+  }
+}
+
 //shemas for all types of media in the database tables
 const tableSchemas = {
   Comic: {
