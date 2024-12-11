@@ -67,16 +67,16 @@ function ItemPage() {
   const [activeDownloads,setActiveDownloads] = useState({})
   useEffect(()=>{
     let interval = setInterval(() => {
-      let activeDownloadsKeys = Object.keys(activeDownloads).join(",")
+      let activeDownloadStringified = JSON.stringify(activeDownloads)
       fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{
-        if(Object.keys(json).join(",") != activeDownloadsKeys){
+        if(JSON.stringify(json) != activeDownloadStringified){
           setActiveDownloads(json)
-          activeDownloadsKeys = Object.keys(activeDownloads)
+          activeDownloadStringified = JSON.stringify(activeDownloads)
         }else{
           console.log("hello")
         }
       })
-    }, 10);
+    }, 30);
     return () => clearInterval(interval) //very smart :)
   },[])
   const navigate = useNavigate();
