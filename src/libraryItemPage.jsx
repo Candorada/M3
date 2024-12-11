@@ -67,8 +67,14 @@ function ItemPage() {
   const [activeDownloads,setActiveDownloads] = useState({})
   useEffect(()=>{
     let interval = setInterval(() => {
+      let activeDownloadsKeys = Object.keys(activeDownloads).join(",")
       fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{
-        setActiveDownloads(json)
+        if(Object.keys(json).join(",") != activeDownloadsKeys){
+          setActiveDownloads(json)
+          activeDownloadsKeys = Object.keys(activeDownloads)
+        }else{
+          console.log("hello")
+        }
       })
     }, 10);
     return () => clearInterval(interval) //very smart :)
