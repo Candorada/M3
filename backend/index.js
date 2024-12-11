@@ -41,10 +41,85 @@ function updateExtensionList() {
   });
 }
 
+const downloads = {};
+async function chapterDownload({chapter_id,media_id,referer}){
+  const chapterResp = await fetch(
+    `http://localhost:3000/library/comics/${media_id}/getchapter?chapterID=${chapter_id}`,
+  );
+
+  if (!chapterResp.ok) {
+    console.error(`Failed to fetch chapter: ${chapterResp.statusText}`);
+    return 500
+  }
+
+  const data = await chapterResp.json();
+  const chapterPath = path.join(
+    "downloadedMedia",
+    media_id,
+    chapter_id.toString(),
+  );
+  await db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
+    1,
+    chapter_id,
+  ]);
+  downloads[chapter_id] = {
+    done: false,
+    path: chapterPath,
+    data: {},
+    totalImages: 0,
+    progress: 0,
+    status:"queued"
+  };
+  data.forEach(async (img, index) => {
+    let imgResp = await fetch(
+      `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
+    );
+    if (downloads[chapter_id] == undefined) {
+      return;
+    }
+    if (!imgResp.ok) {
+      console.error(
+        `Failed to fetch image ${index}: ${imgResp.statusText}`,
+      );
+      return;
+    }
+    if (!imgResp.headers.get("content-type").startsWith("image")) {
+      console.error("not an image");
+      return;
+    }
+    const imageBuffer = await imgResp.arrayBuffer();
+    const imageFilePath = path.join(chapterPath, `${index}.jpg`);
+
+    await fileSystem.promises.mkdir(chapterPath, { recursive: true });
+    await fileSystem.promises.writeFile(
+      imageFilePath,
+      Buffer.from(imageBuffer),
+    );
+    if (downloads[chapter_id]?.progress != undefined) {
+      downloads[chapter_id].progress = downloads[chapter_id].progress + 1;
+    }
+    if (
+      downloads[chapter_id]?.progress >= downloads[chapter_id]?.totalImages
+    ) {
+      downloads[chapter_id].done = true;
+      db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
+        -1,
+        chapter_id,
+      ]);
+      setTimeout(() => {
+        if (downloads[chapter_id]?.done) {
+          delete downloads[chapter_id];
+        }
+      }, 1000);
+      return 200;
+    }
+  });
+}
 class Node {
-  constructor(value) {
+  constructor(value,parameters=[]) {
     this.value = value;
     this.next = null;
+    this.parameters = parameters
   }
 }
 
@@ -53,31 +128,45 @@ class Queue {
     this.head = null;
     this.tail = null;
     this.size = 0;
+    this.activeItems = [];
+    this.maxActiveItems = 2;
   }
-  enqueue(value) {
-    const newNode = new Node(value);
+  enqueue(value,parameters) { // add node to que
+    const newNode = new Node(value,parameters);
     if (this.size == 0) {
       this.head = newNode;
       this.tail = newNode;
     } else {
       this.tail.next = newNode;
       this.tail = newNode;
-    }
+    } 
     this.size++;
+    if(this.activeItems.length < this.maxActiveItems){
+      this.dequeue()
+    }
   }
 
   dequeue() {
     if (this.size == 0) {
-      return null;
+      return;
     }
-
+    let node = this.head
     this.head = this.head.next;
-
+    
     if (this.size == 1) {
       this.tail = null;
     }
-
+    let promise = node.value(...node.parameters)
+    this.activeItems.push(promise)
     this.size--;
+    promise.then(()=>{
+      for(let i in this.activeItems){
+          if(this.activeItems[i] === promise){
+              this.activeItems.splice(i,1)
+          }
+      }
+        this.dequeue()
+    })
   }
 
   getSize() {
@@ -94,8 +183,18 @@ class Queue {
     }
     return this.head.value;
   }
-}
+  getItems(){
+      let items = new Array(this.size)
+      let item = this.head
+      for(let i=0;i<this.size;i++){
+          items[i] = item.value
+          item = item.next
+      }
+      return items
+  }
+} // takes in a async function
 
+const downloadQue = new Queue()
 //shemas for all types of media in the database tables
 const tableSchemas = {
   Comic: {
@@ -645,7 +744,6 @@ app.get("/extensionList", (req, res) => {
 });
 
 //download media
-const downloads = {};
 app.post("/download", async (req, res) => {
   /*
     (await fetch('http://localhost:3000/download', {
@@ -708,75 +806,8 @@ app.post("/download", async (req, res) => {
       );
       return res.sendStatus(200);
     } else if (chapter_id) {
-      const chapterResp = await fetch(
-        `http://localhost:3000/library/comics/${media_id}/getchapter?chapterID=${chapter_id}`,
-      );
-
-      if (!chapterResp.ok) {
-        console.error(`Failed to fetch chapter: ${chapterResp.statusText}`);
-        return res.sendStatus(500);
-      }
-
-      const data = await chapterResp.json();
-      const chapterPath = path.join(
-        "downloadedMedia",
-        media_id,
-        chapter_id.toString(),
-      );
-      await db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
-        1,
-        chapter_id,
-      ]);
-      downloads[chapter_id] = {
-        done: false,
-        path: chapterPath,
-        data: data,
-        totalImages: data.length,
-        progress: 0,
-      };
-      data.forEach(async (img, index) => {
-        let imgResp = await fetch(
-          `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
-        );
-        if (downloads[chapter_id] == undefined) {
-          return;
-        }
-        if (!imgResp.ok) {
-          console.error(
-            `Failed to fetch image ${index}: ${imgResp.statusText}`,
-          );
-          return;
-        }
-        if (!imgResp.headers.get("content-type").startsWith("image")) {
-          console.error("not an image");
-          return;
-        }
-        const imageBuffer = await imgResp.arrayBuffer();
-        const imageFilePath = path.join(chapterPath, `${index}.jpg`);
-
-        await fileSystem.promises.mkdir(chapterPath, { recursive: true });
-        await fileSystem.promises.writeFile(
-          imageFilePath,
-          Buffer.from(imageBuffer),
-        );
-        if (downloads[chapter_id]?.progress != undefined) {
-          downloads[chapter_id].progress = downloads[chapter_id].progress + 1;
-        }
-        if (
-          downloads[chapter_id]?.progress >= downloads[chapter_id]?.totalImages
-        ) {
-          downloads[chapter_id].done = true;
-          db.run(`UPDATE chapters SET downloaded = ? WHERE id = ?`, [
-            -1,
-            chapter_id,
-          ]);
-          setTimeout(() => {
-            if (downloads[chapter_id]?.done) {
-              delete downloads[chapter_id];
-            }
-          }, 1000);
-        }
-      });
+      let data = {chapter_id:chapter_id,media_id : media_id,referer:referer}
+      downloadQue.enqueue(data)
       res.sendStatus(200);
     }
 
