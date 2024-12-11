@@ -268,7 +268,7 @@ app.post("/deleteChapter", async (req, res) => {
       force: true,
     });
     db.run(`UPDATE chapters SET downloaded = 0 WHERE id = ?`, [chapter_id]);
-    delete downloads[chapter_id]
+    delete downloads[chapter_id];
   } catch (e) {
     res.sendStatus(400);
     console.error("didn't work: ", e);
@@ -377,7 +377,7 @@ app.get("/imageProxy", async (req, res) => {
     url = `http://localhost:${fport}/${url}`;
     //comment
   }
-  try{
+  try {
     let fet = fetch(url, {
       headers: {
         accept:
@@ -403,7 +403,7 @@ app.get("/imageProxy", async (req, res) => {
     res.set("Content-Type", "image/jpeg");
     let buffer = Buffer.from(await (await fet).arrayBuffer());
     res.send(buffer);
-  }catch{
+  } catch {
     res.status(404).send("ERROR INSTALLING IMAGE");
   }
 });
@@ -631,13 +631,13 @@ app.post("/download", async (req, res) => {
           },
         );
       });
-      let response
-      try{
+      let response;
+      try {
         response = await fetch(
           `http://localhost:3000/imageProxy?url=${coverUrl}&referer=${referer}`,
         );
-      }catch{
-        res.sendStatus(404)
+      } catch {
+        res.sendStatus(404);
         return;
       }
 
@@ -683,7 +683,7 @@ app.post("/download", async (req, res) => {
         let imgResp = await fetch(
           `http://localhost:3000/imageProxy?url=${img}&referer=${referer}`,
         );
-        if(downloads[chapter_id] == undefined){
+        if (downloads[chapter_id] == undefined) {
           return;
         }
         if (!imgResp.ok) {
@@ -760,7 +760,7 @@ app.get("/imageProxy", async (req, res) => {
     res.sendStatus(400);
     return;
   }
-  try{
+  try {
     let fet = fetch(req.query.url, {
       headers: {
         accept:
@@ -786,8 +786,8 @@ app.get("/imageProxy", async (req, res) => {
     res.set("Content-Type", "image/jpeg");
     let buffer = Buffer.from(await (await fet).arrayBuffer());
     res.send(buffer);
-  }catch{
-    res.sendStatus(404)
+  } catch {
+    res.sendStatus(404);
   }
 });
 
@@ -878,6 +878,29 @@ app.get("/library/:category", async (req, res) => {
     console.error("Database error:", error);
     res.status(500);
   }
+});
+
+app.post("/read", async (req, res) => {
+  const body = req.body;
+  const status = body.status;
+  const media_id = body.media_id;
+  const chapter_id = body.chapter_id;
+  if (typeof chapter_id == "string") {
+    chapter_id = [chapter_id];
+  }
+
+  db.run(
+    `UPDATE chapters SET read = ? WHERE id IN (${chapter_id.join(",")})`,
+    [status],
+    (err) => {
+      if (err) {
+        console.error("error on reading update: ", err);
+        res.sendStatus(400);
+      } else {
+        res.sendStatus(200);
+      }
+    },
+  );
 });
 
 app.get("/library", (req, res) => {
