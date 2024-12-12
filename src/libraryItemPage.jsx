@@ -1,9 +1,22 @@
 import "./libraryItemPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, act } from "react";
 import NoiseBlur from "./filters/noiseblur";
-function DownloadButton({chapter, activeDownloads}){
+const  DownloadButton = React.forwardRef(({chapter},ref) =>{
+  let [progress, setProgress] =useState(undefined)
+  let [total, setTotal] = useState(undefined)
+  let [queued, setQueued] = useState(true)
+  React.useImperativeHandle(ref, () => ({
+    update: (progress,total,queued) => {
+      setProgress(progress)
+      setTotal(total)
+      setQueued(queued)
+      if(progress >= total && total > 0){
+        setBTN(delBTN)
+      }
+    },
+  }));
   let del = (e) => {
     e.stopPropagation();
     fetch("http://localhost:3000/deleteChapter",{
@@ -49,27 +62,26 @@ function DownloadButton({chapter, activeDownloads}){
     })
   }}/>
   let starterBTN = chapter.downloaded == -1 ? delBTN:chapter.downloaded==0?downBTN:<Loading progress = "0" />
-  if(activeDownloads[chapter.id]?.progress !=undefined){
-    starterBTN = <Loading progress = {activeDownloads[chapter.id].progress} />
+  if(progress !=undefined){
+    starterBTN = <Loading progress = {progress} />
   }//fix this!!!!!!!
   let [btn,setBTN] = useState(starterBTN)
-  let progress =activeDownloads[chapter.id]?.progress
-  let total = activeDownloads[chapter.id]?.totalImages
-  useEffect(()=>{
-    if(activeDownloads[chapter.id]?.done == true){
-      setBTN(delBTN)
-    }
-  },[activeDownloads])
-  return <div className="downloadBTN">{progress!=undefined && (progress <total || progress == 0) ?<Loading progress = {progress} total = {total} queued = {activeDownloads[chapter.id]?.queued}/>:btn}</div>
-}
+  return <div className="downloadBTN">{progress!=undefined && (progress <total || progress == 0) ?<Loading progress = {progress} total = {total} queued = {queued}/>:btn}</div>
+})
 function ItemPage() {
-  const [activeDownloads,setActiveDownloads] = useState({})
+  let activeDownloads = {}
+  const childRefs = useRef({});
   useEffect(()=>{
     let interval = setInterval(() => {
       let activeDownloadStringified = JSON.stringify(activeDownloads)
       fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{
         if(JSON.stringify(json) != activeDownloadStringified){
-          setActiveDownloads(json)
+          activeDownloads = json
+          Object.keys(json).forEach(key=>{
+            let total = json[key].totalImages
+            let progress = json[key].progress
+            childRefs.current[key].update(progress,total,json[key].queued)
+          })
           activeDownloadStringified = JSON.stringify(activeDownloads)
         }
       })
@@ -192,7 +204,10 @@ function ItemPage() {
                     .replace(/(\d+\/\d+\/)20(\d+)/, "$1$2")
                     .replace(/(?<!\d)(\d)(?!\d)/g, "0$1")}
                 </div>
-                <DownloadButton chapter = {chapter} activeDownloads = {activeDownloads}/>
+                <DownloadButton chapter = {chapter} ref={(el) => {
+            // Store the ref for each child in the `childRefs` object
+            if (el) childRefs.current[chapter.id] = el;
+          }}/>
               </div>
             ))}
         </div>
