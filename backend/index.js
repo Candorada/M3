@@ -771,11 +771,14 @@ app.post("/download", async (req, res) => {
 */
   const body = req.body;
   const media_id = body.media_id;
-  const chapter_id = body.chapter_id;
+  let chapter_id = body.chapter_id;
   const cover = body.cover;
   const referer = body.referer;
   const table = body.extension;
   try {
+    if (typeof chapter_id != "object") {
+      chapter_id = [chapter_id];
+    }
     let filepath = path.join(__dirname, "downloadedMedia", media_id);
     if (cover) {
       const coverUrl = await new Promise((resolve) => {
@@ -813,19 +816,21 @@ app.post("/download", async (req, res) => {
       );
       return res.sendStatus(200);
     } else if (chapter_id) {
-      let data = {
-        chapter_id: chapter_id,
-        media_id: media_id,
-        referer: referer,
-      };
-      downloads[chapter_id] = {
-        done: false,
-        data: [],
-        totalImages: 0,
-        progress: 0,
-        queued: true,
-      };
-      downloadQue.enqueue(chapterDownload, [data]);
+      chapter_id.forEach(async (chap) => {
+        let data = {
+          chapter_id: chap,
+          media_id: media_id,
+          referer: referer,
+        };
+        downloads[chap] = {
+          done: false,
+          data: [],
+          totalImages: 0,
+          progress: 0,
+          queued: true,
+        };
+        downloadQue.enqueue(chapterDownload, [data]);
+      });
       res.sendStatus(200);
     }
 
