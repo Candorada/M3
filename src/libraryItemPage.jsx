@@ -77,10 +77,12 @@ function MutliChapters({chapters}){
           return <option key = {x.id} value={x.id}>{x.name}</option>
         })}
       </select>
+      <div className = "ChapterControlButtons">
       <input type="button" value="Download Selected" className = "multiDownBTN"/>
       <input type="button" value="Delete Selected" className = "multiDelBTN"/>
       <input type="button" value="Mark Selected As Read" className = "multiReadBTN"/>
-      <input type="buttpn" value="Mark Selected As Unread" className = "multiUnreadBTN"/>
+      <input type="button" value="Mark Selected As Unread" className = "multiUnreadBTN"/>
+      </div>
     </div>
     <input type="checkbox" name="" id="Settings"  style={{display:"none"}} />
     <label htmlFor="Settings" >Settings</label>

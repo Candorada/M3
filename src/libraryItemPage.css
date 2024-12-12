@@ -192,9 +192,44 @@
     transition: height 0.1s;
     height: 20rem;
     width: 100%;
+    display: grid;
+    grid-template-rows: 1fr 2rem;
+}
+.mutliChapters > .content > select{
+    background-color: var(--secondary1);
+    width:100%;
+}
+
+.mutliChapters > .content > select::-webkit-scrollbar{
+    background-color: transparent;
+    width: 0.5rem;
+}
+.mutliChapters > .content > select::-webkit-scrollbar-thumb{
+    background-color: var(--secondary2);
+    width: 0.05rem;
 }
 .mutliChapters:has(input[type = checkbox]:not(:checked)) > .content{
     height:0rem;
+}
+.ChapterControlButtons{
+    width: 100%;
+    display: flex;
+}
+.ChapterControlButtons > input:not(:first-child){
+    border:none;
+    border-radius: 0px;
+    border-left: 2px solid var(--secondary2);
+}
+.ChapterControlButtons > input{
+    border:none;
+    border-radius: 0px;
+    background-color: var(--secondary1);
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-content: stretch;
+    flex-wrap: wrap;
 }
 .mutliChapters{
     background-color: var(--secondary1);
