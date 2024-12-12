@@ -187,3 +187,22 @@
    margin-bottom: 5px;
    border-bottom: 1px solid var(--secondary2);
 }
+.mutliChapters > .content{
+    overflow: hidden;
+    transition: height 0.1s;
+    height: 20rem;
+    width: 100%;
+}
+.mutliChapters:has(input[type = checkbox]:not(:checked)) > .content{
+    height:0rem;
+}
+.mutliChapters{
+    background-color: var(--secondary1);
+    border-top:1px solid var(--secondary2);
+}
+.mutliChapters > label{
+    width:100%;
+    display: flex;
+    justify-content: center;
+    background-color: rgb(0,0,0,0.1);
+}

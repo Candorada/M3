@@ -68,6 +68,25 @@ const  DownloadButton = React.forwardRef(({chapter},ref) =>{
   let [btn,setBTN] = useState(starterBTN)
   return <div className="downloadBTN">{progress!=undefined && (progress <total || progress == 0) ?<Loading progress = {progress} total = {total} queued = {queued}/>:btn}</div>
 })
+function MutliChapters({chapters}){
+  return <>
+  <div className="mutliChapters">
+    <div className="content">
+      <select name="" id="" multiple>
+        {chapters.map(x=>{
+          return <option key = {x.id} value={x.id}>{x.name}</option>
+        })}
+      </select>
+      <input type="button" value="Download Selected" className = "multiDownBTN"/>
+      <input type="button" value="Delete Selected" className = "multiDelBTN"/>
+      <input type="button" value="Mark Selected As Read" className = "multiReadBTN"/>
+      <input type="buttpn" value="Mark Selected As Unread" className = "multiUnreadBTN"/>
+    </div>
+    <input type="checkbox" name="" id="Settings"  style={{display:"none"}} />
+    <label htmlFor="Settings" >Settings</label>
+  </div>
+  </>
+}
 function ItemPage() {
   let activeDownloads = {}
   const childRefs = useRef({});
@@ -179,6 +198,7 @@ function ItemPage() {
             ></div>
           </div>
         </div>
+        <MutliChapters chapters = {item.chapters}/>
         <div className="chapterList">
           <div className="chapterListHeader chapter">
             <div className="name">Chapter Name</div>
