@@ -214,7 +214,18 @@ function ItemPage() {
       /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
       `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`,
     );
-  return extensions?.[item.extension]?.properties?.customItemPage?"hi":( //work in progress
+    const [customPage, setCustomPage] = useState(undefined)
+  useEffect(()=>{
+    try{
+      if(item.extension && extensions?.[item.extension]?.properties?.customItemPage){
+        import("../backend/extensions/"+item.extension+"/"+extensions?.[item.extension]?.properties?.customItemPage)
+        .then(x=>{
+          setCustomPage(<x.default />)
+        })
+      }
+    }catch{}
+  },[item,extensions])
+  return extensions?.[item.extension]?.properties?.customItemPage?customPage:( //work in progress
     <>
     <NoiseBlur />
       <div id="libraryItemPage">

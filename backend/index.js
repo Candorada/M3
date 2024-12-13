@@ -441,7 +441,26 @@ app.post("/deleteChapter", async (req, res) => {
   }
   res.sendStatus(200);
 });
-
+app.post("/runExtensionFunction", async (req, res) => {
+  const body = req.body;
+  const func = body.function;
+  const params = body.params;
+  let run = undefined;
+  const extension = extensions[body.extension];
+  if (!extension) {
+    res.sendStatus(400);
+    return;
+  }else{
+    try{
+      run = extension[func](...params);
+    }catch{}
+  }
+  if(run != undefined){
+    res.send(await run)
+  }else{
+    res.sendStatus(400)
+  }
+})
 //delete media from library
 app.post("/delete", async (req, res) => {
   /*
