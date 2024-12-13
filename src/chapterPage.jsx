@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext} from "react";
 import { useParams } from "react-router-dom";
 import { RouterContext } from "./App";
+
 import "./chapterPage.css"
 function LoadingImg({img, comicData}){
 let imgElm = <img src = {`http://localhost:3000/imageProxy?url=${img}&referer=${comicData.source||""}`} className = "comicPage"/>

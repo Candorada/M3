@@ -161,12 +161,19 @@ function ItemPage() {
   },[])
   const navigate = useNavigate();
   const { mediaID } = useParams();
+  let [extensions,setExtensions] = useState([])
+  useEffect(()=>{
+    fetch("http://localhost:3000/extensionList").then(x=>x.json()).then(x=>{
+      setExtensions(x)
+  })
+  },[])
   const [item, setItem] = useState({
     id: "exampleID",
     name: "Template Name",
     source: "about:blank",
     about: "Template",
     cover: "src/extensionsUI/Error.jpg",
+    extension:"TemplateExtension",
     tags: JSON.stringify([
       "Action",
       "Adventure",
@@ -207,7 +214,7 @@ function ItemPage() {
       /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
       `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`,
     );
-  return (
+  return extensions?.[item.extension]?.properties?.customItemPage?"hi":( //work in progress
     <>
     <NoiseBlur />
       <div id="libraryItemPage">

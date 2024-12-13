@@ -933,7 +933,7 @@ app.get("/library/:category/:mediaID", (req, res) => {
       }
       const jsonData = {};
       Object.assign(jsonData, row);
-
+      Object.assign(jsonData,{extension:table});
       if (type == "Comic") {
         db.all(
           `SELECT * FROM chapters WHERE manga_id=? ORDER BY number`,
@@ -954,7 +954,7 @@ app.get("/library/:category/:mediaID", (req, res) => {
           },
         );
       } else {
-        res.json(row);
+        res.json(jsonData);
       }
     });
   });
