@@ -306,7 +306,12 @@ db.serialize(() => {
   Object.entries(extensions).forEach(([extension, data]) => {
     const tableName = extension;
     const type = data.properties.type;
-    const schema = tableSchemas[type];
+    let schema = tableSchemas[type];
+
+    if (!schema) {
+      tableSchemas[type] = data.schema();
+      schema = tableSchemas[type];
+    }
 
     if (schema) {
       const createTableQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${schema.createColumns})`;
@@ -816,7 +821,7 @@ app.post("/download", async (req, res) => {
       );
       return res.sendStatus(200);
     } else if (chapter_id) {
-      chapter_id.forEach(async (chap) => {
+      chapter_id.forEach((chap) => {
         let data = {
           chapter_id: chap,
           media_id: media_id,
