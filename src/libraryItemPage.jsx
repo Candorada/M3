@@ -139,7 +139,7 @@ function MutliChapters({item,childRefs}){
   </div>
   </>
 }
-function ItemPage() {
+function MainItemPage( {item}) {
   let activeDownloads = {}
   const childRefs = useRef({});
   useEffect(()=>{
@@ -161,52 +161,6 @@ function ItemPage() {
   },[])
   const navigate = useNavigate();
   const { mediaID } = useParams();
-  let [extensions,setExtensions] = useState([])
-  useEffect(()=>{
-    fetch("http://localhost:3000/extensionList").then(x=>x.json()).then(x=>{
-      setExtensions(x)
-  })
-  },[])
-  const [item, setItem] = useState({
-    id: "exampleID",
-    name: "Template Name",
-    source: "about:blank",
-    about: "Template",
-    cover: "src/extensionsUI/Error.jpg",
-    extension:"TemplateExtension",
-    tags: JSON.stringify([
-      "Action",
-      "Adventure",
-      "Comedy",
-      "Drama",
-      "Fantasy",
-      "Harem",
-      "Romance",
-      "Shounen",
-      "Manhua",
-    ]),
-    contributors: JSON.stringify(["Template Person"]),
-    chapters: [
-      {
-        id: -1,
-        extension: "TemplateExtension",
-        manga_id: "exampleID",
-        number: 1,
-        name: "Template Chapter",
-        source: "about:blank",
-        date: "1566691680000",
-        downloaded:0,
-        read: 0,
-      },
-    ],
-  });
-  useEffect(() => {
-    fetch("http://localhost:3000/library/_/" + mediaID)
-      .then((res) => res.json())
-      .then((json) => {
-        setItem(json);
-      });
-  }, []);
   let coverPath = `../backend/downloadedMedia/${mediaID}/cover.jpg`;
   let description = item.about
     //item.cover is the url of the cover source
@@ -214,18 +168,7 @@ function ItemPage() {
       /(https?:\/\/(?:www\.)?([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b)*(\/[\/\d\w\.-]*)*(?:[\?])*([^ <>\(\))]+)*)(?<!\))/g,
       `<a href = "$1"><img src = "https://www.google.com/s2/favicons?domain=$2" /></a>`,
     );
-    const [customPage, setCustomPage] = useState(undefined)
-  useEffect(()=>{
-    try{
-      if(item.extension && extensions?.[item.extension]?.properties?.customItemPage){
-        import("../backend/extensions/"+item.extension+"/"+extensions?.[item.extension]?.properties?.customItemPage)
-        .then(x=>{
-          setCustomPage(<x.default />)
-        })
-      }
-    }catch{}
-  },[item,extensions])
-  return extensions?.[item.extension]?.properties?.customItemPage?customPage:( //work in progress
+return ( //work in progress
     <>
     <NoiseBlur />
       <div id="libraryItemPage">
@@ -305,4 +248,81 @@ function ItemPage() {
     </>
   );
 }
-export default ItemPage;
+export default function ItemPage(){
+  const { mediaID } = useParams();
+  const defaultItem = {
+    id: "exampleID",
+    name: "Template Name",
+    source: "about:blank",
+    about: "Template",
+    cover: "src/extensionsUI/Error.jpg",
+    extension:"TemplateExtension",
+    tags: JSON.stringify([
+      "Action",
+      "Adventure",
+      "Comedy",
+      "Drama",
+      "Fantasy",
+      "Harem",
+      "Romance",
+      "Shounen",
+      "Manhua",
+    ]),
+    contributors: JSON.stringify(["Template Person"]),
+    chapters: [
+      {
+        id: -1,
+        extension: "TemplateExtension",
+        manga_id: "exampleID",
+        number: 1,
+        name: "Template Chapter",
+        source: "about:blank",
+        date: "1566691680000",
+        downloaded:0,
+        read: 0,
+      },
+    ],
+  }
+  const [item, setItem] = useState(defaultItem)
+  useEffect(() => {
+    fetch("http://localhost:3000/library/_/" + mediaID)
+      .then((res) => res.json())
+      .then((json) => {
+        setItem(json);
+      });
+  }, []);
+  const [customPage, setCustomPage] = useState(undefined)
+  
+  let [extensions,setExtensions] = useState([])
+  useEffect(()=>{
+    fetch("http://localhost:3000/extensionList").then(x=>x.json()).then(x=>{
+      setExtensions(x)
+  })
+  },[])
+  useEffect(()=>{
+    try{
+      if(item.extension && extensions?.[item.extension]?.properties?.customItemPage){
+        import("../backend/extensions/"+item.extension+"/"+extensions?.[item.extension]?.properties?.customItemPage)
+        .then(async x=>{
+          setCustomPage(<x.default item = {item}/>)
+        })
+      }
+    }catch{}
+  },[item,extensions])
+  return extensions?.[item.extension]?.properties?.customItemPage?customPage: extensions && item.cover!=defaultItem.cover?<MainItemPage item = {item} />:<></>
+};
+
+/*
+    const [customPage, setCustomPage] = useState(undefined)
+  useEffect(()=>{
+    try{
+      if(item.extension && extensions?.[item.extension]?.properties?.customItemPage){
+        import("../backend/extensions/"+item.extension+"/"+extensions?.[item.extension]?.properties?.customItemPage)
+        .then(x=>{
+          setCustomPage(<x.default />)
+        })
+      }
+    }catch{}
+  },[item,extensions])
+  return extensions?.[item.extension]?.properties?.customItemPage?customPage:
+*/

@@ -1,11 +1,12 @@
 const extensionProperties = {
-  name: "Manganato",
+  name: "Nato Text for Custom Pages",
   type: "Comic",
   sourceUrl: "https://manganato.com/",
-  iconPath: "./icon.png", // can be webURL or path. Path must be relative, but can be relative to current directory
+  iconPath: "./image.png", // can be webURL or path. Path must be relative, but can be relative to current directory
   description: `This extension is really cool. it is made for Manganato`,
   creator: "Candorada",
   creatorSocials: "https://github.com/Candorada", // optional
+  customItemPage: "file.jsx" // file path
 };
 function ifError(cb, el) {
   var retVal = el;

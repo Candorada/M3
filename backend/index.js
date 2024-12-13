@@ -444,7 +444,7 @@ app.post("/deleteChapter", async (req, res) => {
 app.post("/runExtensionFunction", async (req, res) => {
   const body = req.body;
   const func = body.function;
-  const params = body.params;
+  const params = body.args?body.args:[];
   let run = undefined;
   const extension = extensions[body.extension];
   if (!extension) {
@@ -452,8 +452,11 @@ app.post("/runExtensionFunction", async (req, res) => {
     return;
   }else{
     try{
+      console.log(extension[func]())
       run = extension[func](...params);
-    }catch{}
+    }catch{
+      res.status(400)
+    }
   }
   if(run != undefined){
     res.send(await run)
