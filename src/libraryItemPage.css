@@ -198,6 +198,8 @@
 .mutliChapters > .content > select{
     background-color: var(--secondary1);
     width:100%;
+    border:none;
+    outline: none;
 }
 
 .mutliChapters > .content > select::-webkit-scrollbar{
@@ -221,7 +223,8 @@
     border-left: 2px solid var(--secondary2);
 }
 .ChapterControlButtons > input{
-    border:none;
+    cursor: pointer;
+    border: none;
     border-radius: 0px;
     background-color: var(--secondary1);
     width: 100%;
@@ -230,6 +233,12 @@
     flex-direction: column;
     align-content: stretch;
     flex-wrap: wrap;
+}
+.ChapterControlButtons > input:active{
+    background-color: var(--secondary2);
+}
+option:checked{
+    background-color: var(--secondary2);
 }
 .mutliChapters{
     background-color: var(--secondary1);

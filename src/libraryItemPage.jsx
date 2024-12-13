@@ -1,19 +1,22 @@
 import "./libraryItemPage.css";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import React, { useState, useEffect, useRef, act } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import NoiseBlur from "./filters/noiseblur";
 const  DownloadButton = React.forwardRef(({chapter},ref) =>{
   let [progress, setProgress] =useState(undefined)
   let [total, setTotal] = useState(undefined)
   let [queued, setQueued] = useState(true)
   React.useImperativeHandle(ref, () => ({
-    update: (progress,total,queued) => {
+    update: (progress, total, queued = true, deleted = false) => {
       setProgress(progress)
       setTotal(total)
       setQueued(queued)
       if(progress >= total && total > 0){
         setBTN(delBTN)
+      }
+      if(deleted){
+        setBTN(downBTN)
       }
     },
   }));
@@ -68,7 +71,28 @@ const  DownloadButton = React.forwardRef(({chapter},ref) =>{
   let [btn,setBTN] = useState(starterBTN)
   return <div className="downloadBTN">{progress!=undefined && (progress <total || progress == 0) ?<Loading progress = {progress} total = {total} queued = {queued}/>:btn}</div>
 })
-function MutliChapters({chapters}){
+function MutliChapters({item,childRefs}){
+  let chapters = item.chapters
+  function read(read=true){
+    let ids = [...document.querySelector("select").selectedOptions].map(x=>x.value)
+    fetch("http://localhost:3000/read",{
+      method:"POST",
+      headers:{
+          "content-type":"application/json"
+      },
+      body:JSON.stringify({
+          status:read,
+          media_id:item.id,
+          chapter_id:ids
+      })
+    }).then(x=>{
+        if(x.ok){
+          ids.forEach(x=>{
+            document.querySelector("[chapter_id = \""+x+"\"]").classList.toggle("read",read)
+          })
+        }
+      })
+  }
   return <>
   <div className="mutliChapters">
     <div className="content">
@@ -78,10 +102,36 @@ function MutliChapters({chapters}){
         })}
       </select>
       <div className = "ChapterControlButtons">
-      <input type="button" value="Download Selected" className = "multiDownBTN"/>
-      <input type="button" value="Delete Selected" className = "multiDelBTN"/>
-      <input type="button" value="Mark Selected As Read" className = "multiReadBTN"/>
-      <input type="button" value="Mark Selected As Unread" className = "multiUnreadBTN"/>
+      <input type="button" value="Download Selected" className = "multiDownBTN" onClick={()=>{
+        let ids = [...document.querySelector("select").selectedOptions].map(x=>x.value)
+            fetch('http://localhost:3000/download', {
+              method: 'POST',
+                  headers: {
+                  'content-type': 'application/json',
+              },
+              body: JSON.stringify({
+                media_id: item.id,
+                referer:  item.source,
+                chapter_id: ids,
+              })
+            })
+      }}/>
+      <input type="button" value="Delete Selected" className = "multiDelBTN" onClick={()=>{
+        let ids = [...document.querySelector("select").selectedOptions].map(x=>x.value)
+        fetch("http://localhost:3000/deleteChapter",{
+          method:"POST",
+          headers:{"content-type":"application/json"},
+          body:JSON.stringify({
+              media_id:item.id,
+              chapter_id:ids
+          })
+        })
+        ids.forEach(x=>{
+          childRefs.current[x].update(...[,,,],true)
+        })
+      }}/>
+      <input type="button" value="Mark Selected As Read" className = "multiReadBTN" onClick={()=>read(true)}/>
+      <input type="button" value="Mark Selected As Unread" className = "multiUnreadBTN" onClick={()=>read(false)}/>
       </div>
     </div>
     <input type="checkbox" name="" id="Settings"  style={{display:"none"}} />
@@ -200,7 +250,7 @@ function ItemPage() {
             ></div>
           </div>
         </div>
-        <MutliChapters chapters = {item.chapters}/>
+        <MutliChapters item = {item} childRefs={childRefs}/>
         <div className="chapterList">
           <div className="chapterListHeader chapter">
             <div className="name">Chapter Name</div>
