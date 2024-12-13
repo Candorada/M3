@@ -1,3 +1,5 @@
+var { parse } = require("node-html-parser");
+
 const properties = {
   name: "Project Gutenberg",
   type: "custom_pg",
@@ -8,7 +10,18 @@ const properties = {
     <a title="https://discord.gg/vkW47gN5TY" href="https://discord.gg/vkW47gN5TY" target="_blank" rel="noopener nofollow noreferrer">The fastest way to contact us is on our Discord server.</a>`,
   creator: "Jesso3",
   creatorSocials: "https://github.com/Jesso3", //optional
+  customItemPage: "file.jsx",
 };
+
+function ifError(cb, el) {
+  var retVal = el;
+  try {
+    retVal = cb();
+  } catch {
+    return el;
+  }
+  return retVal;
+}
 
 function schema() {
   let custom_pg = {
@@ -16,38 +29,104 @@ function schema() {
       id TEXT PRIMARY KEY,
       title TEXT,
       source TEXT,
-      artist TEXT,
+      author TEXT,
       cover TEXT,
-      length TEXT,
-      tags TEXT,
-      epicb TEXT
+      summary TEXT,
+      release TEXT,
+      subject TEXT,
+      web TEXT,
+      EPUB TEXT,
+      plainText TEXT,
+      HTML TEXT
     `,
     insertColumns: [
       "id",
       "title",
       "source",
-      "artist",
+      "author",
       "cover",
-      "length",
-      "tags",
-      "epicb",
+      "summary",
+      "release",
+      "subject",
+      "web",
+      "EPUB",
+      "plainText",
+      "HTML",
     ],
     getValues: (data) => [
       data.id,
       data.title,
       data.url,
-      data.artist,
-      data.coverImage,
-      data.length,
-      JSON.stringify(data.tags),
-      data.about,
+      data.author,
+      data.cover,
+      data.summary,
+      data.release,
+      data.subject,
+      data.web,
+      data.EPUB,
+      data.plainText,
+      data.HTML,
     ],
   };
 
   return custom_pg;
 }
-function search(search) {}
-function getInfo(url) {}
+async function search(search, page) {
+  if (!page) page = 1;
+  const result = await (
+    await fetch(
+      search
+        ? `https://www.gutenberg.org/ebooks/search/?query=${encodeURI(search)}&submit_search=Go%21`
+        : `https://www.gutenberg.org/ebooks/search/?sort_order=downloads&start_index=${(page - 1) * 25 + 1}`,
+    )
+  ).text();
+
+  let root = parse(result);
+  let body = root.querySelector("body");
+
+  let media = [];
+
+  body.querySelectorAll("a.link").forEach((a) => {
+    const href = a.getAttribute("href");
+
+    if (/^\/ebooks\/\d+$/.test(href)) {
+      const imgElement = a.querySelector("span.leftcell img");
+      const nameElement = a.querySelector("span.content .title");
+
+      media.push({
+        url: href,
+        img: imgElement
+          ? "https://www.gutenberg.org" + imgElement.getAttribute("src")
+          : null,
+        name: nameElement ? nameElement.text : null,
+      });
+    }
+  });
+
+  return await {
+    media: media,
+    //TODO: change page count
+    pageCount: 1000,
+  };
+}
+async function getInfo(url) {
+  return await {
+    id: "1",
+    title:
+      "https://cdn.pixabay.com/photo/2016/09/08/18/45/cube-1655118_1280.jpg",
+    source: "source",
+    author: "author",
+    cover:
+      "https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png",
+    summary: "summary",
+    release: "release",
+    subject: "subject",
+    web: "web",
+    EPUB: "EPUB",
+    plainText: "plaintext",
+    HTML: "epicHTML",
+  };
+}
 
 /*
  
