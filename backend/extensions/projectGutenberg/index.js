@@ -1,5 +1,5 @@
-//var { parse } = require("node-html-parser");
-const parser = require("./node_modules/node-html-parser"); 
+var { parse } = require("node-html-parser");
+const parser = require("./node_modules/node-html-parser");
 const properties = {
   name: "Project Gutenberg",
   type: "custom_pg",
@@ -56,7 +56,7 @@ function schema() {
     getValues: (data) => [
       data.id,
       data.title,
-      data.url,
+      data.source,
       data.author,
       data.cover,
       data.summary,
@@ -94,7 +94,7 @@ async function search(search, page) {
       const nameElement = a.querySelector("span.content .title");
 
       media.push({
-        url: href,
+        url: "https://www.gutenberg.org" + href,
         img: imgElement
           ? "https://www.gutenberg.org" + imgElement.getAttribute("src")
           : null,
@@ -110,16 +110,19 @@ async function search(search, page) {
   };
 }
 async function getInfo(url) {
-  return await {
-    id: "1",
-    title:
-      "https://cdn.pixabay.com/photo/2016/09/08/18/45/cube-1655118_1280.jpg",
-    source: "source",
-    author: "author",
-    cover:
-      "https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png",
+  let htmlData = await (await fetch(url)).text();
+  let root = parse(htmlData);
+
+  let body = root.querySelector("body");
+
+  return {
+    id: "gutenberg-" + url.split("/")[3] + "-" + url.split("/")[4],
+    title: body.querySelector("td[itemprop='headline']").innerText,
+    source: url,
+    author: body.querySelector("a[itemprop='creator']").innerText,
+    cover: body.querySelector("img.cover-art").getAttribute("src"),
     summary: "summary",
-    release: "release",
+    release: body.querySelector("td[itemprop='datePublished']").innerText,
     subject: "subject",
     web: "web",
     EPUB: "EPUB",
