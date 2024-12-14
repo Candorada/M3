@@ -291,10 +291,12 @@ db.serialize(() => {
 			read INTEGER DEFAULT 0,
       extension TEXT,
       manga_id TEXT,
+      chapter_id TEXT,
       number REAL,
       name TEXT,
       source TEXT,
-      date TEXT
+      date TEXT,
+      UNIQUE (chapter_id, manga_id)
       )`,
     (err) => {
       if (err) {
@@ -674,7 +676,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             return;
           }
 
-          if (!row && schema) {
+          if (true &&  schema) { // !row
             db.run(
               `INSERT INTO main (extension, local_id) VALUES (?, ?)`,
               [tableName, data.id],
@@ -689,7 +691,13 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                   .map(() => "?")
                   .join(", ");
                 const values = schema.getValues(data);
-                const insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+                let insertQuery = undefined
+                if(!row){
+                  insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+                }else{
+                  let sets = schema.insertColumns.map((x)=>`${x} = ?`).join(", ")
+                  insertQuery = `UPDATE ${tableName} SET ${sets} WHERE id = "${values[0]}"`;
+                }
                 if (values[0] == undefined) {
                   return;
                 }
@@ -712,16 +720,18 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                       makeFetchCall();
                     }
                     data?.chapters?.forEach((chapter) => {
+                      let insertValues = [
+                        tableName,
+                        data.id,
+                        chapter.name,
+                        chapter.chapter_id,
+                        chapter.number,
+                        chapter.url,
+                        chapter.date,
+                      ]
                       db.run(
-                        `INSERT INTO chapters (extension, manga_id, name, number, source, date) VALUES (?, ?, ?, ?, ?, ?)`,
-                        [
-                          tableName,
-                          data.id,
-                          chapter.name,
-                          chapter.index,
-                          chapter.url,
-                          chapter.date,
-                        ],
+                        `INSERT OR IGNORE INTO chapters (extension, manga_id, name, chapter_id, number, source, date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        insertValues,
                         (err) => {
                           if (err) {
                             console.error(

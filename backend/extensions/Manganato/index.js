@@ -68,7 +68,8 @@ async function getInfo(URL) {
     ].map((x) => x[1]),
     coverImage: htmldata.split("info-image")[1].split('src="')[1].split('"')[0],
     chapters: chapterData.match(regex).map((str, i, arr) => ({
-      index: arr.length - i, //decimals allowed
+      chapter_id: arr.length - i, //unique for each chapter in the comic
+      number: arr.length - i,  //decimals allowed
       name: str.split("</a>")[0].split(">")[2],
       url: str.split('href="')[1].split('"')[0],
       date: new Date(
