@@ -6,7 +6,7 @@ const extensionProperties = {
   description: `This extension is really cool. it is made for Manganato`,
   creator: "Candorada",
   creatorSocials: "https://github.com/Candorada", // optional
-  customItemPage: "file.jsx" // file path
+  customItemPage: "file.jsx" // file path must be a jsx file
 };
 function ifError(cb, el) {
   var retVal = el;
@@ -52,7 +52,7 @@ async function getInfo(URL) {
       .split('class="panel-story-info-description"')[1]
       .split("</h3>")[1]
       .split("</div>")[0],
-    id: "Manganato-" + URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique
+    id: "Nato2-" + URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique
     //to make it unique just append your extension folder name at the front of your id.
     name: htmldata.split("story-info-right")[1].match(/(?<=<h1>)[^<]*/)[0],
     tags: htmldata

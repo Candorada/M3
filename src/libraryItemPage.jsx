@@ -302,7 +302,9 @@ export default function ItemPage(){
   useEffect(()=>{
     try{
       if(item.extension && extensions?.[item.extension]?.properties?.customItemPage){
-        import("../backend/extensions/"+item.extension+"/"+extensions?.[item.extension]?.properties?.customItemPage)
+        let pagePath = extensions?.[item.extension]?.properties?.customItemPage
+        pagePath = pagePath.toLowerCase().endsWith(".jsx")?pagePath.substring(0,pagePath.length-4):pagePath
+        import(`../backend/extensions/${item.extension}/${pagePath}.jsx`)
         .then(async x=>{
           setCustomPage(<x.default item = {item}/>)
         })
