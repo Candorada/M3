@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+!backend/extensions/*/node_modules
 backend/media.db
 backend/downloadedMedia/*
 dist
