@@ -34,8 +34,8 @@ function updateExtensionList() {
       try {
         const x = require("./extensions/" + name);
         extensions[name] = x;
-      } catch {
-        console.log("error file in the extension library");
+      } catch (e){
+        console.log("error file in the extension library"+e);
       }
     }
   });
