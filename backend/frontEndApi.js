@@ -47,7 +47,14 @@ const extension = {
     },
     reloadLibraryItem: async ()=>{
         return extension.addToLibrary(config.item.source)
-    }
+    },
+    getExtensions: async ()=>{
+        return await fetch(`http://localhost:${config.backendPORT}/extensionList`).then(x=>x.json())
+    },
+    getPathsFromDownloadedMedia: async (chapterID)=>{
+        return (await fetch(`http://localhost:3000/downloadedImages/${config.item.id}/${chapterID}`)).json()
+    },
+
 }
 export function init(item, backendPORT = 3000){
     config.extension = item.extension

@@ -84,10 +84,15 @@ function ChapterPageComic({mediaID,chapterID,item}){
         }
     }
     useEffect(()=>{
-        fetch(`http://localhost:3000/library/comics/${mediaID}/getchapter?chapterID=${chapter}`)
+        fetch(`http://localhost:3000/library/comics/${mediaID}/getchapter?chapterID=${chapter}&extension=${item.extension}`)
         .then((r)=>r.json())
-        .then((r)=>setImages(r))
-        fetch(`http://localhost:3000/downloadedImages/${mediaID}/${item.id}`)
+        .then((r)=>{
+          if(r.length > 0 && r[0] != "../backend/notFound.png"){
+            setImages(r)
+          }
+
+        })
+        fetch(`http://localhost:3000/downloadedImages/${mediaID}/${chapterID}`)
         .then(async (imgs)=>{
             let imgsJson = await imgs.json()
             setImages(imgsJson)
@@ -111,71 +116,66 @@ function ChapterPageComic({mediaID,chapterID,item}){
 function ChapterPage(){
     const {mediaID,chapterID} = useParams();
     const defaultItem = {
-        id: "exampleID",
-        name: "Template Name",
-        source: "about:blank",
-        about: "Template",
-        cover: "src/extensionsUI/Error.jpg",
-        extension:"TemplateExtension",
-        tags: JSON.stringify([
-          "Action",
-          "Adventure",
-          "Comedy",
-          "Drama",
-          "Fantasy",
-          "Harem",
-          "Romance",
-          "Shounen",
-          "Manhua",
-        ]),
-        contributors: JSON.stringify(["Template Person"]),
-        chapters: [
-          {
-            id: -1,
-            extension: "TemplateExtension",
-            manga_id: "exampleID",
-            number: 1,
-            name: "Template Chapter",
-            source: "about:blank",
-            date: "1566691680000",
-            downloaded:0,
-            read: 0,
-          },
-        ],
-      }
-      const [item, setItem] = useState(defaultItem)
-      useEffect(() => {
-        fetch("http://localhost:3000/library/_/" + mediaID)
-          .then((res) => res.json())
-          .then((json) => {
-            setItem(json);
-          });
-      }, []);
-      const [customPage, setCustomPage] = useState(undefined)
-      
-      let [extensions,setExtensions] = useState([])
-      useEffect(()=>{
-        fetch("http://localhost:3000/extensionList").then(x=>x.json()).then(x=>{
-          setExtensions(x)
-      })
-      },[])
-      useEffect(()=>{
-        try{
-          if(item.extension && extensions?.[item.extension]?.properties?.customReaderPage){
-            let pagePath = extensions?.[item.extension]?.properties?.customReaderPage
-            pagePath = pagePath.toLowerCase().endsWith(".jsx")?pagePath.substring(0,pagePath.length-4):pagePath
-            import(`../backend/extensions/${item.extension}/${pagePath}.jsx`)
-            .then(async x=>{
-              setCustomPage(<x.default mediaID = {mediaID} chapterID = {chapterID} item = {item}/>)
-            })
-          }
-        }catch{}
-      },[item,extensions])
+      id: "exampleID",
+      name: "Template Name",
+      source: "about:blank",
+      about: "Template",
+      cover: "src/extensionsUI/Error.jpg",
+      extension:"TemplateExtension",
+      tags: JSON.stringify([
+        "Action",
+        "Adventure",
+        "Comedy",
+        "Drama",
+        "Fantasy",
+        "Harem",
+        "Romance",
+        "Shounen",
+        "Manhua",
+      ]),
+      contributors: JSON.stringify(["Template Person"]),
+      chapters: [
+        {
+          id: -1,
+          extension: "TemplateExtension",
+          manga_id: "exampleID",
+          number: 1,
+          name: "Template Chapter",
+          source: "about:blank",
+          date: "1566691680000",
+          downloaded:0,
+          read: 0,
+        },
+      ],
+    }
+    const [item, setItem] = useState(defaultItem)
+    useEffect(() => {
+      fetch("http://localhost:3000/library/_/" + mediaID)
+        .then((res) => res.json())
+        .then((json) => {
+          setItem(json);
+        });
+    }, []);
+    const [customPage, setCustomPage] = useState(undefined)
+    
+    let [extensions,setExtensions] = useState([])
     useEffect(()=>{
       fetch("http://localhost:3000/extensionList").then(x=>x.json()).then(x=>{
         setExtensions(x)
     })
     },[])
+    useEffect(()=>{
+      try{
+        if(item.extension && extensions?.[item.extension]?.properties?.customReaderPage){
+          let pagePath = extensions?.[item.extension]?.properties?.customReaderPage
+          pagePath = pagePath.toLowerCase().endsWith(".jsx")?pagePath.substring(0,pagePath.length-4):pagePath
+          import(`../backend/extensions/${item.extension}/${pagePath}.jsx`)
+          .then(async x=>{
+            setCustomPage(<x.default mediaID = {mediaID} chapterID = {chapterID} item = {item}/>)
+          })
+        }
+      }catch{}
+    },[item,extensions])
     return extensions?.[item.extension]?.properties?.customReaderPage?customPage: extensions && item.cover!=defaultItem.cover?<ChapterPageComic mediaID = {mediaID} chapterID = {chapterID} item = {item} />:<></>
 }
 export default ChapterPage

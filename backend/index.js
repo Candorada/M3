@@ -597,7 +597,23 @@ app.get("/imageProxy", async (req, res) => {
     res.status(404).send("ERROR INSTALLING IMAGE");
   }
 });
-
+/*
+  try {
+    let chapID = req.params.chapterID;
+    let mediaID = req.params.mediaID;
+    let path = "../backend/downloadedMedia/" + mediaID + "/" + chapID;
+    let files = fileSystem.readdirSync(path);
+    files = files.sort((x, y) => {
+      let a = +x.split(".")[0];
+      let b = +y.split(".")[0];
+      return a - b;
+    });
+    res.send(files.map((x) => path + `/${x}`));
+  } catch {
+    res.status(400);
+    res.send(["../backend/notFound.png"]);
+  }
+*/
 //get images for comic chapters
 app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   // http://localhost:3000/library/comics/Manganato-manga-aa951409/getchapter?url=https://chapmanganato.to/manga-aa951409/chapter-1120
@@ -605,32 +621,35 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
-
+  let extension = req.params.extension
   try {
-    const extension = await new Promise((resolve) => {
-      db.get(
-        `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
-        [id],
-        (err, row) => {
-          if (err) {
-            console.error("Error retrieving chapter data:", err);
-            return resolve(null);
-          }
-          if (!row) {
-            console.error("No data found for given mediaID.");
-            return resolve(null);
-          }
-          resolve(row.extension);
-        },
-      );
-    });
-
+    if(!extension){
+      extension = await new Promise((resolve) => {
+        db.get(
+          `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
+          [id],
+          (err, row) => {
+            if (err) {
+              console.error("Error retrieving chapter data:", err);
+              return resolve(null);
+            }
+            if (!row) {
+              console.error("No data found for given mediaID.");
+              return resolve(null);
+            }
+            resolve(row.extension);
+          },
+        );
+      });
+    }
+    console.log(chapterID)
     if (chapterID != undefined) {
       url = await new Promise((resolve) => {
         db.get(
           `SELECT source FROM chapters WHERE id=?`,
           [chapterID],
           (err, row) => {
+            console.log(err)
             if (err) {
               console.error("Error retrieving chapter data:", err);
               return resolve(null);
@@ -644,7 +663,6 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
         );
       });
     }
-
     res.send(await extensions[extension].getChapterData(url));
   } catch (e) {
     res.json(["../backend/notFound.png"]);
@@ -888,10 +906,6 @@ app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
       let b = +y.split(".")[0];
       return a - b;
     });
-    if (!files) {
-      res.send(["vite.svg"]);
-      return;
-    }
     res.send(files.map((x) => path + `/${x}`));
   } catch {
     res.status(400);

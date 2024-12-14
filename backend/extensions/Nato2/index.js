@@ -7,7 +7,7 @@ const extensionProperties = {
   creator: "Candorada",
   creatorSocials: "https://github.com/Candorada", // optional
   //customItemPage: "file.jsx", // file path must be a jsx file
-  //customReaderPage: "file2.jsx" // file path must be a jsx file
+  customReaderPage: "file2.jsx" // file path must be a jsx file
 };
 function ifError(cb, el) {
   var retVal = el;
