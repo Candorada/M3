@@ -1,4 +1,4 @@
-const config = {extension:"",backendPORT:3000}
+const config = {extension:"",backendPORT:3000,item:null}
 const extension = {
     run: async (functionName,args=[])=>{
         if(typeof args != "object"){
@@ -21,14 +21,37 @@ const extension = {
     },
     getStoredInfo:async (mediaID)=>{
         try{
-        return await fetch("http://localhost:3000/library/_/" + mediaID).then((res) => res.json())
+        let resp =  fetch("http://localhost:3000/library/_/" + mediaID).then((res) => res.json())
+        resp.then(x=>{
+            config.item = x
+        })
+        return resp
         }catch{
             return null
         }
+    },
+    addToLibrary: async (sourceURL)=>{
+        return new Promise((resolve,reject)=>{
+            fetch(`http://localhost:3000/${config.extension}/addToLibrary`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                                url:sourceURL,
+                    extension:config.extension}),
+            })
+            .then(x=>resolve(x))
+            .catch(x=>reject(x))
+        })
+    },
+    reloadLibraryItem: async ()=>{
+        return extension.addToLibrary(config.item.source)
     }
 }
-export function init(name, backendPORT = 3000){
-    config.extension = name
+export function init(item, backendPORT = 3000){
+    config.extension = item.extension
+    config.item = item
     config.backendPORT = backendPORT
 }
 export default extension

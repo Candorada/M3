@@ -777,7 +777,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
     res.sendStatus(200);
   } catch (e) {
-    res.json(e);
+    res.send(e);
   }
 });
 

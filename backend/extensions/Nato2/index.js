@@ -6,7 +6,8 @@ const extensionProperties = {
   description: `This extension is really cool. it is made for Manganato`,
   creator: "Candorada",
   creatorSocials: "https://github.com/Candorada", // optional
-  customItemPage: "file.jsx" // file path must be a jsx file
+  //customItemPage: "file.jsx", // file path must be a jsx file
+  //customReaderPage: "file2.jsx" // file path must be a jsx file
 };
 function ifError(cb, el) {
   var retVal = el;
