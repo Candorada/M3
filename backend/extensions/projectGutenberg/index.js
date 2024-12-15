@@ -1,5 +1,5 @@
 var { parse } = require("node-html-parser");
-const parser = require("./node_modules/node-html-parser");
+var { parser } = require("./node_modules/node-html-parser");
 const properties = {
   name: "Project Gutenberg",
   type: "custom_pg",

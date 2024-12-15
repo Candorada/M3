@@ -34,8 +34,8 @@ function updateExtensionList() {
       try {
         const x = require("./extensions/" + name);
         extensions[name] = x;
-      } catch (e){
-        console.log("error file in the extension library"+e);
+      } catch (e) {
+        console.log("error file in the extension library" + e);
       }
     }
   });
@@ -446,26 +446,26 @@ app.post("/deleteChapter", async (req, res) => {
 app.post("/runExtensionFunction", async (req, res) => {
   const body = req.body;
   const func = body.function;
-  const params = body.args?body.args:[];
+  const params = body.args ? body.args : [];
   let run = undefined;
   const extension = extensions[body.extension];
   if (!extension) {
     res.sendStatus(400);
     return;
-  }else{
-    try{
-      console.log(extension[func]())
+  } else {
+    try {
+      console.log(extension[func]());
       run = extension[func](...params);
-    }catch{
-      res.status(400)
+    } catch {
+      res.status(400);
     }
   }
-  if(run != undefined){
-    res.send(await run)
-  }else{
-    res.sendStatus(400)
+  if (run != undefined) {
+    res.send(await run);
+  } else {
+    res.sendStatus(400);
   }
-})
+});
 //delete media from library
 app.post("/delete", async (req, res) => {
   /*
@@ -621,9 +621,9 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
   let url = req.query.url;
   const chapterID = req.query.chapterID;
   const id = req.params.mediaid;
-  let extension = req.params.extension
+  let extension = req.params.extension;
   try {
-    if(!extension){
+    if (!extension) {
       extension = await new Promise((resolve) => {
         db.get(
           `SELECT extension FROM main WHERE local_id=? COLLATE NOCASE`,
@@ -642,14 +642,12 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
         );
       });
     }
-    console.log(chapterID)
     if (chapterID != undefined) {
       url = await new Promise((resolve) => {
         db.get(
           `SELECT source FROM chapters WHERE id=?`,
           [chapterID],
           (err, row) => {
-            console.log(err)
             if (err) {
               console.error("Error retrieving chapter data:", err);
               return resolve(null);
@@ -694,7 +692,8 @@ app.post("/:extension/addToLibrary", async (req, res) => {
             return;
           }
 
-          if (true &&  schema) { // !row
+          if (true && schema) {
+            // !row
             db.run(
               `INSERT INTO main (extension, local_id) VALUES (?, ?)`,
               [tableName, data.id],
@@ -709,11 +708,13 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                   .map(() => "?")
                   .join(", ");
                 const values = schema.getValues(data);
-                let insertQuery = undefined
-                if(!row){
+                let insertQuery = undefined;
+                if (!row) {
                   insertQuery = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
-                }else{
-                  let sets = schema.insertColumns.map((x)=>`${x} = ?`).join(", ")
+                } else {
+                  let sets = schema.insertColumns
+                    .map((x) => `${x} = ?`)
+                    .join(", ");
                   insertQuery = `UPDATE ${tableName} SET ${sets} WHERE id = "${values[0]}"`;
                 }
                 if (values[0] == undefined) {
@@ -746,7 +747,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                         chapter.number,
                         chapter.url,
                         chapter.date,
-                      ]
+                      ];
                       db.run(
                         `INSERT OR IGNORE INTO chapters (extension, manga_id, name, chapter_id, number, source, date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
                         insertValues,
@@ -979,7 +980,7 @@ app.get("/library/:category/:mediaID", (req, res) => {
       }
       const jsonData = {};
       Object.assign(jsonData, row);
-      Object.assign(jsonData,{extension:table});
+      Object.assign(jsonData, { extension: table });
       if (type == "Comic") {
         db.all(
           `SELECT * FROM chapters WHERE manga_id=? ORDER BY number`,
