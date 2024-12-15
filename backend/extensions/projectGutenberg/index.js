@@ -121,34 +121,31 @@ async function getInfo(url) {
     source: url,
     author: body.querySelector("a[itemprop='creator']").innerText,
     cover: body.querySelector("img.cover-art").getAttribute("src"),
-    summary: "summary",
+    summary: htmlData.match(
+      /<th>Summary<\/th>\s*<td>\s*([\s\S]*?)\s*<\/td>/,
+    )[1],
     release: body.querySelector("td[itemprop='datePublished']").innerText,
-    subject: "subject",
-    web: "web",
-    EPUB: "EPUB",
-    plainText: "plaintext",
-    HTML: "epicHTML",
+    subject: JSON.stringify(
+      Array.from(body.querySelectorAll("td[property='dcterms:subject'] a")).map(
+        (a) => (a ? a.innerText : null),
+      ),
+    ),
+    web:
+      "https://www.gutenberg.org" +
+      body.querySelector("a[title='Read online']").getAttribute("href"),
+    EPUB:
+      "https://www.gutenberg.org" +
+      body.querySelector("a[type='application/epub+zip']").getAttribute("href"),
+    plainText:
+      "https://gutenberg.org" +
+      body
+        .querySelector("a[type='text/plain; charset=us-ascii']")
+        .getAttribute("href"),
+    HTML:
+      "https://gutenberg.org" +
+      body.querySelector("a[type='application/zip']").getAttribute("href"),
   };
 }
-
-/*
- 
-  await(await fetch('http://localhost:3000/SoundCloud/addToLibrary', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({url:"https://soundcloud.com/julian-orzabal-416027090/twist-and-shout",
-id: "SoundCloud-Twist-and-shout",
-title: "Twist-and-shout",
-artist: "Beatles",
-coverImage: "https://i1.sndcdn.com/artworks-5yojzEO8Gp0ZmTNz-xLjvTg-t500x500.jpg",
-length: "243",
-tags: "good"}),
-})).json()
-
-
- */
 
 module.exports = {
   search: search,

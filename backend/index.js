@@ -668,8 +668,6 @@ app.get("/library/:category/:mediaid/getchapter", async (req, res) => {
 });
 app.get("/downloadingMedia", async (req, res) => {
   res.json(downloads);
-
-  //TODO: add functionality for different media types
 });
 
 //add media to your library
