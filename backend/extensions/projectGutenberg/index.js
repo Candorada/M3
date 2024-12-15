@@ -10,7 +10,7 @@ const properties = {
     <a title="https://discord.gg/vkW47gN5TY" href="https://discord.gg/vkW47gN5TY" target="_blank" rel="noopener nofollow noreferrer">The fastest way to contact us is on our Discord server.</a>`,
   creator: "Jesso3",
   creatorSocials: "https://github.com/Jesso3", //optional
-  customItemPage: "file.jsx",
+  customItemPage: "itemPage.jsx",
 };
 
 function ifError(cb, el) {
