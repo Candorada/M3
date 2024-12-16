@@ -117,6 +117,38 @@ async function chapterDownload({ chapter_id, media_id, referer }) {
     });
   });
 }
+
+async function fileDownload({ mediaID, databaseColumn, regex, download }) {
+  const response = await fetch(`http://localhost:3000/library/_/${mediaID}`);
+
+  const data = await response.json();
+
+  const textResponse = await fetch(data[databaseColumn]);
+  let text = await textResponse.text();
+
+  if (typeof regex == "string") {
+    regex = new RegExp(regex);
+  }
+
+  if (regex) {
+    text = text.match(regex);
+  }
+
+  if (download) {
+    const downloadPath = path.join(
+      __dirname,
+      "downloadedMedia",
+      mediaID,
+      databaseColumn,
+    );
+
+    await fileSystem.promises.mkdir(path.dirname(downloadPath), {
+      recursive: true,
+    });
+    await fileSystem.promises.writeFile(downloadPath, text);
+  }
+}
+
 class Node {
   constructor(value, parameters = []) {
     this.value = value;
@@ -829,10 +861,8 @@ app.post("/download", async (req, res) => {
   const cover = body.cover;
   const referer = body.referer;
   const table = body.extension;
+  const col = body.column;
   try {
-    if (typeof chapter_id != "object") {
-      chapter_id = [chapter_id];
-    }
     let filepath = path.join(__dirname, "downloadedMedia", media_id);
     if (cover) {
       const coverUrl = await new Promise((resolve) => {
@@ -870,6 +900,9 @@ app.post("/download", async (req, res) => {
       );
       return res.sendStatus(200);
     } else if (chapter_id) {
+      if (typeof chapter_id != "object") {
+        chapter_id = [chapter_id];
+      }
       chapter_id.forEach((chap) => {
         let data = {
           chapter_id: chap,
@@ -886,6 +919,16 @@ app.post("/download", async (req, res) => {
         downloadQue.enqueue(chapterDownload, [data]);
       });
       res.sendStatus(200);
+    } else if (col) {
+      let reg = body?.regex;
+
+      let data = {
+        mediaID: media_id,
+        databaseColumn: col,
+        regex: reg ? reg : null,
+        download: true,
+      };
+      downloadQue.enqueue(fileDownload, [data]);
     }
 
     //TODO: add functionality for different media types
@@ -893,6 +936,7 @@ app.post("/download", async (req, res) => {
     console.error("Unexpected error:", err.message);
     res.sendStatus(500);
   }
+  res.sendStatus(200);
 });
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
   try {
