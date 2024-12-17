@@ -33,6 +33,22 @@ function File() {
     return <p>Loading...</p>;
   }
 
+  async function handleDownload(e, column) {
+    e.preventDefault();
+
+    await fetch("http://localhost:3000/download", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        media_id: mediaID,
+        column: column,
+        download: true,
+      }),
+    });
+  }
+
   // Render the fetched data
   return (
     <div>
@@ -41,7 +57,9 @@ function File() {
       <p>{item.summary}</p>
       <a href={item.web}>Read Online</a>
       <br></br>
-      <a href={item.plainText}>Download text</a>
+      <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
+        Download text
+      </a>
     </div>
   );
 }

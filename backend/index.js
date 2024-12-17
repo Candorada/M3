@@ -127,7 +127,8 @@ async function fileDownload({ mediaID, databaseColumn, regex, download }) {
   let text = await textResponse.text();
 
   if (typeof regex == "string") {
-    regex = new RegExp(regex);
+    const match = regex.match(/^\/(.*?)\/([gimsuy]*)$/);
+    regex = new RegExp(match[1], match[2]);
   }
 
   if (regex) {
@@ -475,6 +476,7 @@ app.post("/deleteChapter", async (req, res) => {
   }
   res.sendStatus(200);
 });
+
 app.post("/runExtensionFunction", async (req, res) => {
   const body = req.body;
   const func = body.function;
@@ -930,14 +932,13 @@ app.post("/download", async (req, res) => {
       };
       downloadQue.enqueue(fileDownload, [data]);
     }
-
-    //TODO: add functionality for different media types
   } catch (err) {
     console.error("Unexpected error:", err.message);
     res.sendStatus(500);
   }
   res.sendStatus(200);
 });
+
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
   try {
     let chapID = req.params.chapterID;
