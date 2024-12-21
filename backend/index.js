@@ -857,6 +857,7 @@ app.post("/download", async (req, res) => {
 
 
 */
+  console.log("hi")
   const body = req.body;
   const media_id = body.media_id;
   let chapter_id = body.chapter_id;
@@ -932,11 +933,12 @@ app.post("/download", async (req, res) => {
       };
       downloadQue.enqueue(fileDownload, [data]);
     }
+    res.status(200)
   } catch (err) {
     console.error("Unexpected error:", err.message);
-    res.sendStatus(500);
+    res.status(500);
   }
-  res.sendStatus(200);
+  res.send();
 });
 
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
