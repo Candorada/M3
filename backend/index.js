@@ -857,7 +857,6 @@ app.post("/download", async (req, res) => {
 
 
 */
-  console.log("hi")
   const body = req.body;
   const media_id = body.media_id;
   let chapter_id = body.chapter_id;
