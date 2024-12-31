@@ -1,3 +1,7 @@
+function gussesUrl(id,params){
+  return "https://api.mangadex.org/manga/"+id+"/feed"+(params?"?"+Object.keys(params).map(x=>Array.isArray(params[x])?params[x].map(y=>`${x}[]=${y}`).join("&"):`${x}=${JSON.stringify(params[x])}`).join("&"):"")
+}
+
 //example image url: 
 const properties = {
   name: "MangaDex",
@@ -35,8 +39,13 @@ async function search(search,page) {
   };
 }
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
+  
   var mangaId = url.split("/")[4]
   console.log(mangaId)
+  console.log(gussesUrl(url))  //This is what is causing the error!
+
+
+
   let chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
   let chaps = []
   for(vol in chaptersData.volumes){
@@ -83,6 +92,8 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
     chapters: computedChaps //different object for each chapter
   } 
 }
+
+
 
 
 async function getChapData(url) { //url of a chapter
