@@ -69,7 +69,7 @@ function ExtensionPage(){
     async function search(keyword){
         console.log("searched")
         setSearchTerm(keyword)
-        var queryString = (keyword?"q="+keyword:"")+(page?"&page="+page:"")
+        var queryString = encodeURI((keyword?"q="+keyword:"")+(page?"&page="+page:""))
         var json = await ((await fetch("http://localhost:3000/"+extension+"/search"+(queryString?"?"+queryString:""))).json())
         if(await json){
             setSearchResult(await json)
