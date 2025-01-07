@@ -24,7 +24,7 @@ async function search(search,page) {
     if (!search) {
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art`)).json()
     }else{
-      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${search}&includes%5B%5D=cover_art`)).json()
+      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc`)).json()
     }
     
     data = data.data.map(x=>(
@@ -118,3 +118,4 @@ module.exports = {
   properties: properties,
 };
 
+//make page count dependent on search
