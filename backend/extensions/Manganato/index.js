@@ -1,3 +1,5 @@
+const { CONSTRAINT } = require("sqlite3");
+
 const extensionProperties = {
   name: "Manganato",
   type: "Comic",
@@ -18,6 +20,7 @@ function ifError(cb, el) {
 }
 async function search(search,page) {
   if(!page) page = 1;
+  search = search.replace(" ","_")
   const result = await (
     await fetch(
       search
