@@ -67,7 +67,6 @@ function ExtensionPage(){
     let [page,sPage] = useState(1)
     let [searchTerm,setSearchTerm] = useState("")
     async function search(keyword){
-        console.log("searched")
         setSearchTerm(keyword)
         var queryString = encodeURI((keyword?"q="+keyword:"")+(page?"&page="+page:""))
         var json = await ((await fetch("http://localhost:3000/"+extension+"/search"+(queryString?"?"+queryString:""))).json())
@@ -114,7 +113,7 @@ function ExtensionPage(){
             </div>
             <div className="search">
                 <input type="text" name="search" id="searchBar" placeholder="search"/>
-                <input type="button" value="search" onClick={()=>{search(document.querySelector("#searchBar").value.replace(" ","_"))}}/>
+                <input type="button" value="search" onClick={()=>{search(document.querySelector("#searchBar").value)}}/>
                 <div id = "searchResult">
                     {(()=>{
                         try{
