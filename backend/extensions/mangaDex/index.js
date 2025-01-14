@@ -26,6 +26,10 @@ async function search(search,page) {
     }else{
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc`)).json()
     }
+    console.log(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art`)
+    console.log(data)
+    console.log(Math.ceil(data.total/numberOfComics))
+
     
     data = data.data.map(x=>(
       {
@@ -35,7 +39,7 @@ async function search(search,page) {
     }))//have mulitiple of these objects (one per comic) contains information on comics being displayed on the one page
   return {
     media: data,
-    pageCount: 3366, //total number of pages that you can cycle through in the website
+    pageCount: Math.ceil(data.total/numberOfComics), //total number of pages that you can cycle through in the website
   };
 }
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
