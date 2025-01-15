@@ -27,7 +27,6 @@ async function search(search,page) {
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc`)).json()
     }
     let stuff = Math.ceil(data.total/numberOfComics)
-
     
     data = data.data.map(x=>(
       {
@@ -43,9 +42,8 @@ async function search(search,page) {
 async function getInfo(url) { //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
   
   var mangaId = url.split("/")[4]
-  console.log(mangaId)
-  console.log(gussesUrl(url))  //This is what is causing the error!
-
+  //console.log(gussesUrl("9ef560c3-e1b9-4451-9103-1fc5af45c09e"));
+  //console.log(`https://api.mangadex.org/manga/${mangaId}/aggregate`);
 
 
   let chaptersData = await (await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)).json() //information about chapters
@@ -82,7 +80,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
   });
   var theCoverImg = `https://mangadex.org/covers/${mangaId}/${theFileName}`
 
-  console.log(theCoverImg);
   return {
     url: url,
     about: "heres your description asshole",
@@ -100,8 +97,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 async function getChapData(url) { //url of a chapter
   var imageArr = []
-  //console.log(url)
-  //console.log(url.slice(29))
   var chapId = url.slice(29)
 
   let data = await (await fetch(`https://api.mangadex.org/at-home/server/${chapId}`)).json()
