@@ -1,5 +1,3 @@
-const { CONSTRAINT } = require("sqlite3");
-
 const extensionProperties = {
   name: "Manganato",
   type: "Comic",
@@ -20,7 +18,6 @@ function ifError(cb, el) {
 }
 async function search(search,page) {
   if(!page) page = 1;
-  search = search.replace(" ","_")
   const result = await (
     await fetch(
       search
@@ -54,7 +51,7 @@ async function getInfo(URL) {
       .split('class="panel-story-info-description"')[1]
       .split("</h3>")[1]
       .split("</div>")[0],
-    id: "Manganato-" + URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique
+    id: "Nato2-" + URL.split("/")[3], // this would be a unique identifyer for the comic. make shure its unique
     //to make it unique just append your extension folder name at the front of your id.
     name: htmldata.split("story-info-right")[1].match(/(?<=<h1>)[^<]*/)[0],
     tags: htmldata
@@ -71,8 +68,7 @@ async function getInfo(URL) {
     ].map((x) => x[1]),
     coverImage: htmldata.split("info-image")[1].split('src="')[1].split('"')[0],
     chapters: chapterData.match(regex).map((str, i, arr) => ({
-      chapter_id: arr.length - i, //unique for each chapter in the comic
-      number: arr.length - i,  //decimals allowed
+      index: arr.length - i, //decimals allowed
       name: str.split("</a>")[0].split(">")[2],
       url: str.split('href="')[1].split('"')[0],
       date: new Date(
