@@ -118,7 +118,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
           contributors.push(v.attributes?.name)
       }
   }
-  console.log(theCoverImg)
   return {
     url: url,
     about: description,
