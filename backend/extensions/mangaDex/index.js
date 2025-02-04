@@ -22,16 +22,16 @@ async function search(search,page) {
   let numberOfComics = 24
     var data;
     if (!search) {
-      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art`)).json()
+      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica`)).json()
     }else{
-      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc`)).json()
+      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive`)).json()
     }
     let stuff = Math.ceil(data.total/numberOfComics)
     
     data = data.data.map(x=>(
       {
         img: `https://mangadex.org/covers/${x.id}/${x.relationships.find(x=>x.type == "cover_art").attributes.fileName}`,
-        name: "randomAssName",
+        name: "test",
         url: "https://mangadex.org/title/"+x.id
     }))//have mulitiple of these objects (one per comic) contains information on comics being displayed on the one page
   return {
