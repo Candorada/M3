@@ -143,6 +143,13 @@ function MainItemPage( {item}) {
   let activeDownloads = {}
   const childRefs = useRef({});
   useEffect(()=>{
+    fetch(`http://localhost:3000/${item.extension}/addToLibrary`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json',},
+      body: JSON.stringify({url:item.url,extension:item.extension})
+    }).then(async x=>{
+      let json = await x.json()
+    })
     let interval = setInterval(() => {
       let activeDownloadStringified = JSON.stringify(activeDownloads)
       fetch("http://localhost:3000/downloadingMedia",{cache:"no-cache"}).then((res) => res.json()).then((json)=>{

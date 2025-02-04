@@ -67,26 +67,64 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 
 
   //!!! This is the img getting code!
-  var data = await (await fetch(`https://api.mangadex.org/manga/${mangaId}?includes[]=cover_art`)).json();
-
-  let base = data.data.relationships; // Assuming relationships is an array
-
-  var theFileName = "dummyString";
-
+  let f = fetch("https://api.mangadex.org/manga/"+mangaId+"?includes%5B%5D=cover_art&includes%5B%5D=author&includes%5B%5D=artist&includes%5B%5D=creator")
+  let json = await f.then(x=>x.json())
+  let data = json.data
+  let base = data.relationships; // Assuming relationships is an array
+  var theFileName = "";
   base.forEach(item => { // Iterate directly over the array
     if (item.type === "cover_art") { // Check the type
       theFileName = item.attributes.fileName; // Access the fileName
     }
   });
   var theCoverImg = `https://mangadex.org/covers/${mangaId}/${theFileName}`
-
+  let attr = data.attributes
+  let title = ""
+  let description = "no english description"
+  let tags = []
+  let contributors = []
+  function pairs(arr){var retVal = [];var num = 0;for(i in arr){num++;retVal.push([i,arr[i],0])};retVal.map((item)=>{item[2] = num;return item});return retVal}
+  
+  for([i,v] of pairs(attr)){
+      if(i=="title"){
+          title = v
+      }
+      if(i=="altTitles"){
+          for(x of v){
+              for([i2,v2] of pairs(x)){
+                  if(i2=="en"){
+                      title = v2
+                  }
+              }
+          }
+      }
+      if(i=="description"){
+          for([lan,desc] of pairs(v)){
+              if(lan=="en"){
+                  description = desc
+              }
+          }
+      }
+      if(i=="tags"){
+          for(tag of v){
+              if(tag.attributes?.name?.en){
+                  tags.push(tag.attributes?.name?.en)
+              }
+          }
+      }
+  }
+  for([i,v] of pairs(data.relationships)){
+      if(v.attributes?.name){
+          contributors.push(v.attributes?.name)
+      }
+  }
   return {
     url: url,
-    about: "heres your description asshole",
+    about: description,
     id: "Mangadex-"+mangaId,
-    name: "sharknado",
-    tags:["funny", "erotic"],
-    contributors: ["bob", "jerry"],
+    name: title,
+    tags:tags,
+    contributors: contributors,
     coverImage: theCoverImg,
     chapters: computedChaps //different object for each chapter
   } 
@@ -98,7 +136,6 @@ async function getInfo(url) { //url as a string of a manga ex https://mangadex.o
 async function getChapData(url) { //url of a chapter
   var imageArr = []
   var chapId = url.slice(29)
-
   let data = await (await fetch(`https://api.mangadex.org/at-home/server/${chapId}`)).json()
   let chap = data.chapter.data
   Object.keys(chap).forEach(key => {
