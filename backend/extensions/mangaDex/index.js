@@ -22,7 +22,7 @@ async function search(search,page) {
   let numberOfComics = 24
     var data;
     if (!search) {
-      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica`)).json()
+      data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&includes%5B%5D=cover_art&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive`)).json()
     }else{
       data = await (await fetch(`https://api.mangadex.org/manga?limit=${numberOfComics}&offset=${offset}&title=${encodeURI(search)}&includes%5B%5D=cover_art&order[relevance]=desc&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive`)).json()
     }
