@@ -68,22 +68,16 @@ async function getInfo(url) {
   //console.log(`https://api.mangadex.org/manga/${mangaId}/aggregate`);
 
   let chaptersData = await (
-    await fetch(`https://api.mangadex.org/manga/${mangaId}/aggregate`)
+    await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?limit=500&translatedLanguage%5B%5D=en&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&includeFutureUpdates=1&order%5Bchapter%5D=desc&order%5Bvolume%5D=desc`)
   ).json(); //information about chapters
-  let chaps = [];
-  for (vol in chaptersData.volumes) {
-    let x = chaptersData.volumes[vol].chapters;
-    for (chap in x) {
-      chaps.push(x[chap]);
-    }
-  }
+  let chaps = chaptersData.data;
   let computedChaps = [];
   chaps.forEach((chap) => {
     computedChaps.push({
-      index: chap.chapter,
-      name: "HELLO",
+      index: chap.attributes.chapter,
+      name: `${chap.attributes.title} Chapter ${chap.attributes.chapter}${chap.attributes.volume?` Volume ${chap.attributes.volume}`:""}`,
       url: `https://mangadex.org/chapter/${chap.id}`,
-      date: new Date().getTime(),
+      date: new Date(chap.attributes.createdAt).getTime(),
     });
   });
 
@@ -123,12 +117,14 @@ async function getInfo(url) {
     });
     return retVal;
   }
-
+  let english = false;
   for ([i, v] of pairs(attr)) {
     if (i == "title") {
-      title = v;
+      let key = Object.keys(v)[0]
+      if(key == "en") english = true;
+      title = v[key];
     }
-    if (i == "altTitles") {
+    if (i == "altTitles" && !english) {
       for (x of v) {
         for ([i2, v2] of pairs(x)) {
           if (i2 == "en") {
