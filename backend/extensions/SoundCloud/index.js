@@ -1,3 +1,5 @@
+var { parse } = require("node-html-parser");
+var { parser } = require("./node_modules/node-html-parser");
 const properties = {
   name: "SoundCloud",
   type: "Music",
@@ -9,10 +11,12 @@ const properties = {
     <a title="https://discord.gg/vkW47gN5TY" href="https://discord.gg/vkW47gN5TY" target="_blank" rel="noopener nofollow noreferrer">The fastest way to contact us is on our Discord server.</a>`,
   creator: "Jesso3",
   creatorSocials: "https://github.com/Jesso3", //optional
+  customItemPage: "itemPage.jsx",
 };
 
-function search(search) {}
-function getInfo(url) {}
+
+
+
 
 /*
  
@@ -33,8 +37,14 @@ tags: "good"}),
 
  */
 
+
+async function search(search, page) {}
+
+async function getInfo(url) {}
+
 module.exports = {
   search: search,
   getInfo: getInfo,
   properties: properties,
+  schema: schema,
 };
