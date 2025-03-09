@@ -27,6 +27,7 @@ function schema() {
   let custom_pg = {
     createColumns: `
       id TEXT PRIMARY KEY,
+      overhead TEXT,
       title TEXT,
       source TEXT,
       author TEXT,
@@ -41,6 +42,7 @@ function schema() {
     `,
     insertColumns: [
       "id",
+      "overhead",
       "title",
       "source",
       "author",
@@ -55,6 +57,7 @@ function schema() {
     ],
     getValues: (data) => [
       data.id,
+      data.overhead,
       data.title,
       data.source,
       data.author,
@@ -117,13 +120,12 @@ async function getInfo(url) {
 
   return {
     id: "gutenberg-" + url.split("/")[3] + "-" + url.split("/")[4],
+    overhead: body.querySelector("h1[itemprop='name']").innerText,
     title: body.querySelector("td[itemprop='headline']").innerText,
     source: url,
     author: body.querySelector("a[itemprop='creator']").innerText,
     cover: body.querySelector("img.cover-art").getAttribute("src"),
-    summary: htmlData.match(
-      /<th>Summary<\/th>\s*<td>\s*([\s\S]*?)\s*<\/td>/,
-    )[1],
+    summary: body.querySelector("span.readmore-container").innerText,
     release: body.querySelector("td[itemprop='datePublished']").innerText,
     subject: JSON.stringify(
       Array.from(body.querySelectorAll("td[property='dcterms:subject'] a")).map(

@@ -828,6 +828,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
 
     res.sendStatus(200);
   } catch (e) {
+    console.log("error", e);
     res.send(e);
   }
 });
@@ -932,7 +933,7 @@ app.post("/download", async (req, res) => {
       };
       downloadQue.enqueue(fileDownload, [data]);
     }
-    res.status(200)
+    res.status(200);
   } catch (err) {
     console.error("Unexpected error:", err.message);
     res.status(500);

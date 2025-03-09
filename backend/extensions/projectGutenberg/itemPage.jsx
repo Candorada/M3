@@ -50,17 +50,45 @@ function File() {
   }
 
   // Render the fetched data
-  return (
-    <div>
-      <h1>{item.title}</h1>
-      <img src={item.cover}></img>
-      <p>{item.summary}</p>
-      <a href={item.web}>Read Online</a>
-      <br></br>
-      <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
-        Download text
-      </a>
+  return(
+  <div className="item-wrapper">
+    <h1>{item.overhead}</h1>
+    <div className="item-container">
+      <div className="image-section">
+        <img src={item.cover} alt={item.title} />
+        <a href={item.source} className="source-link">Source</a>
+      </div>
+      <div className="item-details">
+        <p>{item.summary}</p>
+      
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Choose how you want to read</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href={item.web}>Read Online</a></td>
+            </tr>
+            <tr>
+              <td><a href={item.EPUB}>EPUB3 file</a></td>
+            </tr>
+            <tr>
+              <td>
+                <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
+                  Download text
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td><a href={item.HTML}>Download HTML (zip)</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
   );
 }
 
