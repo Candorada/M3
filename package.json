@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "host":"vite --host",
+    "host": "vite --host",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -29,5 +29,10 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "vite": "^5.4.1"
-  }
+  },
+  "workspaces": [
+    "backend",
+    "backend/extensions/projectGutenberg",
+    "backend/extensions/soundcloud"
+  ]
 }
