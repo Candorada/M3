@@ -62,20 +62,22 @@ async function search(search, page) {
 }
 async function getInfo(url) {
   //url as a string of a manga ex https://mangadex.org/title/9ef560c3-e1b9-4451-9103-1fc5af45c09e
-
   var mangaId = url.split("/")[4];
+
   //console.log(gussesUrl("9ef560c3-e1b9-4451-9103-1fc5af45c09e"));
   //console.log(`https://api.mangadex.org/manga/${mangaId}/aggregate`);
 
   let chaptersData = await (
-    await fetch(`https://api.mangadex.org/manga/${mangaId}/feed?limit=500&translatedLanguage%5B%5D=en&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&includeFutureUpdates=1&order%5Bchapter%5D=desc&order%5Bvolume%5D=desc`)
+    await fetch(
+      `https://api.mangadex.org/manga/${mangaId}/feed?limit=500&translatedLanguage%5B%5D=en&contentRating%5B%5D=safe&contentRating%5B%5D=suggestive&contentRating%5B%5D=erotica&includeFutureUpdates=1&order%5Bchapter%5D=desc&order%5Bvolume%5D=desc`,
+    )
   ).json(); //information about chapters
   let chaps = chaptersData.data;
   let computedChaps = [];
   chaps.forEach((chap) => {
     computedChaps.push({
       index: chap.attributes.chapter,
-      name: `${chap.attributes.title} Chapter ${chap.attributes.chapter}${chap.attributes.volume?` Volume ${chap.attributes.volume}`:""}`,
+      name: `${chap.attributes.title} Chapter ${chap.attributes.chapter}${chap.attributes.volume ? ` Volume ${chap.attributes.volume}` : ""}`,
       url: `https://mangadex.org/chapter/${chap.id}`,
       date: new Date(chap.attributes.createdAt).getTime(),
     });
@@ -120,8 +122,8 @@ async function getInfo(url) {
   let english = false;
   for ([i, v] of pairs(attr)) {
     if (i == "title") {
-      let key = Object.keys(v)[0]
-      if(key == "en") english = true;
+      let key = Object.keys(v)[0];
+      if (key == "en") english = true;
       title = v[key];
     }
     if (i == "altTitles" && !english) {
@@ -189,4 +191,3 @@ module.exports = {
 };
 
 //make page count dependent on search
-
