@@ -1,5 +1,4 @@
 var { parse } = require("node-html-parser");
-var { parser } = require("./node_modules/node-html-parser");
 const properties = {
   name: "SoundCloud",
   type: "Music",
