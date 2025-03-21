@@ -77,6 +77,9 @@ async function getInfo(url) {
   chaps.forEach((chap) => {
     computedChaps.push({
       index: chap.attributes.chapter,
+      number: chap.attributes.chapter
+        ? parseFloat(chap.attributes.chapter)
+        : null,
       name: `${chap.attributes.title} Chapter ${chap.attributes.chapter}${chap.attributes.volume ? ` Volume ${chap.attributes.volume}` : ""}`,
       url: `https://mangadex.org/chapter/${chap.id}`,
       date: new Date(chap.attributes.createdAt).getTime(),

@@ -767,34 +767,57 @@ app.post("/:extension/addToLibrary", async (req, res) => {
                     const totalChapters = data?.chapters?.length;
 
                     if (totalChapters === 0) {
-                      // No chapters, call fetch immediately
                       makeFetchCall();
                     }
+
                     data?.chapters?.forEach((chapter) => {
-                      let insertValues = [
-                        tableName,
-                        data.id,
-                        chapter.name,
-                        chapter.chapter_id,
-                        chapter.number,
-                        chapter.url,
-                        chapter.date,
-                      ];
-                      db.run(
-                        `INSERT OR IGNORE INTO chapters (extension, manga_id, name, chapter_id, number, source, date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        insertValues,
-                        (err) => {
+                      db.get(
+                        `SELECT 1 FROM chapters WHERE source = ? LIMIT 1`,
+                        [chapter.url],
+                        (err, row) => {
                           if (err) {
                             console.error(
-                              "Error inserting chapter:",
+                              "Error checking chapter existence:",
                               err.message,
                             );
                             return;
                           }
 
-                          chapterInserts++;
-                          if (chapterInserts === totalChapters) {
-                            makeFetchCall();
+                          if (!row) {
+                            // Chapter does not exist, insert it
+                            let insertValues = [
+                              tableName,
+                              data.id,
+                              chapter.name,
+                              chapter.chapter_id,
+                              chapter.number,
+                              chapter.url,
+                              chapter.date,
+                            ];
+                            db.run(
+                              `INSERT INTO chapters (extension, manga_id, name, chapter_id, number, source, date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                              insertValues,
+                              (err) => {
+                                if (err) {
+                                  console.error(
+                                    "Error inserting chapter:",
+                                    err.message,
+                                  );
+                                  return;
+                                }
+
+                                chapterInserts++;
+                                if (chapterInserts === totalChapters) {
+                                  makeFetchCall();
+                                }
+                              },
+                            );
+                          } else {
+                            // Chapter already exists, just increment counter
+                            chapterInserts++;
+                            if (chapterInserts === totalChapters) {
+                              makeFetchCall();
+                            }
                           }
                         },
                       );
