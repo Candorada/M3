@@ -17,8 +17,8 @@ async function search(search, page) {
   const result = await (
     await fetch(
       search
-        ? `https://soundcloud.com/search?q=call%20me%20maybe`
-        : `https://soundcloud.com/search?q=${search}`,
+        ? `https://soundcloud.com/search?q=call%20me%20maybe%20free%20download`
+        : `https://soundcloud.com/search?q=${search}%20free%20download`,
     )
   ).text();
 
