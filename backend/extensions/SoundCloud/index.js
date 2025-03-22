@@ -1,5 +1,4 @@
 var { parse } = require("node-html-parser");
-// var { parser } = require("./node_modules/node-html-parser");
 const properties = {
   name: "SoundCloud",
   type: "Music",
@@ -28,9 +27,9 @@ async function search(search, page) {
   let stuff2 = body.querySelectorAll(
     ".sc-artwork.sc-artwork-20x.sc-artwork-placeholder-3.image__full.g-opacity-transition"
   );
-  console.log(stuff2);
+  console.log(stuff2); // this line prints an empty array
 
-  console.log(stuff2[0].style["background-image"]); // this line isn't doing anything
+  console.log(stuff2[0].style["background-image"]); // this line also prints an empty array
 
 
 
