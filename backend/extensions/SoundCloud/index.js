@@ -22,7 +22,12 @@ async function search(search, page) {
   if(!this.client){
     client = newClient()
   }
-  console.log(await client.search("test")) //acctully returns stuff
+  if(!client.API_KEY){
+    await client.createAPIKey()
+  }
+  console.log(client.API_KEY)
+  let url = `https://api-v2.soundcloud.com/search?q=test&facet=model&client_id=${client.API_KEY}&limit=20&offset=0&linked_partitioning=1&app_locale=en`
+  console.log(await fetch(url).then(x=>x.json())) //acctully returns stuff
   let dataInner = {
   img: `https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png`,
   name: "test",
