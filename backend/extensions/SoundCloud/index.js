@@ -1,4 +1,5 @@
 var { parse } = require("node-html-parser");
+const SoundCloud = require("soundcloud-scraper");
 const properties = {
   name: "SoundCloud",
   type: "Music",
@@ -13,30 +14,7 @@ const properties = {
 // var { parser } = require("./node_modules/node-html-parser");
 
 async function search(search, page) {
-
-  const result = await (
-    await fetch(
-      search
-        ? `https://soundcloud.com/search?q=call%20me%20maybe%20free%20download`
-        : `https://soundcloud.com/search?q=${search}%20free%20download`,
-    )
-  ).text();
-
-  let root = parse(result);
-  let body = root.querySelector("body");
-  let stuff2 = body.querySelectorAll(
-    ".sc-artwork.sc-artwork-20x.sc-artwork-placeholder-3.image__full.g-opacity-transition"
-  );
-  console.log(stuff2); // this line prints an empty array
-
-  console.log(stuff2[0].style["background-image"]); // this line also prints an empty array
-
-
-
-
-
-
-  
+  const client = new SoundCloud.Client();
   let dataInner = {
   img: `https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png`,
   name: "test",
