@@ -32,13 +32,13 @@ async function search(search, page) {
   data = (await fetch(url).then(x=>x.json()))
 
 
-
+  console.log(data)
   computedData = data.collection.map((x) => ({
     img: x.artwork_url,
     name: x.title,
     url: x.uri
   }))
-
+  //console.log(computedData)
   return await {
     media: computedData,
     pageCount: Math.floor(data.total_results /24)
