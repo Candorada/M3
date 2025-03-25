@@ -13,8 +13,16 @@ const properties = {
 };
 // var { parser } = require("./node_modules/node-html-parser");
 
+function newClient(){
+  this.client = new SoundCloud.Client();
+  return this.client;
+}
 async function search(search, page) {
-  const client = new SoundCloud.Client();
+  let client = this.client;
+  if(!this.client){
+    client = newClient()
+  }
+  console.log(await client.search("test")) //acctully returns stuff
   let dataInner = {
   img: `https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png`,
   name: "test",
@@ -53,6 +61,7 @@ client.getSongInfo(url)
 }
 
 module.exports = {
+  newClient: newClient,
   search: search,
   getInfo: getInfo,
   properties: properties,
