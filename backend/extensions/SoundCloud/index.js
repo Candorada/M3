@@ -25,22 +25,23 @@ async function search(search, page) {
   if(!client.API_KEY){
     await client.createAPIKey()
   }
-  console.log(client.API_KEY)
-  let url = `https://api-v2.soundcloud.com/search?q=test&facet=model&client_id=${client.API_KEY}&limit=20&offset=0&linked_partitioning=1&app_locale=en`
-  console.log(await fetch(url).then(x=>x.json())) //acctully returns stuff
-  let dataInner = {
-  img: `https://images.squarespace-cdn.com/content/v1/5e10bdc20efb8f0d169f85f9/09943d85-b8c7-4d64-af31-1a27d1b76698/arrow.png`,
-  name: "test",
-  url: "https://mangadex.org",
-  };
+  //console.log(client.API_KEY)
+  offset = (page - 1) * 24;
+  let url = `https://api-v2.soundcloud.com/search?q=${search}&facet=model&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
 
-  let data = []
-  for(let i = 0; i < 10; i++){
-    data.push(dataInner);
-  }
+  data = (await fetch(url).then(x=>x.json()))
+
+
+
+  computedData = data.collection.map((x) => ({
+    img: x.artwork_url,
+    name: x.title,
+    url: x.uri
+  }))
+
   return await {
-    media: data,
-    pageCount: 5
+    media: computedData,
+    pageCount: Math.floor(data.total_results /24)
 }
 
 
