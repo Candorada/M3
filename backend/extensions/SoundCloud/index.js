@@ -18,6 +18,7 @@ function newClient(){
   return this.client;
 }
 async function search(search, page) {
+  let search2 = search + " free download";
   let client = this.client;
   if(!this.client){
     client = newClient()
@@ -27,7 +28,7 @@ async function search(search, page) {
   }
   //console.log(client.API_KEY)
   offset = (page - 1) * 24;
-  let url = `https://api-v2.soundcloud.com/search?q=${search}&facet=model&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
+  let url = `https://api-v2.soundcloud.com/search?q=${search2}&facet=model&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
 
   data = (await fetch(url).then(x=>x.json()))
 
