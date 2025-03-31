@@ -2,7 +2,7 @@
   display: flex;
   align-items: flex-start;
   gap: 20px;
-  margin-top: 20px; 
+  margin-top: 20px;
 }
 
 .item-container img {
@@ -21,12 +21,13 @@
 }
 
 table {
-  border-collapse: collapse; 
-  border:solid;
+  border-collapse: collapse;
+  border: solid;
   border-width: 1px;
 }
 
-th, td {
+th,
+td {
   padding: 10px;
   border-bottom: 1px solid #ccc;
 }
@@ -52,5 +53,3 @@ th {
   font-size: 16px;
   text-decoration: underline;
 }
-
-

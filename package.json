@@ -17,6 +17,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0",
+    "soundcloud-scraper": "^5.0.3",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
   "workspaces": [
     "backend",
     "backend/extensions/projectGutenberg",
-    "backend/extensions/soundcloud"
+    "backend/extensions/soundcloud",
+    "backend/extensions/*"
   ]
 }

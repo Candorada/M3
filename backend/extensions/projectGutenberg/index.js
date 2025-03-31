@@ -1,15 +1,19 @@
 var { parse } = require("node-html-parser");
+const fs = require("fs");
+const path = require("path");
+
 const properties = {
   name: "Project Gutenberg",
   type: "custom_pg",
   sourceUrl: "https://www.gutenberg.org",
-  iconPath: "icon.png", //optional
+  iconPath: "icon.png",
   description: `<h2 style = "margin-top:0px;"><b>About Us</b></h2>
     <p>Project gutenberg is a website</p>
     <a title="https://discord.gg/vkW47gN5TY" href="https://discord.gg/vkW47gN5TY" target="_blank" rel="noopener nofollow noreferrer">The fastest way to contact us is on our Discord server.</a>`,
   creator: "Jesso3",
-  creatorSocials: "https://github.com/Jesso3", //optional
+  creatorSocials: "https://github.com/Jesso3",
   customItemPage: "itemPage.jsx",
+  customReaderPage: "itemReader.jsx",
 };
 
 function ifError(cb, el) {
@@ -146,6 +150,21 @@ async function getInfo(url) {
       "https://gutenberg.org" +
       body.querySelector("a[type='application/zip']").getAttribute("href"),
   };
+}
+
+function getText(mediaID) {
+  const [item, setItem] = useState(null);
+  fetch(`http://localhost:3000/library/_/${mediaID}`)
+    .then((res) => res.json())
+    .then((json) => {
+      setItem(json);
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+    });
+
+  console.log(item.id);
+  return item.id;
 }
 
 module.exports = {

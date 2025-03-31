@@ -964,6 +964,20 @@ app.post("/download", async (req, res) => {
   res.send();
 });
 
+//get data from textfile for project gutenberg
+app.get("/textfile/:mediaID", (req, res) => {
+  let mediaID = req.params.mediaID;
+  let filepath = path.join(__dirname, "downloadedMedia", mediaID, "plainText");
+
+  fileSystem.readFile(filepath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading text file:", err);
+      return res.status(404).send("File not found");
+    }
+    res.type("text/plain").send(data);
+  });
+});
+
 app.get("/downloadedImages/:mediaID/:chapterID", async (req, res) => {
   try {
     let chapID = req.params.chapterID;
