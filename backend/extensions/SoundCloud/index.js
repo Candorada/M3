@@ -18,7 +18,7 @@ function newClient(){
   return this.client;
 }
 async function search(search, page) {
-  let search2 = search + " free download";
+  let search2 = search;
   let client = this.client;
   if(!this.client){
     client = newClient()
@@ -28,7 +28,8 @@ async function search(search, page) {
   }
   //console.log(client.API_KEY)
   offset = (page - 1) * 24;
-  let url = `https://api-v2.soundcloud.com/search?q=${search2}&facet=model&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
+  let url = `https://api-v2.soundcloud.com/search/tracks?${search==""?"":"q="+search2}&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
+  //let url2 = `https://api-v2.soundcloud.com/search?q=${search2}&client_id=${client.API_KEY}&limit=20&offset=${offset}&linked_partitioning=1&app_locale=en`
 
   data = (await fetch(url).then(x=>x.json()))
 
@@ -47,12 +48,33 @@ async function search(search, page) {
 
 
 }
-
+async function getTrackFileURL(url){
+  const client = newClient();
+  let retURL = client.getSongInfo(url).then(x=>x.trackURL);
+  return {url:await retURL};
+}
 async function getInfo(url) {
   const SoundCloud = require("soundcloud-scraper");
   const client = new SoundCloud.Client();
   const fs = require("fs");
-
+  return await client.getSongInfo(url)
+    .then(async song => {
+      let retVal = {
+        url: song.url,
+        about: song.description,
+        id: "SoundCloud-" + song.id, // this would be a unique identifyer for the comic. make shure its unique
+        //to make it unique just append your extension folder name at the front of your id.
+        title: song.title,
+        tags: song.genre?[song.genre]:[],
+        contributors: [song.author.name],
+        coverImage: song.thumbnail,
+        chapters: [],
+      }
+      return retVal;
+    }).catch(()=>{
+      return {url:"",about:"",id:"",name:"",tags:[],contributors:[],coverImage:"",chapters:[]}
+    })
+/*
 client.getSongInfo(url)
     .then(async song => {
         const stream = await song.downloadProgressive();
@@ -63,11 +85,12 @@ client.getSongInfo(url)
         });
     })
     .catch(console.error);
-
+  */
 
 }
 
 module.exports = {
+  getTrackFileURL: getTrackFileURL,
   newClient: newClient,
   search: search,
   getInfo: getInfo,

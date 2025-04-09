@@ -488,7 +488,6 @@ app.post("/runExtensionFunction", async (req, res) => {
     return;
   } else {
     try {
-      console.log(extension[func]());
       run = extension[func](...params);
     } catch {
       res.status(400);
@@ -712,6 +711,7 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const type = extension.properties.type;
     const schema = tableSchemas[type];
     let data = (await extension.getInfo(body.url)) || body;
+    console.log(data)
     const tableName = req.params.extension;
 
     db.serialize(() => {

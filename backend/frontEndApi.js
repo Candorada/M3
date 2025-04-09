@@ -1,6 +1,7 @@
 const config = {extension:"",backendPORT:3000,item:null}
 const extension = {
     run: async (functionName,args=[])=>{
+        console.log()
         if(typeof args != "object"){
             args = [args]
         }

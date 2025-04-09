@@ -53,7 +53,6 @@ function Library() {
                             libFetch()
                         })
                     }}>delete</span>
-                    <span>{10}</span>
                 </div>
                 <img src = {coverArt} alt = {item.title}/>
             </div>
@@ -61,12 +60,6 @@ function Library() {
     }
     return (<>
         <div id="library">
-                <div id = "topbar">
-                    <div>
-                        {categories.map((category)=><button key = {category} className = "category">{category}</button>)}
-                        <button id = "addCategory" key = "addCategory">+</button>
-                    </div>
-                </div>
                 <div key  = "another">
                 <div id = "libraryItemHolder">
                 {libItems.map((item,i)=><LibItem key = {i} item={item} id = {i}/>)}

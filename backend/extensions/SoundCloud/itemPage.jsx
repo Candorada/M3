@@ -8,18 +8,31 @@ function File() {
   const { mediaID } = useParams(); // Get `mediaID` from the URL parameters
   const [item, setItem] = useState(null); // State for the fetched item
   const navigate = useNavigate(); // In case you need navigation functionality
-
+  const [url,setUrl] = useState("");
   // Initialize the extension (runs once when the component mounts)
   useEffect(() => {
-    init("projectGutenberg");
-  }, []);
+    if(item?.extension){
+      init(item)
+    }
+  }, [item]);
 
   // Fetch data when the component mounts or `mediaID` changes
+  useEffect(()=>{
+    (async ()=>{
+      if(item){
+        console.log(item.source)
+        let x = extension.run("getTrackFileURL",[item.source]);
+        console.log(await x)
+        setUrl(await x);
+      }
+    })()
+  },[item])
   useEffect(() => {
     if (mediaID) {
       fetch(`http://localhost:3000/library/_/${mediaID}`)
         .then((res) => res.json())
         .then((json) => {
+          console.log(json)
           setItem(json); // Update the state with fetched data
         })
         .catch((error) => {
@@ -48,18 +61,14 @@ function File() {
       }),
     });
   }
-
   // Render the fetched data
   return (
     <div>
       <h1>{item.title}</h1>
       <img src={item.cover}></img>
-      <p>{item.summary}</p>
-      <a href={item.web}>Read Online</a>
+      <p>{item.about}</p>
       <br></br>
-      <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
-        Download text
-      </a>
+      <div>{url.url}</div>
     </div>
   );
 }
