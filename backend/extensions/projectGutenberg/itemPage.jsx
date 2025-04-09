@@ -32,7 +32,6 @@ function File() {
   if (!item) {
     return <p>Loading...</p>;
   }
-
   async function handleDownload(e, column) {
     e.preventDefault();
 
@@ -50,45 +49,58 @@ function File() {
   }
 
   // Render the fetched data
-  return(
-  <div className="item-wrapper">
-    <h1>{item.overhead}</h1>
-    <div className="item-container">
-      <div className="image-section">
-        <img src={item.cover} alt={item.title} />
-        <a href={item.source} className="source-link">Source</a>
-      </div>
-      <div className="item-details">
-        <p>{item.summary}</p>
-      
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Choose how you want to read</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><a href={item.web}>Read Online</a></td>
-            </tr>
-            <tr>
-              <td><a href={item.EPUB}>EPUB3 file</a></td>
-            </tr>
-            <tr>
-              <td>
-                <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
-                  Download text
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td><a href={item.HTML}>Download HTML (zip)</a></td>
-            </tr>
-          </tbody>
-        </table>
+  return (
+    <div className="item-wrapper">
+      <h1>{item.overhead}</h1>
+      <div className="item-container">
+        <div className="image-section">
+          <img src={item.cover} alt={item.title} />
+          <a href={item.source} className="source-link">
+            Source
+          </a>
+        </div>
+        <div className="item-details">
+          <p>{item.summary}</p>
+          <a className="read" href={`/library/${mediaID}/read`}>
+            Read text
+          </a>
+
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Other forms of reading text</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a target="_blank" href={item.web}>
+                    Read Online
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href={item.EPUB}>EPUB3 file</a>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="#/" onClick={(e) => handleDownload(e, "plainText")}>
+                    Download text
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href={item.HTML}>Download HTML (zip)</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
   );
 }
 

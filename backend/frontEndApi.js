@@ -1,7 +1,6 @@
-const config = {extension:"",backendPORT:3000,item:null}
+const config = { extension: "", backendPORT: 3000, item: null };
 const extension = {
     run: async (functionName,args=[])=>{
-        console.log()
         if(typeof args != "object"){
             args = [args]
         }
@@ -62,4 +61,5 @@ export function init(item, backendPORT = 3000){
     config.item = item
     config.backendPORT = backendPORT
 }
-export default extension
+export default extension;
+

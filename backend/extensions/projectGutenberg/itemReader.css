@@ -1,0 +1,11 @@
+.container {
+  overflow: auto;
+  height: 100%;
+}
+
+.text {
+  margin-top: 40px;
+  text-align: center;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
