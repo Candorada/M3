@@ -7,6 +7,17 @@ function File() {
   const { mediaID } = useParams();
 
   useEffect(() => {
+    async function waitForFile(url, timeout = 10000, interval = 1000) {
+      const start = Date.now();
+      while (Date.now() - start < timeout) {
+        const res = await fetch(url);
+        if (res.ok) return res;
+        await new Promise((r) => setTimeout(r, interval));
+      }
+      throw new Error("File not available after waiting.");
+    }
+
+    //download and display text
     async function fetchText() {
       try {
         await fetch("http://localhost:3000/download", {
@@ -19,11 +30,10 @@ function File() {
           }),
         });
 
-        const response = await fetch(
+        const response = await waitForFile(
           `http://localhost:3000/textfile/${mediaID}`,
         );
         const text = await response.text();
-
         setPlainText(text);
       } catch (error) {
         console.error("Error fetching text file:", error);
@@ -34,8 +44,8 @@ function File() {
   }, []);
 
   return (
-    <div class="container">
-      <pre class="text">{plainText ? plainText : "Loading..."}</pre>
+    <div className="container">
+      <pre className="text">{plainText ? plainText : "Loading..."}</pre>
     </div>
   );
 }

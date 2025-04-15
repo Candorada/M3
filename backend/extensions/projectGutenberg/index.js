@@ -79,6 +79,8 @@ function schema() {
 }
 async function search(search, page) {
   if (!page) page = 1;
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
   const result = await (
     await fetch(
       search

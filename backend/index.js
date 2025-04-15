@@ -119,6 +119,8 @@ async function chapterDownload({ chapter_id, media_id, referer }) {
 }
 
 async function fileDownload({ mediaID, databaseColumn, regex, download }) {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
   const response = await fetch(`http://localhost:3000/library/_/${mediaID}`);
 
   const data = await response.json();
@@ -711,7 +713,6 @@ app.post("/:extension/addToLibrary", async (req, res) => {
     const type = extension.properties.type;
     const schema = tableSchemas[type];
     let data = (await extension.getInfo(body.url)) || body;
-    console.log(data)
     const tableName = req.params.extension;
 
     db.serialize(() => {
@@ -890,6 +891,7 @@ app.post("/download", async (req, res) => {
   const col = body.column;
   try {
     let filepath = path.join(__dirname, "downloadedMedia", media_id);
+    //if the cover constant is true
     if (cover) {
       const coverUrl = await new Promise((resolve) => {
         db.get(
@@ -925,6 +927,7 @@ app.post("/download", async (req, res) => {
         Buffer.from(await response.arrayBuffer()),
       );
       return res.sendStatus(200);
+      //if you are downloading some chapter
     } else if (chapter_id) {
       if (typeof chapter_id != "object") {
         chapter_id = [chapter_id];
@@ -945,6 +948,7 @@ app.post("/download", async (req, res) => {
         downloadQue.enqueue(chapterDownload, [data]);
       });
       res.sendStatus(200);
+      //otherwise
     } else if (col) {
       let reg = body?.regex;
 
