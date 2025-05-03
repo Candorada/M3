@@ -1,5 +1,6 @@
 var { parse } = require("node-html-parser");
 const SoundCloud = require("soundcloud-scraper");
+const fs = require("fs");
 const properties = {
   name: "SoundCloud",
   type: "Music",
@@ -16,6 +17,28 @@ const properties = {
 function newClient(){
   this.client = new SoundCloud.Client();
   return this.client;
+}
+async function downloadFile(url,itemID){
+  if(!this.client){
+    client = newClient()
+  }
+  console.log("yes");
+  return new Promise(async (res, rej) => {
+    client.getSongInfo(url)
+    .then(async song => {
+        const stream = await song.downloadProgressive();
+        let path = `./downloadedMedia/${itemID}/song.mp3`
+        let exists = await fs.existsSync(path);
+        const writer = stream.pipe(fs.createWriteStream(path));
+        if(exists){
+          res({sucess:false});
+        }
+        writer.on("finish", () => {
+          res({sucess:true});
+        });
+    })
+    .catch(res({sucess:false}));
+  })
 }
 async function search(search, page) {
   let search2 = search;
@@ -92,6 +115,7 @@ client.getSongInfo(url)
 module.exports = {
   getTrackFileURL: getTrackFileURL,
   newClient: newClient,
+  downloadFile: downloadFile,
   search: search,
   getInfo: getInfo,
   properties: properties,

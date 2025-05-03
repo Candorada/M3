@@ -46,20 +46,10 @@ function File() {
     return <p>Loading...</p>;
   }
 
-  async function handleDownload(e, column) {
+  async function handleDownload(e,[URL,id]) {
     e.preventDefault();
-
-    await fetch("http://localhost:3000/download", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        media_id: mediaID,
-        column: column,
-        download: true,
-      }),
-    });
+    let returnValue = await extension.run("downloadFile",[URL,id]);
+    console.log(returnValue);
   }
   // Render the fetched data
   return (
@@ -69,6 +59,7 @@ function File() {
       <p>{item.about}</p>
       <br></br>
       <div>{url.url}</div>
+      <button onClick={(e)=>{handleDownload(e,[item.source,item.id])}}>Download</button>
     </div>
   );
 }

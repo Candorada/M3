@@ -494,7 +494,12 @@ app.post("/runExtensionFunction", async (req, res) => {
     }
   }
   if (run != undefined) {
-    res.send(await run);
+    try {
+      res.send(await run); 
+    }catch{
+      res.sendStatus(400);
+    }
+
   } else {
     res.sendStatus(400);
   }

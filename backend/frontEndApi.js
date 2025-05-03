@@ -15,7 +15,9 @@ const extension = {
                     function: functionName,
                     args: args
                 })
-            }).then(x=>{res(x.json())})
+            }).then(x=>{
+                res(x.json())
+            })
             .catch(x=>{rej(x)})
         })
     },
