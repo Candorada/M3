@@ -18,7 +18,7 @@ const extension = {
             }).then(x=>{
                 res(x.json())
             })
-            .catch(x=>{rej(x)})
+            .catch(x=>{res({error:x})})
         })
     },
     getStoredInfo:async (mediaID)=>{

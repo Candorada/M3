@@ -18,6 +18,9 @@ function newClient(){
   this.client = new SoundCloud.Client();
   return this.client;
 }
+async function isDownloaded(mediaID){
+  return fs.existsSync('./downloadedMedia/'+mediaID+'/song.mp3');
+}
 async function downloadFile(url,itemID){
   if(!this.client){
     client = newClient()
@@ -34,11 +37,21 @@ async function downloadFile(url,itemID){
           res({sucess:false});
         }
         writer.on("finish", () => {
+
           res({sucess:true});
         });
     })
     .catch(res({sucess:false}));
   })
+}
+async function deleteSong(id) {
+  let exists = fs.existsSync(`./downloadedMedia/${id}/song.mp3`)
+  if(exists){
+    fs.unlinkSync(`./downloadedMedia/${id}/song.mp3`)
+    return await !fs.existsSync(`./downloadedMedia/${id}/song.mp3`);
+  }else{
+    return false;
+  }
 }
 async function search(search, page) {
   let search2 = search;
@@ -91,7 +104,12 @@ async function getInfo(url) {
         tags: song.genre?[song.genre]:[],
         contributors: [song.author.name],
         coverImage: song.thumbnail,
-        chapters: [],
+        chapters: [{
+          index: 1,
+          name: song.title,
+          url: url,
+          date: new Date().getTime() //litterally just placeholder so i can use our downloaded database property
+        }],
       }
       return retVal;
     }).catch(()=>{
@@ -116,6 +134,8 @@ module.exports = {
   getTrackFileURL: getTrackFileURL,
   newClient: newClient,
   downloadFile: downloadFile,
+  isDownloaded: isDownloaded,
+  deleteSong: deleteSong,
   search: search,
   getInfo: getInfo,
   properties: properties,

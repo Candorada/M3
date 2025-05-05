@@ -9,6 +9,7 @@ function File() {
   const [item, setItem] = useState(null); // State for the fetched item
   const navigate = useNavigate(); // In case you need navigation functionality
   const [url,setUrl] = useState("");
+  const [isDownloaded,setIsDownloaded] = useState(false);
   // Initialize the extension (runs once when the component mounts)
   useEffect(() => {
     if(item?.extension){
@@ -20,12 +21,13 @@ function File() {
   useEffect(()=>{
     (async ()=>{
       if(item){
-        console.log(item.source)
         let x = extension.run("getTrackFileURL",[item.source]);
-        console.log(await x)
         setUrl(await x);
+          let is = await extension.run("isDownloaded",[mediaID]);
+          setIsDownloaded(is);
       }
     })()
+
   },[item])
   useEffect(() => {
     if (mediaID) {
@@ -40,7 +42,6 @@ function File() {
         });
     }
   }, [mediaID]);
-
   // Render loading state if data is not yet fetched
   if (!item) {
     return <p>Loading...</p>;
@@ -48,8 +49,18 @@ function File() {
 
   async function handleDownload(e,[URL,id]) {
     e.preventDefault();
-    let returnValue = await extension.run("downloadFile",[URL,id]);
-    console.log(returnValue);
+    if(isDownloaded){
+      let returnValue = await extension.run("deleteSong",[id]);
+      console.log(returnValue)
+      if(returnValue){
+        setIsDownloaded(false);
+      }
+    }else{
+      let returnValue = await extension.run("downloadFile",[URL,id]);
+      if(returnValue){
+        setIsDownloaded(true);
+      }
+    }
   }
   // Render the fetched data
   return (
@@ -59,7 +70,7 @@ function File() {
       <p>{item.about}</p>
       <br></br>
       <div>{url.url}</div>
-      <button onClick={(e)=>{handleDownload(e,[item.source,item.id])}}>Download</button>
+      <button onClick={(e)=>{handleDownload(e,[item.source,item.id])}}>{isDownloaded?"Delete":"Download"}</button>
     </div>
   );
 }
