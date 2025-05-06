@@ -29,7 +29,8 @@ async function downloadFile(url,itemID){
   return new Promise(async (res, rej) => {
     client.getSongInfo(url)
     .then(async song => {
-        const stream = await song.downloadProgressive();
+        try{
+          const stream = await song.downloadProgressive();
         let path = `./downloadedMedia/${itemID}/song.mp3`
         let exists = await fs.existsSync(path);
         const writer = stream.pipe(fs.createWriteStream(path));
@@ -40,6 +41,9 @@ async function downloadFile(url,itemID){
 
           res({sucess:true});
         });
+        }catch(e){
+          res({sucess:false});
+        }
     })
     .catch(res({sucess:false}));
   })

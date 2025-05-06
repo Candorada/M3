@@ -9,7 +9,25 @@ function File() {
   const [item, setItem] = useState(null); // State for the fetched item
   const navigate = useNavigate(); // In case you need navigation functionality
   const [url,setUrl] = useState("");
+  const [playing,setPlaying] = useState(false);
+  const [audio,setAudio] = useState(false);
   const [isDownloaded,setIsDownloaded] = useState(false);
+  
+  async function toggleSong(item){
+    if(!audio){
+      let aud = await new Audio(`http://localhost:3000/imageProxy?url=../backend/downloadedMedia/${item.id}/song.mp3`)
+      setAudio(aud);
+      aud.onplay = () => setPlaying(true);
+      aud.onpause = () => setPlaying(false);
+      aud.play();
+    }else{
+      if(playing){
+        audio.pause();
+      }else{
+        audio.play();
+      }
+    }
+  }
   // Initialize the extension (runs once when the component mounts)
   useEffect(() => {
     if(item?.extension){
@@ -64,13 +82,14 @@ function File() {
   }
   // Render the fetched data
   return (
-    <div>
+    <div className = "item-wrapper">
       <h1>{item.title}</h1>
       <img src={item.cover}></img>
       <p>{item.about}</p>
       <br></br>
       <div>{url.url}</div>
       <button onClick={(e)=>{handleDownload(e,[item.source,item.id])}}>{isDownloaded?"Delete":"Download"}</button>
+      <button disabled={!isDownloaded} onClick={(e)=>{toggleSong(item)}}>{audio && playing?"Pause":"Play"}</button>
     </div>
   );
 }
