@@ -1,20 +1,41 @@
-npm i
+#!/bin/bash
 
-original_dir=$(pwd)
+# Get the canonical absolute path (resolves symlinks and normalizes slashes)
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
-# First script in a new tab with a custom window title
-osascript &>/dev/null <<EOF
+# Debug: Show the resolved path
+echo "Running from: $script_dir"
+
+# Verify package.json exists
+if [ ! -f "$script_dir/package.json" ]; then
+    echo "ERROR: package.json not found in $script_dir"
+    exit 1
+fi
+
+# Verify dev script exists
+if ! grep -q '"dev"' "$script_dir/package.json"; then
+    echo "ERROR: 'dev' script not found in package.json"
+    echo "Available scripts:"
+    npm run
+    exit 1
+fi
+
+# Frontend
+osascript <<END
 tell application "Terminal"
-    do script "cd \"$original_dir\" && ./run_frontend.sh"
     activate
+    do script "cd '$script_dir' && npm run dev"
 end tell
-EOF
+END
 
-# Second script in a new tab with a custom window title
-osascript &>/dev/null <<EOF
+# Backend (only if file exists)
+if [ -f "$script_dir/run_backend.sh" ]; then
+    osascript <<END
 tell application "Terminal"
-    do script "cd \"$original_dir\" && ./run_backend.sh"
     activate
+    do script "cd '$script_dir' && ./run_backend.sh"
 end tell
-EOF
-
+END
+else
+    echo "Note: run_backend.sh not found - skipping backend startup"
+fi
