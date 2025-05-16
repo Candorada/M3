@@ -20,6 +20,13 @@ if ! grep -q '"dev"' "$script_dir/package.json"; then
     exit 1
 fi
 
+osascript <<END
+tell application "Terminal"
+    activate
+    do script "cd '$script_dir' && npm i"
+end tell
+END
+
 # Frontend
 osascript <<END
 tell application "Terminal"
