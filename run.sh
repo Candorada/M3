@@ -33,7 +33,7 @@ if [ -f "$script_dir/run_backend.sh" ]; then
     osascript <<END
 tell application "Terminal"
     activate
-    do script "cd '$script_dir' && ./run_backend.sh"
+    do script "cd '$script_dir' && cd backend && npm run dev"
 end tell
 END
 else

@@ -11,6 +11,6 @@ with icon caution
 
 tell application "Terminal"
     activate
-    do script "cd $(printf '%q' "$script_dir") && npm i"
+    do script "cd $(printf '%q' "$script_dir") && chmod +x ./run.sh && chmod +x ./run_backend.sh && npm i"
 end tell
 EOF
