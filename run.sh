@@ -27,6 +27,8 @@ tell application "Terminal"
 end tell
 END
 
+sleep 3
+
 # Frontend
 osascript <<END
 tell application "Terminal"
